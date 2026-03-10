@@ -2,8 +2,10 @@ package com.res.service.impl;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +30,7 @@ import com.res.bean.AgencyTypeBean;
 import com.res.bean.BlockBean;
 import com.res.bean.DistrictBean;
 import com.res.bean.DivisionBean;
+import com.res.bean.EmbDto;
 import com.res.bean.GramPanchayatBean;
 import com.res.bean.KmlFilePoints;
 import com.res.bean.LineDepartmentBean;
@@ -34,6 +39,7 @@ import com.res.bean.OfficeTypeBean;
 import com.res.bean.PhysicalStageTypeBean;
 import com.res.bean.UserBean;
 import com.res.bean.VillageBean;
+import com.res.bean.WorkAgreementBean;
 import com.res.bean.WorkBean;
 import com.res.bean.WorkSubTypeBean;
 import com.res.bean.WorkTypeBean;
@@ -68,13 +74,17 @@ import com.res.entity.WorkRequisitionIdGeneration;
 import com.res.entity.WorkStatus;
 import com.res.entity.WorkSubType;
 import com.res.entity.WorkType;
+import com.res.entity.workEmb;
 import com.res.exception.RESBusinessException;
+import com.res.json.WorkAgreementJson;
+import com.res.json.WorkJson;
 import com.res.repository.AdministrationSanctionRepository;
 import com.res.repository.BlockRepository;
 import com.res.repository.DesignationRepository;
 import com.res.repository.DistrictRepository;
 import com.res.repository.DocumentRepository;
 import com.res.repository.GramPanchayatRepository;
+import com.res.repository.OfficeRepository;
 import com.res.repository.OfficeTypeRepository;
 import com.res.repository.RoleRepository;
 import com.res.repository.TechnicalSanctionRepository;
@@ -83,9 +93,13 @@ import com.res.repository.VillageRepository;
 import com.res.repository.WorkLegacyIdGenerationRepository;
 import com.res.repository.WorkRepository;
 import com.res.repository.WorkRequisitionIdGenerationRepository;
+import com.res.repository.workEmbRepository;
+import com.res.response.ResponseObject;
 import com.res.service.EeService;
 import com.res.service.UserService;
 import com.res.util.RESUtil;
+
+import antlr.StringUtils;
 
 @Service
 public class EeServiceImpl implements EeService {
@@ -98,6 +112,9 @@ public class EeServiceImpl implements EeService {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private workEmbRepository embRepository;
 
 	@Autowired
 	private DesignationRepository designationRepository;
@@ -119,24 +136,26 @@ public class EeServiceImpl implements EeService {
 
 	@Autowired
 	private DocumentRepository documentRepository;
-	
+
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private VillageRepository villageRepository;
-	
-	
+
+
+	@Autowired
+	private OfficeRepository officeRepository;
+
 	@Autowired
 	private GramPanchayatRepository gramPanchayatRepository;
-	
+
 	@Autowired
 	private BlockRepository blockRepository;
 
-
 	@Autowired
 	private WorkRequisitionIdGenerationRepository workRequisitionIdGenerationRepository;
-	
+
 	@Autowired
 	private WorkLegacyIdGenerationRepository workLegacyIdGenerationRepository;
 
@@ -158,6 +177,7 @@ public class EeServiceImpl implements EeService {
 	public String getDocumentRootPath() {
 		return documentRootPath;
 	}
+
 	@Value("${document.WorkMasterKmlFilePath}")
 	private String workMasterKmlFilePath;
 
@@ -283,7 +303,8 @@ public class EeServiceImpl implements EeService {
 										+ workTechSanctionDocumentPath,
 										"blank", bean
 												.getTechnicalSanctionBean()
-												.getEstimateFile(), null,
+												.getEstimateFile(),
+										null,
 										"blank");
 						documentRepository.save(documentUpload);
 						technicalSanctionEntity
@@ -312,47 +333,48 @@ public class EeServiceImpl implements EeService {
 						// legalDocumentUpload.getDocumentId()));
 					}
 				}
-				
+
 				// Legacy Work ID Generation
-				
-				
+
 				String lastWord = bean.getExecutiveEngineerOfficeName()
 						.substring(
 								bean.getExecutiveEngineerOfficeName()
 										.lastIndexOf(",") + 1);
 				if (bean.getAgencyTypeBean().getAgencyTypeId() == 1) {
-					lastWord = "LD_"+lastWord + "_RC";
+					lastWord = "LD_" + lastWord + "_RC";
 				} else if (bean.getAgencyTypeBean().getAgencyTypeId() == 2) {
-					lastWord = "LD_"+lastWord + "_GP";
+					lastWord = "LD_" + lastWord + "_GP";
 				} else if (bean.getAgencyTypeBean().getAgencyTypeId() == 3) {
-					lastWord = "LD_"+lastWord + "_RD";
+					lastWord = "LD_" + lastWord + "_RD";
 				}
 
-				WorkLegacyIdGeneration workLegacyIdGeneration = workLegacyIdGenerationRepository.findByDivisionAgency(lastWord);
-				if (workLegacyIdGeneration==null) {
+				WorkLegacyIdGeneration workLegacyIdGeneration = workLegacyIdGenerationRepository
+						.findByDivisionAgency(lastWord);
+				if (workLegacyIdGeneration == null) {
 					entity.setWorkRequisitionNo(lastWord + "_1");
 					persistFirstLegacyIdGeneration(lastWord, 1);
 				} else {
-					int newCount = workLegacyIdGeneration.getCounter()+1;
+					int newCount = workLegacyIdGeneration.getCounter() + 1;
 					workLegacyIdGeneration.setCounter(newCount);
 					workLegacyIdGenerationRepository.save(workLegacyIdGeneration);
 					entity.setWorkRequisitionNo(lastWord + "_" + newCount);
-					
-					/*WorkLegacyIdGeneration workLegacyIdGeneration = workLegacyIdGenerationList
-							.get(workLegacyIdGenerationList.size() - 1);
-					int count = workLegacyIdGeneration.getCounter();
-					persistNextLegacyIdGeneration(lastWord, count);*/
-					
-					
+
+					/*
+					 * WorkLegacyIdGeneration workLegacyIdGeneration = workLegacyIdGenerationList
+					 * .get(workLegacyIdGenerationList.size() - 1);
+					 * int count = workLegacyIdGeneration.getCounter();
+					 * persistNextLegacyIdGeneration(lastWord, count);
+					 */
+
 				}
-				
+
 				convertWorkBeanToEntity(entity, bean);
-				if(null!= bean.getAdministrationSanctionBean() && null!= bean.getAdministrationSanctionBean()
+				if (null != bean.getAdministrationSanctionBean() && null != bean.getAdministrationSanctionBean()
 						.getAdministrationSanctionDate()) {
 					entity.setFinancialYear(RESUtil.getFinacialYearFromDate(RESUtil
 							.convertStringToDate(bean.getAdministrationSanctionBean()
-						.getAdministrationSanctionDate())));
-				}else {
+									.getAdministrationSanctionDate())));
+				} else {
 					entity.setFinancialYear("AS Pending");
 				}
 				entity.setBillingFlag((short) 0);
@@ -379,19 +401,18 @@ public class EeServiceImpl implements EeService {
 			throws RESBusinessException {
 
 		entity.setWorkName(bean.getWorkName());
-		if(bean.getWorkTypeBean()
-				.getWorkTypeId() !=null)
-		{
-		entity.setWorkTypeId(new WorkType(bean.getWorkTypeBean()
-				.getWorkTypeId()));
+		if (bean.getWorkTypeBean()
+				.getWorkTypeId() != null) {
+			entity.setWorkTypeId(new WorkType(bean.getWorkTypeBean()
+					.getWorkTypeId()));
 		}
-		
-		if(bean.getWorkNatureId()!=null)
-		entity.setWorkNatureId(new WorkNature(bean.getWorkNatureId()));
-		
-		if(null !=bean.getSchemeTypeId())
-		entity.setSchemeTypeId(new SchemeSanctionedUnderProgramme(bean.getSchemeTypeId()));
-		
+
+		if (bean.getWorkNatureId() != null)
+			entity.setWorkNatureId(new WorkNature(bean.getWorkNatureId()));
+
+		if (null != bean.getSchemeTypeId())
+			entity.setSchemeTypeId(new SchemeSanctionedUnderProgramme(bean.getSchemeTypeId()));
+
 		if (null != bean.getWorkSubTypeBean()
 				&& null != bean.getWorkSubTypeBean().getWorkSubTypeId()) {
 			entity.setWorkSubTypeId(new WorkSubType(bean.getWorkSubTypeBean()
@@ -466,7 +487,7 @@ public class EeServiceImpl implements EeService {
 					.getId()));
 		if (bean.getSubEngineer() != null)
 			entity.setSubEngineer(new Users(bean.getSubEngineer().getId()));
-		
+
 		if (bean.getSubDivisionOfficerId() != null)
 			entity.setSubDivisionalOfficer(new Users(bean.getSubDivisionOfficerId()));
 		if (bean.getWorkStatusBean() != null)
@@ -481,36 +502,39 @@ public class EeServiceImpl implements EeService {
 					.getWorkRequestStatusId()));
 		} else {
 			if (bean.getAgencyTypeBean().getAgencyTypeId() == 1) {
-				entity.setWorkRequestStatusId(new RequestStatus(RESConstants.REQUEST_STATUS_WORK_AGREEMENT_DONE_FWD_FOR_BILLING_INSPECTION_ID));
+				entity.setWorkRequestStatusId(new RequestStatus(
+						RESConstants.REQUEST_STATUS_WORK_AGREEMENT_DONE_FWD_FOR_BILLING_INSPECTION_ID));
 			} else if (bean.getAgencyTypeBean().getAgencyTypeId() == 2
 					|| bean.getAgencyTypeBean().getAgencyTypeId() == 3) {
-				entity.setWorkRequestStatusId(new RequestStatus(RESConstants.REQUEST_STATUS_AS_RECEIVED_AND_FWD_FOR_WORK_ORDERTENDER_DETAILS));
+				entity.setWorkRequestStatusId(new RequestStatus(
+						RESConstants.REQUEST_STATUS_AS_RECEIVED_AND_FWD_FOR_WORK_ORDERTENDER_DETAILS));
 			}
 
 		}
 
 		entity.setIsLegacy((short) 1);
 		entity.setRemarks(bean.getRemarks());
-		
-		if(bean.getProbableAmountOfWork()!=null)
-		{
+
+		if (bean.getProbableAmountOfWork() != null) {
 			entity.setProbableAmountOfWork(bean.getProbableAmountOfWork());
 		}
 
 		if (bean.getWorkStatusBean() != null) {
-			/*if (bean.getAgencyTypeBean().getAgencyTypeId() == 1
-					&& bean.getWorkStatusBean().getWorkStatusid() != 1
-					&& bean.getWorkStatusBean().getWorkStatusid() != 3
-					&& bean.getWorkStatusBean().getWorkStatusid() != 5) {*/
-				if (bean.getAgencyTypeBean().getAgencyTypeId() == 1) {
+			/*
+			 * if (bean.getAgencyTypeBean().getAgencyTypeId() == 1
+			 * && bean.getWorkStatusBean().getWorkStatusid() != 1
+			 * && bean.getWorkStatusBean().getWorkStatusid() != 3
+			 * && bean.getWorkStatusBean().getWorkStatusid() != 5) {
+			 */
+			if (bean.getAgencyTypeBean().getAgencyTypeId() == 1) {
 				if (bean.getLineDepartmentBean() != null) {
-					//if (bean.getLineDepartmentBean().getLineDepartmentId() != 28) {
-						if (bean.getAgreementDateString() != null)
-							entity.setAgreementDate(RESUtil
-									.convertStringToDate(bean
-											.getAgreementDateString()));
-						entity.setAgreementNumber(bean.getAgreementNumber());
-					//}
+					// if (bean.getLineDepartmentBean().getLineDepartmentId() != 28) {
+					if (bean.getAgreementDateString() != null)
+						entity.setAgreementDate(RESUtil
+								.convertStringToDate(bean
+										.getAgreementDateString()));
+					entity.setAgreementNumber(bean.getAgreementNumber());
+					// }
 				}
 				entity.setTenderedRateSign(bean.getTenderedRateSign());
 				entity.setTenderedRatePer(bean.getTenderedRatePer() != null ? bean
@@ -558,40 +582,35 @@ public class EeServiceImpl implements EeService {
 						bean.getTsIssuingAuthorityId()));
 		}
 		technicalSanctionEntity.setWork(entity);
-		
+
 		return technicalSanctionEntity;
 
 	}
-	
-	
+
 	private void convertWorkBeanToTechnicalSanctionEntityForRevised(
 			TechnicalSanction technicalSanctionEntity, Work entity,
 			WorkBean bean) throws RESBusinessException {
-		
-			
-				technicalSanctionEntity.setTechnicalSanctionType(new TechnicalSanctionType((long) 2));
-			
-				technicalSanctionEntity.setTechnicalSanctionNo(bean.getTechnicalSanctionNo());
-			if (bean.
-					getTechnicalSanctionDate() != null)
-				technicalSanctionEntity.setTechnicalSanctionDate(RESUtil
-						.convertStringToDate(bean
-								.getTechnicalSanctionDate()));
-			
-				technicalSanctionEntity
-						.setTechnicalSanctionAmount(new BigDecimal(bean
-								.getEstimatedCostString()));
-			
-				technicalSanctionEntity.setTsAuthorityName(bean
-						.getTsAuthorityName());
-			
-				technicalSanctionEntity.setTsIssuingAuthority(new Designation(
-						bean.getTsIssuingAuthorityId()));
-			technicalSanctionEntity.setParentId(new TechnicalSanction(bean.getTsParentId()));
-		
+
+		technicalSanctionEntity.setTechnicalSanctionType(new TechnicalSanctionType((long) 2));
+
+		technicalSanctionEntity.setTechnicalSanctionNo(bean.getTechnicalSanctionNo());
+		if (bean.getTechnicalSanctionDate() != null)
+			technicalSanctionEntity.setTechnicalSanctionDate(RESUtil
+					.convertStringToDate(bean
+							.getTechnicalSanctionDate()));
+
+		technicalSanctionEntity
+				.setTechnicalSanctionAmount(new BigDecimal(bean
+						.getEstimatedCostString()));
+
+		technicalSanctionEntity.setTsAuthorityName(bean
+				.getTsAuthorityName());
+
+		technicalSanctionEntity.setTsIssuingAuthority(new Designation(
+				bean.getTsIssuingAuthorityId()));
+		technicalSanctionEntity.setParentId(new TechnicalSanction(bean.getTsParentId()));
+
 		technicalSanctionEntity.setWork(entity);
-		
-		
 
 	}
 
@@ -630,8 +649,7 @@ public class EeServiceImpl implements EeService {
 		administrationSanctionEntity.setContingencyAmount(bean
 				.getContingencyAmount());
 	}
-	
-	
+
 	private void convertWorkBeanToAdministrationSanctionEntityForRevised(
 			AdministrationSanction administrationSanctionEntity, Work entity,
 			WorkBean bean) throws RESBusinessException {
@@ -712,13 +730,13 @@ public class EeServiceImpl implements EeService {
 			bean.setWorkId(entity.getId());
 			bean.setWorkName(entity.getWorkName());
 			bean.setWorkTypeId(entity.getWorkTypeId().getWorkTypeId());
-			
-			if(entity.getWorkNatureId()!=null)
-			bean.setWorkNatureId(entity.getWorkNatureId().getWorkNatureId());
-				
-			if(null !=bean.getSchemeTypeId())
-			bean.setSchemeTypeId(entity.getSchemeTypeId().getId());
-				
+
+			if (entity.getWorkNatureId() != null)
+				bean.setWorkNatureId(entity.getWorkNatureId().getWorkNatureId());
+
+			if (null != bean.getSchemeTypeId())
+				bean.setSchemeTypeId(entity.getSchemeTypeId().getId());
+
 			if (entity.getWorkSubTypeId() != null)
 				bean.setWorkSubTypeId(entity.getWorkSubTypeId()
 						.getWorkSubTypeId());
@@ -761,7 +779,7 @@ public class EeServiceImpl implements EeService {
 				bean.setExecutiveEngineerOfficeName(entity
 						.getExecutiveEngineerOffice().getOfficeName());
 			}
-			
+
 			if (entity.getSubDivisionalOfficer() != null) {
 				bean.setSubDivisionOfficerId(entity
 						.getSubDivisionalOfficer().getId());
@@ -799,13 +817,13 @@ public class EeServiceImpl implements EeService {
 			bean.setWorkId(entity.getId());
 			bean.setWorkName(entity.getWorkName());
 			bean.setWorkTypeId(entity.getWorkTypeId().getWorkTypeId());
-			
-				if(entity.getWorkNatureId()!=null)
+
+			if (entity.getWorkNatureId() != null)
 				bean.setWorkNatureId(entity.getWorkNatureId().getWorkNatureId());
-					
-				if(null !=bean.getSchemeTypeId())
+
+			if (null != bean.getSchemeTypeId())
 				bean.setSchemeTypeId(entity.getSchemeTypeId().getId());
-				
+
 			bean.setWorkSubTypeId(entity.getWorkSubTypeId().getWorkSubTypeId());
 			bean.setLineDepartmentId(entity.getLineDepartmentId()
 					.getLineDepartmentId());
@@ -858,7 +876,7 @@ public class EeServiceImpl implements EeService {
 				bean.setExecutiveEngineerOfficeName(entity
 						.getExecutiveEngineerOffice().getOfficeName());
 			}
-			
+
 			if (entity.getSubDivisionalOfficer() != null) {
 				bean.setSubDivisionOfficerId(entity
 						.getSubDivisionalOfficer().getId());
@@ -1068,12 +1086,17 @@ public class EeServiceImpl implements EeService {
 			}
 			TechnicalSanction entity2 = technicalSanctionRepository
 					.findByWork(entity);
-			
-			/*if (entity2 != null) {
-				entity2.setStatus(RESConstants.STATUS_DELETED);
-				technicalSanctionRepository.save(entity2);
-			}*/
-		/*	AdministrationSanction entity3 = administrationSanctionRepository.findByWork(entity);*/
+
+			/*
+			 * if (entity2 != null) {
+			 * entity2.setStatus(RESConstants.STATUS_DELETED);
+			 * technicalSanctionRepository.save(entity2);
+			 * }
+			 */
+			/*
+			 * AdministrationSanction entity3 =
+			 * administrationSanctionRepository.findByWork(entity);
+			 */
 			AdministrationSanction entity3 = administrationSanctionRepository.findAllASByWork(entity).get(0);
 			if (entity3 != null) {
 				entity3.setStatus(RESConstants.STATUS_DELETED);
@@ -1097,8 +1120,10 @@ public class EeServiceImpl implements EeService {
 	 * null; } }
 	 */
 
-	/** CR-RESOWMS/CR/1-1
+	/**
+	 * CR-RESOWMS/CR/1-1
 	 * Work Transfer Module-Transfer Work to Other Office
+	 * 
 	 * @param workBean
 	 * @return String
 	 */
@@ -1108,21 +1133,26 @@ public class EeServiceImpl implements EeService {
 
 		try {
 			Work entity = workRepository.findOne(workBean.getWorkId());
-			//TechnicalSanction technicalSanctionEntity = technicalSanctionRepository.findByWork(entity);
-			TechnicalSanction technicalSanctionEntity=null;
+			// TechnicalSanction technicalSanctionEntity =
+			// technicalSanctionRepository.findByWork(entity);
+			TechnicalSanction technicalSanctionEntity = null;
 			List<TechnicalSanction> findAllTSByWork = technicalSanctionRepository.findAllTSByWork(entity);
-			if(null!= findAllTSByWork && findAllTSByWork.size()>0) {
-				technicalSanctionEntity=(TechnicalSanction)findAllTSByWork.get(0);
+			if (null != findAllTSByWork && findAllTSByWork.size() > 0) {
+				technicalSanctionEntity = (TechnicalSanction) findAllTSByWork.get(0);
 			}
-			if(null==technicalSanctionEntity){
-				technicalSanctionEntity=new TechnicalSanction();
+			if (null == technicalSanctionEntity) {
+				technicalSanctionEntity = new TechnicalSanction();
 			}
-			/*AdministrationSanction administrationSanctionEntity = administrationSanctionRepository.findByWork(entity);*/
+			/*
+			 * AdministrationSanction administrationSanctionEntity =
+			 * administrationSanctionRepository.findByWork(entity);
+			 */
 
-			AdministrationSanction administrationSanctionEntity = administrationSanctionRepository.findAllASByWork(entity).get(0);
-			
-			if(null==administrationSanctionEntity){
-				administrationSanctionEntity=new AdministrationSanction();
+			AdministrationSanction administrationSanctionEntity = administrationSanctionRepository
+					.findAllASByWork(entity).get(0);
+
+			if (null == administrationSanctionEntity) {
+				administrationSanctionEntity = new AdministrationSanction();
 			}
 
 			if (workBean.getAdministrationSanctionFile() != null) {
@@ -1199,58 +1229,56 @@ public class EeServiceImpl implements EeService {
 				// LegalDocumentUpload(
 				// legalDocumentUpload.getDocumentId()));
 			}
-			
-			
+
 			// Legacy Work ID Generation
-			
-			
+
 			String lastWord = workBean.getExecutiveEngineerOfficeName()
 					.substring(
 							workBean.getExecutiveEngineerOfficeName()
 									.lastIndexOf(",") + 1);
-			
-			int index=entity.getWorkRequisitionNo().lastIndexOf('_');
-			String oldRequisition = entity.getWorkRequisitionNo().substring(0,index);
-			
-			
-			
+
+			int index = entity.getWorkRequisitionNo().lastIndexOf('_');
+			String oldRequisition = entity.getWorkRequisitionNo().substring(0, index);
+
 			WorkLegacyIdGeneration workLegacyIdGeneration = null;
-			
+
 			if (workBean.getAgencyTypeId() == 1) {
-				workLegacyIdGeneration =	workLegacyIdGenerationRepository.findByDivisionAgency("LD_"+lastWord+"_RC");
+				workLegacyIdGeneration = workLegacyIdGenerationRepository
+						.findByDivisionAgency("LD_" + lastWord + "_RC");
 			} else if (workBean.getAgencyTypeId() == 2) {
-				workLegacyIdGeneration = workLegacyIdGenerationRepository.findByDivisionAgency("LD_"+lastWord+"_GP");
+				workLegacyIdGeneration = workLegacyIdGenerationRepository
+						.findByDivisionAgency("LD_" + lastWord + "_GP");
 			} else if (workBean.getAgencyTypeId() == 3) {
-				workLegacyIdGeneration = workLegacyIdGenerationRepository.findByDivisionAgency("LD_"+lastWord+"_RD");
+				workLegacyIdGeneration = workLegacyIdGenerationRepository
+						.findByDivisionAgency("LD_" + lastWord + "_RD");
 			}
-			
-			if (workLegacyIdGeneration==null) {
+
+			if (workLegacyIdGeneration == null) {
 				entity.setWorkRequisitionNo(lastWord + "_1");
 				persistFirstLegacyIdGeneration(lastWord, 1);
 			} else {
-				if(!oldRequisition.equals(workLegacyIdGeneration.getDivisionAgency()))
-				{
-					
-					
-					int newCount = workLegacyIdGeneration.getCounter()+1;
+				if (!oldRequisition.equals(workLegacyIdGeneration.getDivisionAgency())) {
+
+					int newCount = workLegacyIdGeneration.getCounter() + 1;
 					workLegacyIdGeneration.setCounter(newCount);
 					workLegacyIdGenerationRepository.save(workLegacyIdGeneration);
-					
+
 					if (workBean.getAgencyTypeId() == 1) {
-						entity.setWorkRequisitionNo("LD_"+lastWord+"_RC" + "_" + newCount);	
+						entity.setWorkRequisitionNo("LD_" + lastWord + "_RC" + "_" + newCount);
 					} else if (workBean.getAgencyTypeId() == 2) {
-						entity.setWorkRequisitionNo("LD_"+lastWord+"_GP" + "_" + newCount);	
+						entity.setWorkRequisitionNo("LD_" + lastWord + "_GP" + "_" + newCount);
 					} else if (workBean.getAgencyTypeId() == 3) {
-						entity.setWorkRequisitionNo("LD_"+lastWord+"_RD" + "_" + newCount);	
+						entity.setWorkRequisitionNo("LD_" + lastWord + "_RD" + "_" + newCount);
 					}
-					WorkLegacyIdGeneration workLegacyIdGenerationOld =workLegacyIdGenerationRepository.findByDivisionAgency(oldRequisition);
-					
-					int newCountTwo = workLegacyIdGeneration.getCounter()-1;
+					WorkLegacyIdGeneration workLegacyIdGenerationOld = workLegacyIdGenerationRepository
+							.findByDivisionAgency(oldRequisition);
+
+					int newCountTwo = workLegacyIdGeneration.getCounter() - 1;
 					workLegacyIdGenerationOld.setCounter(newCountTwo);
 					workLegacyIdGenerationRepository.save(workLegacyIdGenerationOld);
 				}
 			}
-			
+
 			convertWorkBeanToEntityDuringEdit(entity, workBean);
 			workRepository.save(entity);
 
@@ -1270,193 +1298,201 @@ public class EeServiceImpl implements EeService {
 		}
 
 	}
-	
-	
-	/*@Override
-	@Transactional(rollbackFor = Exception.class)
-	public String editWorkRevise(WorkBean workBean) {
 
-		try {
-			Work entity = workRepository.findOne(workBean.getWorkId());
-			
-				TechnicalSanction technicalSanctionEntity=new TechnicalSanction();
-			
-			AdministrationSanction administrationSanctionEntity = administrationSanctionRepository.findByWork(entity);
-
-		
-				AdministrationSanction administrationSanctionEntity=new AdministrationSanction();
-			
-
-			if (workBean.getAdministrationSanctionFile() != null) {
-				DocumentUpload documentUpload = RESUtil.uploadAsWorkDocument(
-						documentRootPath + workAdminSanctionDocumentPath,
-						"blank", workBean.getAdministrationSanctionFile(),
-						null, "blank");
-				documentRepository.save(documentUpload);
-				administrationSanctionEntity.setDocumentUpload(documentUpload);
-				// entity.setAdministrationSanctionFile(documentUpload);
-				// legalDao.saveOrUpdate(legalDocumentUpload);
-				// legalCaseHearing.setLegalDocumentUpload(new
-				// LegalDocumentUpload(
-				// legalDocumentUpload.getDocumentId()));
-			}
-
-			if (workBean.getAgencyTypeId() == 1
-					&& workBean.getWorkStatusId() != 1
-					&& workBean.getWorkStatusId() != 3
-					&& workBean.getWorkStatusId() != 5) {
-				if (workBean.getAgreementCopyFile() != null) {
-					DocumentUpload documentUpload = RESUtil
-							.uploadAgreementDocument(documentRootPath
-									+ workDocumentPath, "blank",
-									workBean.getAgreementCopyFile(), null,
-									"blank");
-					documentRepository.save(documentUpload);
-					entity.setAgreementCopy(documentUpload);
-					// legalDao.saveOrUpdate(legalDocumentUpload);
-					// legalCaseHearing.setLegalDocumentUpload(new
-					// LegalDocumentUpload(
-					// legalDocumentUpload.getDocumentId()));
-				}
-			}
-
-			if (workBean.getLatestDrawingCopyFile() != null) {
-				DocumentUpload documentUpload = RESUtil.uploadDrawingDocument(
-						documentRootPath + workTechSanctionDocumentPath,
-						"blank", workBean.getLatestDrawingCopyFile(), null,
-						"blank");
-				documentRepository.save(documentUpload);
-				technicalSanctionEntity
-						.setDocumentUploadDrawing(documentUpload);
-				// legalDao.saveOrUpdate(legalDocumentUpload);
-				// legalCaseHearing.setLegalDocumentUpload(new
-				// LegalDocumentUpload(
-				// legalDocumentUpload.getDocumentId()));
-			}
-
-			if (workBean.getEstimateFile() != null) {
-				DocumentUpload documentUpload = RESUtil
-						.uploadEstimationDocument(documentRootPath
-								+ workTechSanctionDocumentPath, "blank",
-								workBean.getEstimateFile(), null, "blank");
-				documentRepository.save(documentUpload);
-				technicalSanctionEntity
-						.setDocumentUploadEstimate(documentUpload);
-				// legalDao.saveOrUpdate(legalDocumentUpload);
-				// legalCaseHearing.setLegalDocumentUpload(new
-				// LegalDocumentUpload(
-				// legalDocumentUpload.getDocumentId()));
-			}
-
-			if (workBean.getTechnicalSanctionFile() != null) {
-				DocumentUpload documentUpload = RESUtil.uploadTsWorkDocument(
-						documentRootPath + workTechSanctionDocumentPath,
-						"blank", workBean.getTechnicalSanctionFile(), null,
-						"blank");
-				documentRepository.save(documentUpload);
-				technicalSanctionEntity
-						.setDocumentUploadTechnical(documentUpload);
-				// legalDao.saveOrUpdate(legalDocumentUpload);
-				// legalCaseHearing.setLegalDocumentUpload(new
-				// LegalDocumentUpload(
-				// legalDocumentUpload.getDocumentId()));
-			}
-			
-			
-			// Legacy Work ID Generation
-			
-			
-			String lastWord = workBean.getExecutiveEngineerOfficeName()
-					.substring(
-							workBean.getExecutiveEngineerOfficeName()
-									.lastIndexOf(",") + 1);
-			
-			int index=entity.getWorkRequisitionNo().lastIndexOf('_');
-			String oldRequisition = entity.getWorkRequisitionNo().substring(0,index);
-			
-			
-			
-			WorkLegacyIdGeneration workLegacyIdGeneration = null;
-			
-			if (workBean.getAgencyTypeId() == 1) {
-				workLegacyIdGeneration =	workLegacyIdGenerationRepository.findByDivisionAgency("LD_"+lastWord+"_RC");
-			} else if (workBean.getAgencyTypeId() == 2) {
-				workLegacyIdGeneration = workLegacyIdGenerationRepository.findByDivisionAgency("LD_"+lastWord+"_GP");
-			} else if (workBean.getAgencyTypeId() == 3) {
-				workLegacyIdGeneration = workLegacyIdGenerationRepository.findByDivisionAgency("LD_"+lastWord+"_RD");
-			}
-			
-			
-			
-			
-			if (workLegacyIdGeneration==null) {
-				entity.setWorkRequisitionNo(lastWord + "_1");
-				persistFirstLegacyIdGeneration(lastWord, 1);
-			} else {
-				if(!oldRequisition.equals(workLegacyIdGeneration.getDivisionAgency()))
-				{
-					
-					
-					int newCount = workLegacyIdGeneration.getCounter()+1;
-					workLegacyIdGeneration.setCounter(newCount);
-					workLegacyIdGenerationRepository.save(workLegacyIdGeneration);
-
-					
-					
-					if (workBean.getAgencyTypeId() == 1) {
-						entity.setWorkRequisitionNo("LD_"+lastWord+"_RC" + "_" + newCount);	
-					} else if (workBean.getAgencyTypeId() == 2) {
-						entity.setWorkRequisitionNo("LD_"+lastWord+"_GP" + "_" + newCount);	
-					} else if (workBean.getAgencyTypeId() == 3) {
-						entity.setWorkRequisitionNo("LD_"+lastWord+"_RD" + "_" + newCount);	
-					}
-					
-					
-					
-					WorkLegacyIdGeneration workLegacyIdGenerationOld =workLegacyIdGenerationRepository.findByDivisionAgency(oldRequisition);
-					
-					int newCountTwo = workLegacyIdGeneration.getCounter()-1;
-					workLegacyIdGenerationOld.setCounter(newCountTwo);
-					workLegacyIdGenerationRepository.save(workLegacyIdGenerationOld);
-					
-					
-					
-				}
-				
-				
-				
-				
-			}
-			
-			convertWorkBeanToEntityDuringEdit(entity, workBean);
-			entity.setFinancialYear("AS Pending");
-			entity.setIsLegacyRevise((short) 1);
-			workRepository.save(entity);
-
-			convertWorkBeanToTechnicalSanctionEntityForRevised(
-					technicalSanctionEntity, entity, workBean);
-			TechnicalSanction save = technicalSanctionRepository.save(technicalSanctionEntity);
-			
-
-			convertWorkBeanToAdministrationSanctionEntityForRevised(
-					administrationSanctionEntity, entity, workBean);
-			administrationSanctionEntity.setTechnicalSanction(save);
-			administrationSanctionRepository
-					.save(administrationSanctionEntity);
-			
-			
-			
-	
-
-			return null;
-
-		} catch (Exception e) {
-			logger.error("An exception occurred.", e);
-			return RESConstants.ERROR_SAVING_DATA;
-		}
-
-	}*/
-	
+	/*
+	 * @Override
+	 * 
+	 * @Transactional(rollbackFor = Exception.class)
+	 * public String editWorkRevise(WorkBean workBean) {
+	 * 
+	 * try {
+	 * Work entity = workRepository.findOne(workBean.getWorkId());
+	 * 
+	 * TechnicalSanction technicalSanctionEntity=new TechnicalSanction();
+	 * 
+	 * AdministrationSanction administrationSanctionEntity =
+	 * administrationSanctionRepository.findByWork(entity);
+	 * 
+	 * 
+	 * AdministrationSanction administrationSanctionEntity=new
+	 * AdministrationSanction();
+	 * 
+	 * 
+	 * if (workBean.getAdministrationSanctionFile() != null) {
+	 * DocumentUpload documentUpload = RESUtil.uploadAsWorkDocument(
+	 * documentRootPath + workAdminSanctionDocumentPath,
+	 * "blank", workBean.getAdministrationSanctionFile(),
+	 * null, "blank");
+	 * documentRepository.save(documentUpload);
+	 * administrationSanctionEntity.setDocumentUpload(documentUpload);
+	 * // entity.setAdministrationSanctionFile(documentUpload);
+	 * // legalDao.saveOrUpdate(legalDocumentUpload);
+	 * // legalCaseHearing.setLegalDocumentUpload(new
+	 * // LegalDocumentUpload(
+	 * // legalDocumentUpload.getDocumentId()));
+	 * }
+	 * 
+	 * if (workBean.getAgencyTypeId() == 1
+	 * && workBean.getWorkStatusId() != 1
+	 * && workBean.getWorkStatusId() != 3
+	 * && workBean.getWorkStatusId() != 5) {
+	 * if (workBean.getAgreementCopyFile() != null) {
+	 * DocumentUpload documentUpload = RESUtil
+	 * .uploadAgreementDocument(documentRootPath
+	 * + workDocumentPath, "blank",
+	 * workBean.getAgreementCopyFile(), null,
+	 * "blank");
+	 * documentRepository.save(documentUpload);
+	 * entity.setAgreementCopy(documentUpload);
+	 * // legalDao.saveOrUpdate(legalDocumentUpload);
+	 * // legalCaseHearing.setLegalDocumentUpload(new
+	 * // LegalDocumentUpload(
+	 * // legalDocumentUpload.getDocumentId()));
+	 * }
+	 * }
+	 * 
+	 * if (workBean.getLatestDrawingCopyFile() != null) {
+	 * DocumentUpload documentUpload = RESUtil.uploadDrawingDocument(
+	 * documentRootPath + workTechSanctionDocumentPath,
+	 * "blank", workBean.getLatestDrawingCopyFile(), null,
+	 * "blank");
+	 * documentRepository.save(documentUpload);
+	 * technicalSanctionEntity
+	 * .setDocumentUploadDrawing(documentUpload);
+	 * // legalDao.saveOrUpdate(legalDocumentUpload);
+	 * // legalCaseHearing.setLegalDocumentUpload(new
+	 * // LegalDocumentUpload(
+	 * // legalDocumentUpload.getDocumentId()));
+	 * }
+	 * 
+	 * if (workBean.getEstimateFile() != null) {
+	 * DocumentUpload documentUpload = RESUtil
+	 * .uploadEstimationDocument(documentRootPath
+	 * + workTechSanctionDocumentPath, "blank",
+	 * workBean.getEstimateFile(), null, "blank");
+	 * documentRepository.save(documentUpload);
+	 * technicalSanctionEntity
+	 * .setDocumentUploadEstimate(documentUpload);
+	 * // legalDao.saveOrUpdate(legalDocumentUpload);
+	 * // legalCaseHearing.setLegalDocumentUpload(new
+	 * // LegalDocumentUpload(
+	 * // legalDocumentUpload.getDocumentId()));
+	 * }
+	 * 
+	 * if (workBean.getTechnicalSanctionFile() != null) {
+	 * DocumentUpload documentUpload = RESUtil.uploadTsWorkDocument(
+	 * documentRootPath + workTechSanctionDocumentPath,
+	 * "blank", workBean.getTechnicalSanctionFile(), null,
+	 * "blank");
+	 * documentRepository.save(documentUpload);
+	 * technicalSanctionEntity
+	 * .setDocumentUploadTechnical(documentUpload);
+	 * // legalDao.saveOrUpdate(legalDocumentUpload);
+	 * // legalCaseHearing.setLegalDocumentUpload(new
+	 * // LegalDocumentUpload(
+	 * // legalDocumentUpload.getDocumentId()));
+	 * }
+	 * 
+	 * 
+	 * // Legacy Work ID Generation
+	 * 
+	 * 
+	 * String lastWord = workBean.getExecutiveEngineerOfficeName()
+	 * .substring(
+	 * workBean.getExecutiveEngineerOfficeName()
+	 * .lastIndexOf(",") + 1);
+	 * 
+	 * int index=entity.getWorkRequisitionNo().lastIndexOf('_');
+	 * String oldRequisition = entity.getWorkRequisitionNo().substring(0,index);
+	 * 
+	 * 
+	 * 
+	 * WorkLegacyIdGeneration workLegacyIdGeneration = null;
+	 * 
+	 * if (workBean.getAgencyTypeId() == 1) {
+	 * workLegacyIdGeneration =
+	 * workLegacyIdGenerationRepository.findByDivisionAgency("LD_"+lastWord+"_RC");
+	 * } else if (workBean.getAgencyTypeId() == 2) {
+	 * workLegacyIdGeneration =
+	 * workLegacyIdGenerationRepository.findByDivisionAgency("LD_"+lastWord+"_GP");
+	 * } else if (workBean.getAgencyTypeId() == 3) {
+	 * workLegacyIdGeneration =
+	 * workLegacyIdGenerationRepository.findByDivisionAgency("LD_"+lastWord+"_RD");
+	 * }
+	 * 
+	 * 
+	 * 
+	 * 
+	 * if (workLegacyIdGeneration==null) {
+	 * entity.setWorkRequisitionNo(lastWord + "_1");
+	 * persistFirstLegacyIdGeneration(lastWord, 1);
+	 * } else {
+	 * if(!oldRequisition.equals(workLegacyIdGeneration.getDivisionAgency()))
+	 * {
+	 * 
+	 * 
+	 * int newCount = workLegacyIdGeneration.getCounter()+1;
+	 * workLegacyIdGeneration.setCounter(newCount);
+	 * workLegacyIdGenerationRepository.save(workLegacyIdGeneration);
+	 * 
+	 * 
+	 * 
+	 * if (workBean.getAgencyTypeId() == 1) {
+	 * entity.setWorkRequisitionNo("LD_"+lastWord+"_RC" + "_" + newCount);
+	 * } else if (workBean.getAgencyTypeId() == 2) {
+	 * entity.setWorkRequisitionNo("LD_"+lastWord+"_GP" + "_" + newCount);
+	 * } else if (workBean.getAgencyTypeId() == 3) {
+	 * entity.setWorkRequisitionNo("LD_"+lastWord+"_RD" + "_" + newCount);
+	 * }
+	 * 
+	 * 
+	 * 
+	 * WorkLegacyIdGeneration workLegacyIdGenerationOld
+	 * =workLegacyIdGenerationRepository.findByDivisionAgency(oldRequisition);
+	 * 
+	 * int newCountTwo = workLegacyIdGeneration.getCounter()-1;
+	 * workLegacyIdGenerationOld.setCounter(newCountTwo);
+	 * workLegacyIdGenerationRepository.save(workLegacyIdGenerationOld);
+	 * 
+	 * 
+	 * 
+	 * }
+	 * 
+	 * 
+	 * 
+	 * 
+	 * }
+	 * 
+	 * convertWorkBeanToEntityDuringEdit(entity, workBean);
+	 * entity.setFinancialYear("AS Pending");
+	 * entity.setIsLegacyRevise((short) 1);
+	 * workRepository.save(entity);
+	 * 
+	 * convertWorkBeanToTechnicalSanctionEntityForRevised(
+	 * technicalSanctionEntity, entity, workBean);
+	 * TechnicalSanction save =
+	 * technicalSanctionRepository.save(technicalSanctionEntity);
+	 * 
+	 * 
+	 * convertWorkBeanToAdministrationSanctionEntityForRevised(
+	 * administrationSanctionEntity, entity, workBean);
+	 * administrationSanctionEntity.setTechnicalSanction(save);
+	 * administrationSanctionRepository
+	 * .save(administrationSanctionEntity);
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * return null;
+	 * 
+	 * } catch (Exception e) {
+	 * logger.error("An exception occurred.", e);
+	 * return RESConstants.ERROR_SAVING_DATA;
+	 * }
+	 * 
+	 * }
+	 */
 
 	private void convertWorkBeanToEntityDuringEdit(Work entity,
 			WorkBean workBean) throws RESBusinessException {
@@ -1464,20 +1500,20 @@ public class EeServiceImpl implements EeService {
 		entity.setWorkName(workBean.getWorkName());
 		entity.setWorkTypeId(new WorkType(workBean.getWorkTypeId()));
 		entity.setWorkNatureId(new WorkNature(workBean.getWorkNatureId()));
-		
-		if(null !=workBean.getSchemeTypeId())
-		entity.setSchemeTypeId(new SchemeSanctionedUnderProgramme(workBean.getSchemeTypeId()));
-		
+
+		if (null != workBean.getSchemeTypeId())
+			entity.setSchemeTypeId(new SchemeSanctionedUnderProgramme(workBean.getSchemeTypeId()));
+
 		if (workBean.getWorkSubTypeId() != null)
 			entity.setWorkSubTypeId(new WorkSubType(workBean.getWorkSubTypeId()));
 		entity.setLineDepartmentId(new LineDepartment(workBean
 				.getLineDepartmentId()));
 		entity.setAccountHead(new AccountHead(workBean.getAccountHeadId()));
 		entity.setAgencyTypeId(new AgencyType(workBean.getAgencyTypeId()));
-		
+
 		entity.setDistance(workBean.getDistance());
 		entity.setCompleteddistance(workBean.getCompleteddistance());
-		
+
 		if (workBean.getAgencyTypeId() == 1
 				&& null != workBean.getContractorId()) {
 			entity.setContractor(new Contractor(workBean.getContractorId()));
@@ -1541,7 +1577,7 @@ public class EeServiceImpl implements EeService {
 					.getAssistantEngineerId()));
 		if (workBean.getSubEngineerId() != null)
 			entity.setSubEngineer(new Users(workBean.getSubEngineerId()));
-		
+
 		if (workBean.getSubDivisionOfficerId() != null)
 			entity.setSubDivisionalOfficer(new Users(workBean.getSubDivisionOfficerId()));
 		/* entity.setStatus(RESConstants.STATUS_ACTIVE); */
@@ -1550,41 +1586,45 @@ public class EeServiceImpl implements EeService {
 		 * entity.setWorkRequestStatusId(new RequestStatus(workBean
 		 * .getWorkRequestStatusId()));
 		 */
-		
-			if(workBean.getSpecificFieldsEditFlag()==null) {
-				if (workBean.getWorkRequestStatusId() == 1) {
-					entity.setWorkRequestStatusId(new RequestStatus(workBean
-							.getWorkRequestStatusId()));
-				}else {
-					if (workBean.getAgencyTypeId() == 1) {
-						entity.setWorkRequestStatusId(new RequestStatus(RESConstants.REQUEST_STATUS_WORK_AGREEMENT_DONE_FWD_FOR_BILLING_INSPECTION_ID));
-					} else if (workBean.getAgencyTypeId() == 2
-							|| workBean.getAgencyTypeId() == 3) {
-						entity.setWorkRequestStatusId(new RequestStatus(RESConstants.REQUEST_STATUS_AS_RECEIVED_AND_FWD_FOR_WORK_ORDERTENDER_DETAILS));
-					}
-				}
-			}else {
-				if (workBean.getIsEstimationRevised() != null) {
-					entity.setIsEstimationRevised(workBean.getIsEstimationRevised());
-					entity.setCompetentAuthName(workBean.getCompetentAuthName());
-					entity.setCompetentAuthDesig(workBean.getCompetentAuthDesig());
-				} else {
-					entity.setIsEstimationRevised(null);
-					entity.setCompetentAuthName(null);
-					entity.setCompetentAuthDesig(null);
+
+		if (workBean.getSpecificFieldsEditFlag() == null) {
+			if (workBean.getWorkRequestStatusId() == 1) {
+				entity.setWorkRequestStatusId(new RequestStatus(workBean
+						.getWorkRequestStatusId()));
+			} else {
+				if (workBean.getAgencyTypeId() == 1) {
+					entity.setWorkRequestStatusId(new RequestStatus(
+							RESConstants.REQUEST_STATUS_WORK_AGREEMENT_DONE_FWD_FOR_BILLING_INSPECTION_ID));
+				} else if (workBean.getAgencyTypeId() == 2
+						|| workBean.getAgencyTypeId() == 3) {
+					entity.setWorkRequestStatusId(new RequestStatus(
+							RESConstants.REQUEST_STATUS_AS_RECEIVED_AND_FWD_FOR_WORK_ORDERTENDER_DETAILS));
 				}
 			}
-			
-			entity.setLetterNo(workBean.getLetterNo());
-			entity.setRevisedLetterNo(workBean.getRevisedLetterNo());
-			if(workBean.getLetterNoDate()!=null)
+		} else {
+			if (workBean.getIsEstimationRevised() != null) {
+				entity.setIsEstimationRevised(workBean.getIsEstimationRevised());
+				entity.setCompetentAuthName(workBean.getCompetentAuthName());
+				entity.setCompetentAuthDesig(workBean.getCompetentAuthDesig());
+			} else {
+				entity.setIsEstimationRevised(null);
+				entity.setCompetentAuthName(null);
+				entity.setCompetentAuthDesig(null);
+			}
+		}
+
+		entity.setLetterNo(workBean.getLetterNo());
+		entity.setRevisedLetterNo(workBean.getRevisedLetterNo());
+		if (workBean.getLetterNoDate() != null)
 			entity.setLetterNoDate(RESUtil.convertStringToDate(workBean.getLetterNoDate()));
-			entity.setRevisedAsAmt(workBean.getRevisedAsAmt());
-			entity.setRevisedTsAmt(workBean.getRevisedTsAmt());
-	
-		/*if (workBean.getAgencyTypeId() == 1 && workBean.getWorkStatusId() != 1
-				&& workBean.getWorkStatusId() != 3
-				&& workBean.getWorkStatusId() != 5) {*/
+		entity.setRevisedAsAmt(workBean.getRevisedAsAmt());
+		entity.setRevisedTsAmt(workBean.getRevisedTsAmt());
+
+		/*
+		 * if (workBean.getAgencyTypeId() == 1 && workBean.getWorkStatusId() != 1
+		 * && workBean.getWorkStatusId() != 3
+		 * && workBean.getWorkStatusId() != 5) {
+		 */
 		if (workBean.getAgencyTypeId() == 1) {
 			if (workBean.getLineDepartmentId() != 28) {
 				if (workBean.getAgreementDateString() != null)
@@ -1592,7 +1632,7 @@ public class EeServiceImpl implements EeService {
 							.convertStringToDate(workBean
 									.getAgreementDateString()));
 				entity.setAgreementNumber(workBean.getAgreementNumber());
-			}else {
+			} else {
 				if (workBean.getAgreementDateString() != null) {
 					entity.setAgreementDate(RESUtil
 							.convertStringToDate(workBean
@@ -1612,20 +1652,22 @@ public class EeServiceImpl implements EeService {
 					.getTenderedRatePer() : BigDecimal.ZERO);
 			entity.setPacAmount(workBean.getPacAmount());
 			entity.setTenderCost(workBean.getTenderCost());
-		} 
-		/*else if (workBean.getLineDepartmentId() != 28) {
-			if (workBean.getAgreementDateString() != null) {
-				entity.setAgreementDate(RESUtil.convertStringToDate(workBean
-						.getAgreementDateString()));
-			} else {
-				entity.setAgreementDate(null);
-			}
-			if (workBean.getAgreementNumber() != null) {
-				entity.setAgreementNumber(workBean.getAgreementNumber());
-			} else {
-				entity.setAgreementNumber(null);
-			}
-		} */
+		}
+		/*
+		 * else if (workBean.getLineDepartmentId() != 28) {
+		 * if (workBean.getAgreementDateString() != null) {
+		 * entity.setAgreementDate(RESUtil.convertStringToDate(workBean
+		 * .getAgreementDateString()));
+		 * } else {
+		 * entity.setAgreementDate(null);
+		 * }
+		 * if (workBean.getAgreementNumber() != null) {
+		 * entity.setAgreementNumber(workBean.getAgreementNumber());
+		 * } else {
+		 * entity.setAgreementNumber(null);
+		 * }
+		 * }
+		 */
 		else {
 			if (workBean.getAgreementDateString() != null) {
 				entity.setAgreementDate(RESUtil.convertStringToDate(workBean
@@ -1643,19 +1685,18 @@ public class EeServiceImpl implements EeService {
 					.getTenderedRatePer() : BigDecimal.ZERO);
 			entity.setPacAmount(workBean.getPacAmount());
 			entity.setTenderCost(workBean.getTenderCost());
-			//entity.setAgreementDate(null);
-			//entity.setAgreementNumber(null);
-			//entity.setTenderedRateSign(null);
-			//entity.setTenderedRatePer(null);
-			//entity.setPacAmount(null);
-			//entity.setTenderCost(null);
+			// entity.setAgreementDate(null);
+			// entity.setAgreementNumber(null);
+			// entity.setTenderedRateSign(null);
+			// entity.setTenderedRatePer(null);
+			// entity.setPacAmount(null);
+			// entity.setTenderCost(null);
 
 		}
-		
-		
-		if(workBean.getProbableAmountOfWork()!=null)
-		entity.setProbableAmountOfWork(workBean.getProbableAmountOfWork());
-		
+
+		if (workBean.getProbableAmountOfWork() != null)
+			entity.setProbableAmountOfWork(workBean.getProbableAmountOfWork());
+
 		entity.setRemarks(workBean.getRemarks());
 	}
 
@@ -1664,10 +1705,11 @@ public class EeServiceImpl implements EeService {
 			throws RESBusinessException {
 		if (workBean.getIsEstimationRevised() != null && workBean.getIsEstimationRevised() == 1) {
 			if (workBean.getTechnicalSanctionTypeId() != null) {
-				technicalSanctionEntity.setTechnicalSanctionType(new TechnicalSanctionType(RESConstants.TS_TYPE_STATUS_REVISED));
+				technicalSanctionEntity
+						.setTechnicalSanctionType(new TechnicalSanctionType(RESConstants.TS_TYPE_STATUS_REVISED));
 				technicalSanctionEntity.setTechnicalStatus(new TechnicalStatus(RESConstants.TS_STATUS_DISPATCHED));
 			}
-		}else if (workBean.getTechnicalSanctionTypeId() != null) {
+		} else if (workBean.getTechnicalSanctionTypeId() != null) {
 			technicalSanctionEntity
 					.setTechnicalSanctionType(new TechnicalSanctionType(
 							workBean.getTechnicalSanctionTypeId()));
@@ -1688,8 +1730,7 @@ public class EeServiceImpl implements EeService {
 		if (workBean.getTsIssuingAuthorityId() != null)
 			technicalSanctionEntity.setTsIssuingAuthority(new Designation(
 					workBean.getTsIssuingAuthorityId()));
-		
-		
+
 	}
 
 	private void convertWorkBeanToAdministrationSanctionEntityDuringEdit(
@@ -1731,8 +1772,7 @@ public class EeServiceImpl implements EeService {
 				}
 
 				// Generate Work Requisition Number
-				
-				
+
 				String lastWord = bean.getExecutiveEngineerOfficeName()
 						.substring(
 								bean.getExecutiveEngineerOfficeName()
@@ -1745,30 +1785,30 @@ public class EeServiceImpl implements EeService {
 					lastWord = lastWord + "_RD";
 				}
 
-				WorkRequisitionIdGeneration workRequisitionIdGeneration = workRequisitionIdGenerationRepository.findByDivisionAgency(lastWord);
-				if (workRequisitionIdGeneration==null) {
+				WorkRequisitionIdGeneration workRequisitionIdGeneration = workRequisitionIdGenerationRepository
+						.findByDivisionAgency(lastWord);
+				if (workRequisitionIdGeneration == null) {
 					entity.setWorkRequisitionNo(lastWord + "_1");
 					persistFirstRequestIdGeneration(lastWord, 1);
 				} else {
-					int newCount = workRequisitionIdGeneration.getCounter()+1;
+					int newCount = workRequisitionIdGeneration.getCounter() + 1;
 					workRequisitionIdGeneration.setCounter(newCount);
 					workRequisitionIdGenerationRepository.save(workRequisitionIdGeneration);
 					entity.setWorkRequisitionNo(lastWord + "_" + newCount);
-					
-					/*WorkLegacyIdGeneration workLegacyIdGeneration = workLegacyIdGenerationList
-							.get(workLegacyIdGenerationList.size() - 1);
-					int count = workLegacyIdGeneration.getCounter();
-					persistNextLegacyIdGeneration(lastWord, count);*/
-					
-					
+
+					/*
+					 * WorkLegacyIdGeneration workLegacyIdGeneration = workLegacyIdGenerationList
+					 * .get(workLegacyIdGenerationList.size() - 1);
+					 * int count = workLegacyIdGeneration.getCounter();
+					 * persistNextLegacyIdGeneration(lastWord, count);
+					 */
+
 				}
-				
 
 				convertWorkBeanToEntityDuringRequisition(entity, bean);
 				entity.setFinancialYear("AS Pending");
 				entity.setBillingFlag((short) 0);
 				workRepository.save(entity);
-				
 
 				// Handle KML file
 				if (bean.getKmlFile() != null && !bean.getKmlFile().isEmpty()) {
@@ -1806,23 +1846,22 @@ public class EeServiceImpl implements EeService {
 
 	private void convertWorkBeanToEntityDuringRequisition(Work entity,
 			WorkBean bean) throws RESBusinessException {
-		
+
 		entity.setWorkName(bean.getWorkName());
 		entity.setWorkTypeId(new WorkType(bean.getWorkTypeId()));
 		entity.setWorkNatureId(new WorkNature(bean.getWorkNatureId()));
-		
-		if(null !=bean.getSchemeTypeId())
-		entity.setSchemeTypeId(new SchemeSanctionedUnderProgramme(bean.getSchemeTypeId()));
-		
+
+		if (null != bean.getSchemeTypeId())
+			entity.setSchemeTypeId(new SchemeSanctionedUnderProgramme(bean.getSchemeTypeId()));
+
 		if (bean.getWorkSubTypeId() != null) {
 			entity.setWorkSubTypeId(new WorkSubType(bean.getWorkSubTypeId()));
 		} else {
 			entity.setWorkSubTypeId(null);
 		}
-		
-		
+
 		entity.setDistance(bean.getDistance());
-		
+
 		entity.setLineDepartmentId(new LineDepartment(bean
 				.getLineDepartmentId()));
 		entity.setLetterNo(bean.getLetterNo());
@@ -1831,38 +1870,38 @@ public class EeServiceImpl implements EeService {
 		entity.setAccountHead(new AccountHead(bean.getAccountHeadId()));
 		entity.setAgencyTypeId(new AgencyType(bean.getAgencyTypeId()));
 		entity.setDistrict(new District(bean.getDistrictId()));
-		
-		if(bean.isKmlFileUpload()==true) {
+
+		if (bean.isKmlFileUpload() == true) {
 			Block block = blockRepository.findByBlockCode(bean.getBlockId().toString());
-			if (block!=null) {
-			
-			    entity.setBlock(new Block(block.getBlockId()));
+			if (block != null) {
+
+				entity.setBlock(new Block(block.getBlockId()));
 			}
-			}else {
-				if (bean.getBlockId() != null)
-					entity.setBlock(new Block(bean.getBlockId()));
+		} else {
+			if (bean.getBlockId() != null)
+				entity.setBlock(new Block(bean.getBlockId()));
 		}
-		
-		if(bean.isKmlFileUpload()==true) {
+
+		if (bean.isKmlFileUpload() == true) {
 			List<GramPanchayat> gpList = gramPanchayatRepository.findByGpCode(bean.getGramPanchayatId().toString());
 			if (!gpList.isEmpty()) {
-			    GramPanchayat firstGp = gpList.get(0);
-			    entity.setGramPanchayat(new GramPanchayat(firstGp.getGramPanchayatId()));
+				GramPanchayat firstGp = gpList.get(0);
+				entity.setGramPanchayat(new GramPanchayat(firstGp.getGramPanchayatId()));
 			}
-		
-		}else {
+
+		} else {
 			entity.setGramPanchayat(new GramPanchayat(bean.getGramPanchayatId()));
 		}
-		
-		if(bean.isKmlFileUpload()==true) {
+
+		if (bean.isKmlFileUpload() == true) {
 			Village village = villageRepository.findByVillageCode(bean.getVillageId().toString());
-			    entity.setVillage(new Village(village.getId()));
-			
-		}else{
-		if (bean.getVillageId() != null)
-					entity.setVillage(new Village(bean.getVillageId()));
+			entity.setVillage(new Village(village.getId()));
+
+		} else {
+			if (bean.getVillageId() != null)
+				entity.setVillage(new Village(bean.getVillageId()));
 		}
-		
+
 		entity.setWorkLocationLatitude(bean.getWorkLocationLatitude());
 		entity.setWorkLocationLongitude(bean.getWorkLocationLongitude());
 		entity.setLocationAddress(bean.getLocationAddress());
@@ -1883,29 +1922,28 @@ public class EeServiceImpl implements EeService {
 		if (bean.getSubEngineerId() != null)
 			entity.setSubEngineer(new Users(bean.getSubEngineerId()));
 
-		
 		if (bean.getSubDivisionOfficerId() != null)
 			entity.setSubDivisionalOfficer(new Users(bean.getSubDivisionOfficerId()));
 		/* entity.setStatus(RESConstants.STATUS_ACTIVE); */
 		/* entity.setStatus(bean.getStatus()); */
-		
-		
-			if (bean.getSpecificFieldsEditFlag()==null ) {
-				entity.setWorkRequestStatusId(new RequestStatus(bean.getWorkRequestStatusId()));
-			}
-			entity.setIsLegacy((short) 0);
-		//setting work status as not started.
+
+		if (bean.getSpecificFieldsEditFlag() == null) {
+			entity.setWorkRequestStatusId(new RequestStatus(bean.getWorkRequestStatusId()));
+		}
+		entity.setIsLegacy((short) 0);
+		// setting work status as not started.
 		entity.setWorkStatusId(new WorkStatus(RESConstants.STATUS_NOT_STARTED_ID));
-		//end here
-	
+		// end here
 
 		if (bean.getRemarks() != null) {
 			entity.setRemarks(bean.getRemarks());
 		}
-		
-		/*if (bean.getContractorId() != null) {
-			entity.setContractor(new Contractor(bean.getContractorId()));
-		}*/
+
+		/*
+		 * if (bean.getContractorId() != null) {
+		 * entity.setContractor(new Contractor(bean.getContractorId()));
+		 * }
+		 */
 
 	}
 
@@ -1922,73 +1960,64 @@ public class EeServiceImpl implements EeService {
 				documentRepository.save(documentUpload);
 				entity.setLineDepartmentFile(documentUpload);
 			}
-			
-			// Requisition Work ID Generation
-			
-			
-						String lastWord = workBean.getExecutiveEngineerOfficeName()
-								.substring(
-										workBean.getExecutiveEngineerOfficeName()
-												.lastIndexOf(",") + 1);
-						
-						int index=entity.getWorkRequisitionNo().lastIndexOf('_');
-						String oldRequisition = entity.getWorkRequisitionNo().substring(0,index);
-						
-						
-						
-						WorkRequisitionIdGeneration workRequisitionIdGeneration = null;
-						
-						if (workBean.getAgencyTypeId() == 1) {
-							workRequisitionIdGeneration =	workRequisitionIdGenerationRepository.findByDivisionAgency(lastWord+"_RC");
-						} else if (workBean.getAgencyTypeId() == 2) {
-							workRequisitionIdGeneration = workRequisitionIdGenerationRepository.findByDivisionAgency(lastWord+"_GP");
-						} else if (workBean.getAgencyTypeId() == 3) {
-							workRequisitionIdGeneration = workRequisitionIdGenerationRepository.findByDivisionAgency(lastWord+"_RD");
-						}
-						
-						
-						
-						
-						if (workRequisitionIdGeneration==null) {
-							entity.setWorkRequisitionNo(lastWord + "_1");
-							persistFirstRequestIdGeneration(lastWord, 1);
-						} else {
-							if(!oldRequisition.equals(workRequisitionIdGeneration.getDivisionAgency()))
-							{
-								
-								
-								int newCount = workRequisitionIdGeneration.getCounter()+1;
-								workRequisitionIdGeneration.setCounter(newCount);
-								workRequisitionIdGenerationRepository.save(workRequisitionIdGeneration);
 
-								
-								
-								if (workBean.getAgencyTypeId() == 1) {
-									entity.setWorkRequisitionNo(lastWord+"_RC" + "_" + newCount);	
-								} else if (workBean.getAgencyTypeId() == 2) {
-									entity.setWorkRequisitionNo(lastWord+"_GP" + "_" + newCount);	
-								} else if (workBean.getAgencyTypeId() == 3) {
-									entity.setWorkRequisitionNo(lastWord+"_RD" + "_" + newCount);	
-								}
-								
-								
-								
-								WorkRequisitionIdGeneration workRequisitionIdGenerationOld =workRequisitionIdGenerationRepository.findByDivisionAgency(oldRequisition);
-								
-								int newCountTwo = workRequisitionIdGeneration.getCounter()-1;
-								workRequisitionIdGenerationOld.setCounter(newCountTwo);
-								workRequisitionIdGenerationRepository.save(workRequisitionIdGenerationOld);
-							}
-						}
-			
+			// Requisition Work ID Generation
+
+			String lastWord = workBean.getExecutiveEngineerOfficeName()
+					.substring(
+							workBean.getExecutiveEngineerOfficeName()
+									.lastIndexOf(",") + 1);
+
+			int index = entity.getWorkRequisitionNo().lastIndexOf('_');
+			String oldRequisition = entity.getWorkRequisitionNo().substring(0, index);
+
+			WorkRequisitionIdGeneration workRequisitionIdGeneration = null;
+
+			if (workBean.getAgencyTypeId() == 1) {
+				workRequisitionIdGeneration = workRequisitionIdGenerationRepository
+						.findByDivisionAgency(lastWord + "_RC");
+			} else if (workBean.getAgencyTypeId() == 2) {
+				workRequisitionIdGeneration = workRequisitionIdGenerationRepository
+						.findByDivisionAgency(lastWord + "_GP");
+			} else if (workBean.getAgencyTypeId() == 3) {
+				workRequisitionIdGeneration = workRequisitionIdGenerationRepository
+						.findByDivisionAgency(lastWord + "_RD");
+			}
+
+			if (workRequisitionIdGeneration == null) {
+				entity.setWorkRequisitionNo(lastWord + "_1");
+				persistFirstRequestIdGeneration(lastWord, 1);
+			} else {
+				if (!oldRequisition.equals(workRequisitionIdGeneration.getDivisionAgency())) {
+
+					int newCount = workRequisitionIdGeneration.getCounter() + 1;
+					workRequisitionIdGeneration.setCounter(newCount);
+					workRequisitionIdGenerationRepository.save(workRequisitionIdGeneration);
+
+					if (workBean.getAgencyTypeId() == 1) {
+						entity.setWorkRequisitionNo(lastWord + "_RC" + "_" + newCount);
+					} else if (workBean.getAgencyTypeId() == 2) {
+						entity.setWorkRequisitionNo(lastWord + "_GP" + "_" + newCount);
+					} else if (workBean.getAgencyTypeId() == 3) {
+						entity.setWorkRequisitionNo(lastWord + "_RD" + "_" + newCount);
+					}
+
+					WorkRequisitionIdGeneration workRequisitionIdGenerationOld = workRequisitionIdGenerationRepository
+							.findByDivisionAgency(oldRequisition);
+
+					int newCountTwo = workRequisitionIdGeneration.getCounter() - 1;
+					workRequisitionIdGenerationOld.setCounter(newCountTwo);
+					workRequisitionIdGenerationRepository.save(workRequisitionIdGenerationOld);
+				}
+			}
 
 			convertWorkBeanToEntityDuringRequisition(entity, workBean);
 
 			/* convertWorkBeanToEntityDuringEdit(entity, workBean); */
-			if(workBean.getSpecificFieldsEditFlag()==null ) {
+			if (workBean.getSpecificFieldsEditFlag() == null) {
 				entity.setFinancialYear("AS Pending");
 			}
-			
+
 			workRepository.save(entity);
 
 			return null;
@@ -1999,30 +2028,32 @@ public class EeServiceImpl implements EeService {
 		}
 
 	}
-	
-	/*private void persistNextLegacyIdGeneration(String lastWord, Integer count) {
-		// TODO Auto-generated method stub
-		WorkLegacyIdGeneration workLegacyIdGeneration = new WorkLegacyIdGeneration();
-		workLegacyIdGeneration.setDivisionAgency(lastWord);
-		workLegacyIdGeneration.setCounter(count);
-		workLegacyIdGenerationRepository.save(workLegacyIdGeneration);
 
-	}*/
-	
+	/*
+	 * private void persistNextLegacyIdGeneration(String lastWord, Integer count) {
+	 * // TODO Auto-generated method stub
+	 * WorkLegacyIdGeneration workLegacyIdGeneration = new WorkLegacyIdGeneration();
+	 * workLegacyIdGeneration.setDivisionAgency(lastWord);
+	 * workLegacyIdGeneration.setCounter(count);
+	 * workLegacyIdGenerationRepository.save(workLegacyIdGeneration);
+	 * 
+	 * }
+	 */
+
 	private void persistFirstLegacyIdGeneration(String lastWord, int i) {
-		
+
 		WorkLegacyIdGeneration workLegacyIdGeneration = new WorkLegacyIdGeneration();
 		workLegacyIdGeneration.setDivisionAgency(lastWord);
 		workLegacyIdGeneration.setCounter(1);
 		workLegacyIdGenerationRepository.save(workLegacyIdGeneration);
 
 	}
-	
+
 	@Override
 	public List<KmlFilePoints> processKmlFile(KmlFilePoints bean) {
 		MultipartFile file = bean.getKmlFile();
 		List<KmlFilePoints> pointsList = new ArrayList<>();
-		//System.err.println(bean.getProjectId());
+		// System.err.println(bean.getProjectId());
 		Set<GramPanchayatBean> beangp = new HashSet<>();
 		Set<Long> gpId = new HashSet<>();
 		User user = RESUtil.getUserDetail();
@@ -2042,7 +2073,7 @@ public class EeServiceImpl implements EeService {
 			gpcode = b.getGramPanchayatId().toString();
 
 		}
-		
+
 		try {
 			// Build the SAXBuilder
 			SAXBuilder saxBuilder = new SAXBuilder();
@@ -2107,7 +2138,7 @@ public class EeServiceImpl implements EeService {
 				}
 			}
 
-		//	System.err.println(grampanchayatCodeList + " - " + gpcode);
+			// System.err.println(grampanchayatCodeList + " - " + gpcode);
 
 			// Create a list to store the coordinates elements
 			List<Element> coordinatesElements = new ArrayList<>();
@@ -2196,6 +2227,7 @@ public class EeServiceImpl implements EeService {
 		pointsList.get(0).setGpCodeList(Arrays.asList(gpcode));
 		return pointsList;
 	}
+
 	private GramPanchayatBean convertGramPanchayatEntityToBean(GramPanchayat entity) {
 
 		GramPanchayatBean bean = new GramPanchayatBean();
@@ -2211,90 +2243,83 @@ public class EeServiceImpl implements EeService {
 		return bean;
 	}
 
-
-	 @Override
+	@Override
 	public VillageBean fetchVillageByVCode(Long long1) {
-		 VillageBean bean = new VillageBean();
-		
-		 try {
-			 Village entity = villageRepository.findOne(long1);
-			 
-			  Village vEntity =  villageRepository.findByVillageCode(entity.getVillageCode());
-			 
-			 
+		VillageBean bean = new VillageBean();
+
+		try {
+			Village entity = villageRepository.findOne(long1);
+
+			Village vEntity = villageRepository.findByVillageCode(entity.getVillageCode());
+
 			bean = convertVillageEntityToBean(vEntity);
-			
-			
+
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		
-		
-		 
-		 return bean;
-		 
+
+		return bean;
+
 	}
-	 
-	 @Override
-		public List<GramPanchayatBean> fetchGramPanchayatByGPCode(Long gpCode) {
-			 List<GramPanchayatBean> beanl = new ArrayList<>();
-			 try {
-				  List<GramPanchayat> entityl =  gramPanchayatRepository.findByGpCode(gpCode.toString());
-				  for(GramPanchayat entity:entityl) {
-					  GramPanchayatBean bean = new GramPanchayatBean();
-				  bean.setGpCode(entity.getGpCode());
-				  bean.setGramPanchayatId(entity.getGramPanchayatId());
-				  bean.setGpName(entity.getGpName());
-				  bean.setGpNameH(entity.getGpNameH());
-				  beanl.add(bean);
-				  }
-				  
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-			
-			
-			 return beanl;
-			
-		}
-	 
-	 public GramPanchayatBean fetchLgdGpCode(Long gpId) {
-			 try {
-				  GramPanchayat entity =  gramPanchayatRepository.findOne(gpId);
-				  GramPanchayatBean bean = new GramPanchayatBean();
-				  bean.setGpCode(entity.getGpCode());
-				  bean.setGramPanchayatId(entity.getGramPanchayatId());
-				  bean.setGpName(entity.getGpName());
-				  bean.setGpNameH(entity.getGpNameH());
-				  return bean;
-				  
-				  
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-			return null;
-		}
-	 
-	 private VillageBean convertVillageEntityToBean(Village entity) {
 
-			VillageBean bean = new VillageBean();
-
-			if (entity != null) {
-
-				bean.setBlockCode(entity.getBlockCode());
-				bean.setDistrictCode(entity.getDistrictCode());
-				bean.setEnabled(RESConstants.ENABLED);
+	@Override
+	public List<GramPanchayatBean> fetchGramPanchayatByGPCode(Long gpCode) {
+		List<GramPanchayatBean> beanl = new ArrayList<>();
+		try {
+			List<GramPanchayat> entityl = gramPanchayatRepository.findByGpCode(gpCode.toString());
+			for (GramPanchayat entity : entityl) {
+				GramPanchayatBean bean = new GramPanchayatBean();
 				bean.setGpCode(entity.getGpCode());
-				bean.setVillageId(entity.getId());
-				System.out.println(entity.getId());
-				bean.setVillageName(entity.getVillageName());
-				bean.setTehsilCode(entity.getTehsilCode());
-				bean.setVillageCode(entity.getVillageCode());
-
+				bean.setGramPanchayatId(entity.getGramPanchayatId());
+				bean.setGpName(entity.getGpName());
+				bean.setGpNameH(entity.getGpNameH());
+				beanl.add(bean);
 			}
+
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
+		return beanl;
+
+	}
+
+	public GramPanchayatBean fetchLgdGpCode(Long gpId) {
+		try {
+			GramPanchayat entity = gramPanchayatRepository.findOne(gpId);
+			GramPanchayatBean bean = new GramPanchayatBean();
+			bean.setGpCode(entity.getGpCode());
+			bean.setGramPanchayatId(entity.getGramPanchayatId());
+			bean.setGpName(entity.getGpName());
+			bean.setGpNameH(entity.getGpNameH());
 			return bean;
 
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
+		return null;
+	}
+
+	private VillageBean convertVillageEntityToBean(Village entity) {
+
+		VillageBean bean = new VillageBean();
+
+		if (entity != null) {
+
+			bean.setBlockCode(entity.getBlockCode());
+			bean.setDistrictCode(entity.getDistrictCode());
+			bean.setEnabled(RESConstants.ENABLED);
+			bean.setGpCode(entity.getGpCode());
+			bean.setVillageId(entity.getId());
+			System.out.println(entity.getId());
+			bean.setVillageName(entity.getVillageName());
+			bean.setTehsilCode(entity.getTehsilCode());
+			bean.setVillageCode(entity.getVillageCode());
+
+		}
+		return bean;
+
+	}
 
 	@Override
 	public BlockBean fetchblockCode(Long blockId) {
@@ -2303,4 +2328,307 @@ public class EeServiceImpl implements EeService {
 		bean.setBlockCode(block.getBlockCode());
 		return bean;
 	}
+
+	@Override
+	@Transactional
+	public ResponseObject IssueEmbNumber(EmbDto dto, UserBean fetchLoggedInUserDetails) {
+		ResponseObject object = new ResponseObject();
+
+		try {
+
+			Long workId = dto.getWorkid();
+
+			workEmb entity = null;
+			// Fetch or create new entity
+
+			entity = embRepository.findByWorkId(workId);
+
+			if (entity == null) {
+
+				entity = new workEmb();
+			}
+
+			// Fetch required data
+			Work work = workRepository.findOne(workId);
+			Long villageId = work.getVillage().getId();
+			String villageCode = villageRepository.findOne(villageId).getVillageCode();
+			Users engineer = userRepository.findOne(dto.getEngineerId());
+
+			// Prepare EMB number
+			String embNumber = villageCode + "/" + workId;
+			entity.setRemarks(dto.getRemarks());
+			entity.setIpAddress(dto.getIpAddress());
+			// Set values
+			entity.setWorkId(workId);
+			entity.setEngineerId(dto.getEngineerId());
+			entity.setEmbNo(embNumber);
+
+			// Update work status
+			work.seteMbStatus(1L);
+			Work save = workRepository.save(work);
+			entity.seteMbIssueDate(new Date());
+			// Save EMB
+			embRepository.save(entity);
+
+			object.setSuccessMessage(
+					"e-MB No. - " + embNumber + " has been successfully issued for the work Id "
+							+ workId + " to " + engineer.getUsername());
+
+			return object;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error while issuing e-MB");
+		}
+
+	}
+
+	@Override
+	public WorkAgreementJson fetchWorkListForEmb(Pageable pageable,
+			String searchBoxVal, String loggedInUserRole, String username) {
+
+		WorkAgreementJson workAgreementJson = null;
+
+		if (searchBoxVal.isEmpty()) {
+			searchBoxVal = null;
+		}
+
+		try {
+
+			// Page<Work> work = null;
+
+			Users entity = userRepository.findByUsernameAndStatus(username,
+					RESConstants.STATUS_ACTIVE);
+			long count = 0;
+			int maxLimit = (pageable.getPageSize() * pageable.getPageNumber()) == 0 ? pageable.getPageSize()
+					: (pageable.getPageSize() * pageable.getPageNumber());
+			List<Object[]> entityList = null;
+			if (loggedInUserRole.equals(RESConstants.ROLE_EE)) {// EE login
+				entityList = workRepository
+						.findPendingWorkAgrrementByExecutiveEngineerOfficeQuery(entity.getOffice().getId(),
+								pageable.getOffset(), maxLimit);
+
+				count = workRepository
+						.findPendingWorkAgrrementByExecutiveEngineerOfficeCount(entity.getOffice().getId());
+			}
+
+			// if (work != null) {
+
+			List<WorkAgreementBean> beanList = new ArrayList<>();
+			if (entityList != null && !entityList.isEmpty()) {
+
+				int index = pageable.getPageNumber() * pageable.getPageSize();
+
+				for (Object[] objArr : entityList) {
+
+					// WorkAgreementBean bean = convertWorkEntityToAgreementBean(element);
+					WorkAgreementBean bean = new WorkAgreementBean();
+					bean.setWorkId(Long.parseLong(objArr[0].toString()));
+					bean.setWorkName((String) objArr[2]);
+					bean.setWorkRequisitionNo((String) objArr[1]);
+					bean.setWorkStatus((String) objArr[8]);
+					bean.setExecutionAgency((String) objArr[4]);
+
+					// WorkTender workTender = workTenderRepository.findByWorkId(work.getId());
+					// WorkTender workTender =
+					// (workTenderRepository.findByWorkIdOrderByCreatedDateDesc(work.getId()).size()>0?workTenderRepository.findByWorkIdOrderByCreatedDateDesc(work.getId()).get(0):null);
+					if (objArr[5] != null) {
+						bean.setTenderCost((BigDecimal) objArr[5]);
+						bean.setContractorId(Long.parseLong(objArr[6].toString()));
+						bean.setContractorName((String) objArr[7]);
+					}
+					if (objArr[13] != null)
+						bean.setTenderId(Long.parseLong(objArr[13].toString()));
+
+					// WorkAgreement workAgreement =
+					// workAgreementRepository.findByWorkTender(workTender);
+					if (objArr[10] != null) {
+						bean.setAgreementDate(
+								RESUtil.convertDateToStringWithFormat((Date) objArr[10], RESConstants.DATE_FORMAT));
+						// bean.setWrittenOrderDate(RESUtil.convertDateToStringWithFormat(workAgreement.getWritten_order_date(),
+						// RESConstants.DATE_FORMAT));
+						bean.setTentativeCompletionDate(
+								RESUtil.convertDateToStringWithFormat((Date) objArr[11], RESConstants.DATE_FORMAT));
+
+					}
+					if (objArr[9] != null)
+						bean.setWorkAgreementStatusId(Long.parseLong(objArr[9].toString()));
+					if (objArr[15] != null)
+						bean.setWorkAgreementStatus((String) objArr[15]);
+					if (objArr[14] != null)
+						bean.setWorkAgreementId(Long.parseLong(objArr[14].toString()));
+					if (objArr[12] != null)
+						bean.setParentId(Long.parseLong(objArr[12].toString()));
+
+                       workEmb byWorkId = embRepository.findByWorkId(bean.getWorkId());
+
+					if (byWorkId != null) {
+						bean.setEmbNo(byWorkId.getEmbNo());
+						
+					}
+
+
+					bean.setIndex(++index);
+					beanList.add(bean);
+				}
+
+			}
+			workAgreementJson = new WorkAgreementJson();
+			workAgreementJson.setiTotalDisplayRecords(count);
+			workAgreementJson.setiTotalRecords(count);
+			workAgreementJson.setAaData(beanList);
+			// }
+			return workAgreementJson;
+		} catch (Exception e) {
+			logger.error("An exception occurred.", e);
+			return workAgreementJson;
+		}
+	}
+
+	@Override
+	public List<Users> getAllEngineerOfficer(Long id) {
+		List<Users> users = new ArrayList<>();
+		try {
+			Users one = userRepository.findOne(id);
+			List<Designation> asList = Arrays.asList(new Designation(6L));
+
+			List<Users> byDistrictAndDesignationIdIn = userRepository
+					.findByOfficeAndDesignationAndStatus(one.getOffice(), asList, "Active");
+			for (Users a : byDistrictAndDesignationIdIn) {
+				Users u = new Users();
+				u.setId(a.getId());
+				// u.setFirstname(a.getFir);
+				u.setEmailId(a.getEmailId());
+				u.setUsername(a.getUsername());
+				u.setMobileNo(a.getMobileNo());
+
+				users.add(u);
+			}
+			return users;
+		} catch (Exception e) {
+			logger.info("Error comes in fething Engineers", e);
+			return null;
+		}
+	}
+
+	@Override
+	public List<Office> getOfficeOfTSPerson(Long id, Long workId) {
+
+		List<Office> list = new ArrayList<>();
+
+		if (workId == null || id == null) {
+			return list;
+		}
+
+		try {
+
+			Work work = workRepository.findOne(workId);
+
+			if (work == null) {
+				return list;
+			}
+
+			String workName = work.getWorkName();
+
+			Users user = userRepository.findOne(id);
+
+			if (user == null) {
+				return list;
+			}
+
+			Office office2 = officeRepository.findOne(user.getOffice().getId());
+
+
+			Office office =  new Office();
+
+
+			if (office2 != null) {
+				office.setOfficeName(office2.getOfficeName());
+			}
+
+			if (workName != null) {
+				office.setOfficeNameH(workName);
+			}
+
+			list.add(office);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Error in getOfficeOfTSPerson", e);
+		}
+
+		return list;
+	}
+
+	
+@Override
+public WorkJson fetchWorkWithEmbIssuedForEnginner(UserBean user, Pageable pageable, String searchBoxVal,
+			String ProjectId, String blockId, String grampanchayatId, String villageId) {
+	
+
+				WorkJson workjson = new WorkJson();
+		try {
+			Long project = null;
+			if (ProjectId != null) {
+				project = Long.parseLong(ProjectId);
+			}
+			Long block = null;
+			if (blockId != null) {
+				block = Long.parseLong(blockId);
+			}
+			Long grampanchayat = null;
+			if (grampanchayatId != null) {
+				grampanchayat = Long.parseLong(grampanchayatId);
+			}
+			Long village = null;
+			if (villageId != null) {
+				village = Long.parseLong(villageId);
+			}
+
+			Page<Work> work = null;
+
+			Long id = user.getId();
+			List<workEmb> embs = null;
+			if (searchBoxVal != null && !searchBoxVal.isEmpty()) {
+				embs = embRepository.findByEmbNoContaining(searchBoxVal);
+			}
+			List<workEmb> workids = embRepository.findAllByEngineerId(id);
+
+			if (embs != null) {
+
+			}
+			work = workRepository.fetchWorkWithEmbIssuedEngineer(pageable,  
+					 id, searchBoxVal);
+
+			if (work != null) {
+				List<Work> entityList = work.getContent();
+				List<WorkBean> beanList = new ArrayList<>();
+				if (entityList != null) {
+
+					int index = pageable.getPageNumber() * pageable.getPageSize();
+					for (Work proj : entityList) {
+						//proj.setProjectName("TS");
+						WorkBean bean = convertWorkEntityToBean(proj);
+
+						
+
+						bean.setIndex(++index);
+						beanList.add(bean);
+					}
+				}
+				workjson = new WorkJson();
+				workjson.setiTotalDisplayRecords(work.getTotalElements());
+				workjson.setiTotalRecords(workRepository.count());
+				workjson.setAaData(beanList);
+			}
+			return workjson;
+		} catch (Exception e) {
+			logger.error("An exception occurred.", e);
+			return workjson;
+		}
+}
+
+
+
+
 }

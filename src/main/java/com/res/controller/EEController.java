@@ -28,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,6 +46,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.res.bean.BlockBean;
 import com.res.bean.BudgetRequestBean;
+import com.res.bean.EmbDto;
 import com.res.bean.GramPanchayatBean;
 import com.res.bean.KmlFilePoints;
 import com.res.bean.LatLngForestResponse;
@@ -53,9 +55,12 @@ import com.res.bean.UserBean;
 import com.res.bean.VillageBean;
 import com.res.bean.WorkBean;
 import com.res.constants.RESConstants;
+import com.res.entity.Office;
 import com.res.entity.Users;
+import com.res.json.BillJson;
 import com.res.json.BudgetRequestDetailJson;
 import com.res.json.BudgetRequestJson;
+import com.res.json.WorkAgreementJson;
 import com.res.repository.UserRepository;
 import com.res.response.ResponseObject;
 import com.res.service.AdminService;
@@ -1333,5 +1338,148 @@ public class EEController extends BaseController {
 		public List<UserBean> fetchSubDivionOfficersByOfficeId(HttpServletRequest request, @PathVariable Long officeId) {
 			return commonService.fetchSubdivisionalOfficersByOfficeId(officeId);
 		}
+
+                 
+       
+	@RequestMapping(value = "/issueEMBNumber", method = RequestMethod.GET)
+	public ModelAndView issueEMBNumber(HttpServletRequest request) {
+
+		user = RESUtil.getUserDetail();
+		logger.info("User - {}, Role - {} - Displaying issueEMBNumber Form", user.getUsername(),
+				user.getAuthorities());
+		ModelAndView modelAndView = new ModelAndView("ee/issueEMBNumber");
+
+		return modelAndView;
+	}
+
+
+	private static String getClientIp(HttpServletRequest request) {
+
+	    String ip = request.getHeader("X-Forwarded-For");
+	    if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+	        ip = request.getHeader("Proxy-Client-IP");
+	    }
+	    if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+	        ip = request.getHeader("WL-Proxy-Client-IP");
+	    }
+	    if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+	        ip = request.getHeader("HTTP_CLIENT_IP");
+	    }
+	    if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+	        ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+	    }
+	    if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+	        ip = request.getRemoteAddr();
+	    }
+
+	    return ip;
+	}
+
+	@PostMapping(value = "IssueEmbNumber")
+	public ResponseObject IssueEmbNumber(HttpServletRequest request,@RequestBody EmbDto dto)
+	{
+		ResponseObject object = null;
+		
+		dto.setIpAddress(getClientIp(request));
+		
+		return eeService.IssueEmbNumber(dto,fetchLoggedInUserDetails(request));
+	
+		
+	}
+
+    @RequestMapping(value = "/fetchWorkForEmb", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	public String fetchWorkListForEmb(HttpServletRequest request) {
+
+		user = RESUtil.getUserDetail();
+		logger.info("User - " + user.getUsername() + ", Role - " + user.getAuthorities()
+				+ " - Fetching Work Agreement List");
+
+		String searchBoxVal = request.getParameter("searchBoxVal");
+		Long workType = null;
+		Long workSubType = null;
+		if (null != request.getParameter("workType")) {
+			workType = Long.parseLong(request.getParameter("workType"));
+		}
+		if (null != request.getParameter("workSubType")) {
+			workSubType = Long.parseLong(request.getParameter("workSubType"));
+		}
+
+		String sSortCol = request.getParameter("iSortCol_0");
+		String sSortDir = request.getParameter("sSortDir_0");
+		String sColName = request.getParameter("mDataProp_" + sSortCol);
+
+		// Fetch the page number from client
+		Integer pageNumber = 0;
+
+		// Fetch search parameter
+		// String searchParameter = request.getParameter("sSearch");
+
+		// Fetch Page display length
+		Integer pageDisplayLength = Integer.valueOf(request.getParameter("iDisplayLength"));
+
+		if (null != request.getParameter("iDisplayStart")) {
+			pageNumber = (Integer.valueOf(request.getParameter("iDisplayStart")) / pageDisplayLength);
+		}
+
+		Sort sort = null;
+		if (sColName != null) {
+			if (StringUtils.equals("asc", sSortDir)) {
+				sort = new Sort(new Sort.Order(Direction.ASC, sColName));
+			} else {
+				sort = new Sort(new Sort.Order(Direction.DESC, sColName));
+			}
+		} else {
+			sort = new Sort(new Sort.Order(Direction.DESC, "id"));// default
+																	// sorting
+		}
+
+		Pageable pageable = new PageRequest(pageNumber, pageDisplayLength, sort);
+
+		HttpSession httpSession = request.getSession(false);
+
+		String role = (String) httpSession.getAttribute(RESConstants.LOGGED_IN_USER_ROLE);
+
+		WorkAgreementJson workAgreementJson = eeService.fetchWorkListForEmb(pageable, searchBoxVal, role,
+				user.getUsername());
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String json = gson.toJson(workAgreementJson);
+
+		return json;
+	}
+
+	@GetMapping(value = "getAllEngineerOfficer",produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<Users> getAllEngineerOfficer(HttpServletRequest request)
+	{
+		try {
+			 List<Users> users = eeService.getAllEngineerOfficer(fetchLoggedInUserDetails(request).getId());
+			 return users;
+		} catch (Exception e) {
+			logger.info("Error getting The Data",e);
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+
+	@GetMapping(value = "getOfficeOfTSPerson/{workId}",produces = MediaType.APPLICATION_JSON_VALUE)
+	public  List<Office> getOfficeOfTSPerson(@PathVariable("workId") Long workId,HttpServletRequest request){
+		try {
+			logger.info("Getting Office Of The Person Who Has Done Ts");
+	 List<Office> officeOfTSPerson = eeService.getOfficeOfTSPerson(fetchLoggedInUserDetails(request).getId(),workId);
+		logger.info("Getting Office Of The Person Who Has Done Ts");
+	 return officeOfTSPerson;
+		} catch (Exception e) {
+			logger.info("Error getting The Data",e);
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	
+
+	
+
+
 
 }
