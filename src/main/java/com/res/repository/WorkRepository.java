@@ -5457,4 +5457,27 @@ public interface WorkRepository
 
 	Page<Work> findByBillingFlagAndChiefEngineerOffice(Pageable pageable, short s, Office office);
 
+    @Query("SELECT w FROM Work w WHERE  " +
+		     
+		     
+		       " w.eMbStatus IS NOT NULL " +
+		       "AND w.id IN ( " +
+		       "   SELECT e.workId FROM workEmb e " +
+		       "   WHERE e.engineerId = :engineerId " +
+		       "   AND (:search IS NULL OR e.embNo LIKE %:search%) " +
+		       ") " 
+		      
+		      
+		       
+		      )
+		Page<Work> fetchWorkWithEmbIssuedEngineer(
+		        Pageable pageable,
+		     
+		       
+		     
+		      
+		      
+		        @Param("engineerId") Long engineerId,
+		        @Param("search") String search
+		);
 }

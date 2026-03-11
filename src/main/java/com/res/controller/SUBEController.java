@@ -10,6 +10,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,12 +33,15 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.thymeleaf.util.StringUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.res.bean.KmlFilePoints;
 import com.res.bean.LatLngForestResponse;
 import com.res.bean.UserBean;
 import com.res.bean.WorkBean;
 import com.res.constants.RESConstants;
 import com.res.entity.Users;
+import com.res.json.WorkJson;
 import com.res.response.ResponseObject;
 import com.res.service.AdminService;
 import com.res.service.CommonService;
@@ -631,6 +638,73 @@ public class SUBEController extends BaseController{
 
 		return ResponseEntity.ok(response.getBody());
 
+	}
+
+
+	@RequestMapping(value = "/viewIssuedEmb", method = RequestMethod.GET)
+	public ModelAndView viewIssuedEmb(HttpServletRequest request) {
+
+		user = RESUtil.getUserDetail();
+		logger.info("User - {}, Role - {} - Displaying issueEMBNumber Form", user.getUsername(),
+				user.getAuthorities());
+		ModelAndView modelAndView = new ModelAndView("ee/viewIssuedEmb");
+
+		return modelAndView;
+	}
+
+
+	@RequestMapping(value = "/fetchWorkWithEmbIssuedForEngineer", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	public String fetchWorkWithEmbIssued(HttpServletRequest request) {
+
+		user = RESUtil.getUserDetail();
+		logger.info("User - {}, Role - {} - fetch Work List", user.getUsername(), user.getAuthorities());
+		String searchBoxVal = request.getParameter("searchBoxVal");
+		String projectId = request.getParameter("projectName");
+		String blockId = request.getParameter("blockName");
+		String grampanchayatId = request.getParameter("grampanchayatId");
+
+		String villageId = request.getParameter("villageId");
+
+		String sSortCol = request.getParameter("iSortCol_0");
+		String sSortDir = request.getParameter("sSortDir_0");
+		String sColName = request.getParameter("mDataProp_" + sSortCol);
+
+		UserBean user = fetchLoggedInUserDetails(request);
+		// Fetch the page number from client
+		Integer pageNumber = 0;
+
+		Integer pageDisplayLength = Integer.valueOf(request.getParameter("iDisplayLength"));
+
+		if (null != request.getParameter("iDisplayStart")) {
+			pageNumber = (Integer.valueOf(request.getParameter("iDisplayStart")) / pageDisplayLength);
+		}
+
+		Sort sort = null;
+		if (sColName != null) {
+			if (StringUtils.equals("asc", sSortDir)) {
+				sort = new Sort(new Sort.Order(Direction.ASC, sColName));
+			} else {
+				sort = new Sort(new Sort.Order(Direction.DESC, sColName));
+			}
+		} else {
+			sort = new Sort(new Sort.Order(Direction.DESC, "workId"));// default sorting
+		}
+
+		Pageable pageable = new PageRequest(pageNumber, pageDisplayLength, sort);
+
+		// WorkCreationJson workjson = workService.getAllWork(pageable, searchBoxVal);
+		WorkJson workjson = eeService.fetchWorkWithEmbIssuedForEnginner(user, pageable,
+				!StringUtils.isEmpty(searchBoxVal) ? searchBoxVal : null,
+				!StringUtils.isEmpty(projectId) ? projectId : null, !StringUtils.isEmpty(blockId) ? blockId : null,
+				!StringUtils.isEmpty(grampanchayatId) ? grampanchayatId : null,
+				!StringUtils.isEmpty(villageId) ? villageId : null
+
+		);
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String json = gson.toJson(workjson);
+
+		return json;
 	}
 	
 }

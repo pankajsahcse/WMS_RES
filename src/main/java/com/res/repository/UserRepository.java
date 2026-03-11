@@ -139,7 +139,7 @@ public interface UserRepository  extends JpaRepository<Users, Long> {
 	
 	Users findByOfficeAndIsOICAndStatus(Office office, short s, String string);
 
-	List<Users> findByDesignationAndStatus(Designation designation, String statusActive);
+	List<Users> findByDesignationAndStatus(List<Designation> asList, String statusActive);
 
 	/*List<Object[]> findOfficersNameAndDesigForInsp();*/
 	
@@ -147,5 +147,9 @@ public interface UserRepository  extends JpaRepository<Users, Long> {
 	public List<Object[]> findOfficersNameAndDesigForInsp();
 
 	List<Users> findByStatus(String statusActive);
+
+    List<Users> findByOfficeAndDesignationAndStatus(Office office, List<Designation> asList, String string);
+
+    List<Users> findByDesignationAndStatus(Designation designation, String statusActive);
 
 }
