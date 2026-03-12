@@ -84,6 +84,10 @@ public class WorkTemplateBean {
 	private Integer index;
 	private Integer parentIndex;
 	private Short templateType;
+
+	private String lastMeasurementDate;
+
+	
 	
 	public Short getTemplateType() {
 		return templateType;
@@ -455,6 +459,14 @@ public class WorkTemplateBean {
 
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
+	}
+
+	public String getLastMeasurementDate() {
+		return lastMeasurementDate;
+	}
+
+	public void setLastMeasurementDate(String lastMeasurementDate) {
+		this.lastMeasurementDate = lastMeasurementDate;
 	}
 
 }

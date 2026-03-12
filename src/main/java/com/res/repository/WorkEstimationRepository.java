@@ -12,6 +12,7 @@ import com.res.entity.RequestStatus;
 import com.res.entity.TechnicalSanctionType;
 import com.res.entity.Work;
 import com.res.entity.WorkEstimation;
+import com.res.entity.WorkEstimationItems;
 import com.res.entity.WorkEstimationStatus;
 
 public interface WorkEstimationRepository extends
@@ -369,6 +370,8 @@ public interface WorkEstimationRepository extends
 
 	List<WorkEstimation> findByWork(Work work);
 
+	WorkEstimation findByWorkAndEnabled(Work work, Boolean enabled);
+
 	
 
 	List<WorkEstimation> findByIdAndEnabledOrderByModifiedDateDesc(Long estimationId, boolean b);
@@ -664,6 +667,8 @@ public interface WorkEstimationRepository extends
 	 
 	 @Query(value = "SELECT * FROM work_estimate WHERE work_id = :workId ORDER BY id DESC LIMIT 1", nativeQuery = true)
 	 WorkEstimation findLatestByWorkId(@Param("workId") Long workId);
+
+	// List<WorkEstimationItems> findByWorkEstimationAndEnabled(WorkEstimation byWork, boolean b);
 
 
 	
