@@ -33,6 +33,12 @@ public class WorkBean {
 	
 	private BigDecimal estimationTotalAmount;
 	
+
+	private String embNo;
+
+	private String embDate;
+
+	
 	
 	private Integer id;
 
@@ -2578,6 +2584,22 @@ public class WorkBean {
 
 	public void setDivisionName(String divisionName) {
 		this.divisionName = divisionName;
+	}
+
+	public String getEmbNo() {
+		return embNo;
+	}
+
+	public void setEmbNo(String embNo) {
+		this.embNo = embNo;
+	}
+
+	public String getEmbDate() {
+		return embDate;
+	}
+
+	public void setEmbDate(String embDate) {
+		this.embDate = embDate;
 	}
 
 

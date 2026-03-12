@@ -156,13 +156,15 @@
 
 		angular.element("#dynamic-table").scope().inActiveProject(id);
 	};
-	
+
 	function downloadAS(id) {
 
 		angular.element("#dynamic-table").scope().downloadDocument(id);
 	};
 
+
 	function fetchWorkListWithTsStatus2() {
+		alert("asd");
 		t = $("#dynamic-table")
 			.DataTable(
 				{
@@ -221,15 +223,15 @@
 
 								// Customizing column width
 								var objLayout = {};
-								objLayout['hLineWidth'] = function (i) {return .5;};
-								objLayout['vLineWidth'] = function (i) {return .5;};
-								objLayout['hLineColor'] = function (i) {return '#aaa';};
-								objLayout['vLineColor'] = function (i) {return '#aaa';};
-								objLayout['paddingLeft'] = function (i) {return 4;};
-								objLayout['paddingRight'] = function (i) {return 4;};
-								objLayout['paddingTop'] = function (i) {return 2;};
-								objLayout['paddingBottom'] = function (i) {return 2;};
-								objLayout['fillColor'] = function (i) {return (i % 2 === 0) ? '#F3F3F3' : '#FFF';};
+								objLayout['hLineWidth'] = function (i) { return .5; };
+								objLayout['vLineWidth'] = function (i) { return .5; };
+								objLayout['hLineColor'] = function (i) { return '#aaa'; };
+								objLayout['vLineColor'] = function (i) { return '#aaa'; };
+								objLayout['paddingLeft'] = function (i) { return 4; };
+								objLayout['paddingRight'] = function (i) { return 4; };
+								objLayout['paddingTop'] = function (i) { return 2; };
+								objLayout['paddingBottom'] = function (i) { return 2; };
+								objLayout['fillColor'] = function (i) { return (i % 2 === 0) ? '#F3F3F3' : '#FFF'; };
 								doc.content[1].layout = objLayout;
 							}
 						}
@@ -254,11 +256,11 @@
 							"name": "searchBoxVal",
 							"value": $('#searchBox').val().trim()
 						});
-						aoData.push({"name": "projectName", "value": $('#projectName').val()});
+						aoData.push({ "name": "projectName", "value": $('#projectName').val() });
 
-						aoData.push({"name": "blockName", "value": $('#block').val()});
-						aoData.push({"name": "grampanchayatId", "value": $('#grampanchayat').val()});
-						aoData.push({"name": "villageId", "value": $('#village').val()});
+						aoData.push({ "name": "blockName", "value": $('#block').val() });
+						aoData.push({ "name": "grampanchayatId", "value": $('#grampanchayat').val() });
+						aoData.push({ "name": "villageId", "value": $('#village').val() });
 
 					},
 					"fnCreatedRow": function (nRow, aData, iDataIndex) {
@@ -267,14 +269,14 @@
 					"fnRowCallback": function (nRow, aData,
 						iDisplayIndex, iDisplayIndexFull) {
 
-							$('td:eq(17)', nRow).html(function () {
+						$('td:eq(17)', nRow).html(function () {
 
-														    return `<button type="button"
+							return `<button type="button"
 														                    class="btn btn-xs btn-info"
 														                    onclick="window.location.href='#/takeMeasurement/${aData.workId}'">
 														                Take Measurements
 														            </button>`;
-														});
+						});
 
 
 
@@ -468,7 +470,7 @@
 						}
 					},
 
-					
+
 					{
 						"mData": "estimatedAmount",
 						"bSortable": false,
@@ -563,7 +565,7 @@
 
 <div id="StartOrFinishSpinnerId"></div>
 
-<div id="page-div">
+<div id="page-div"> 
 	<!-- Breadcrumb -->
 	<ol class="breadcrumb">
 		<!-- <li class="breadcrumb-item"><a href="#dashboard"><span
@@ -587,7 +589,7 @@
 	</ol>
 	<div class="container-fluid">
 		<div class="animated fadeIn">
-			<div class="row" ng-controller="EEController" data-ng-init="loadIssuedEmb();">
+			<div class="row" data-ng-init="loadIssuedEmb();">
 				<div class="col-md-12">
 					<div class="card">
 						<div class="card-header">
@@ -622,11 +624,6 @@
 												</select>
 
 											</div>
-
-
-
-
-
 
 
 

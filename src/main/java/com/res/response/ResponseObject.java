@@ -43,6 +43,27 @@ public class ResponseObject {
 		this.id = id;
 	}
 
+	
+	private String unsignedBase64PDF;
+	private String serverDateTime;
+	
+	
+	public String getUnsignedBase64PDF() {
+		return unsignedBase64PDF;
+	}
+
+	public void setUnsignedBase64PDF(String unsignedBase64PDF) {
+		this.unsignedBase64PDF = unsignedBase64PDF;
+	}
+
+	public String getServerDateTime() {
+		return serverDateTime;
+	}
+
+	public void setServerDateTime(String serverDateTime) {
+		this.serverDateTime = serverDateTime;
+	}
+
 	public String getNumber() {
 		return number;
 	}

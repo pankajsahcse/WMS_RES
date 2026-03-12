@@ -126,7 +126,7 @@ function rejectBillLoad(billId){
 							"language" : {
 								searchPlaceholder : ""
 							},
-							"sAjaxSource" : "fetchWorksByName",
+							"sAjaxSource" : "fetchWorkWithEmbIssuedForEngineer",
 
 							"columns" : [ {
 								"data" : "index",
@@ -260,7 +260,7 @@ function rejectBillLoad(billId){
 	</ol>
 	<div class="container-fluid">
 		<div class="animated fadeIn">
-			<div class="row" data-ng-init="loadWorksForBillingP()">
+			<div class="row" data-ng-init="loadWorksForBillingP();loadIssuedEmb();">
 				<div class="col-md-12">
 					<div class="card">
 						<div class="card-header">

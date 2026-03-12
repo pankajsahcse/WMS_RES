@@ -1,15 +1,27 @@
 package com.res.service.impl;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -34,6 +46,7 @@ import com.res.bean.EmbDto;
 import com.res.bean.GramPanchayatBean;
 import com.res.bean.KmlFilePoints;
 import com.res.bean.LineDepartmentBean;
+import com.res.bean.MeasurementDto;
 import com.res.bean.OfficeBean;
 import com.res.bean.OfficeTypeBean;
 import com.res.bean.PhysicalStageTypeBean;
@@ -42,13 +55,16 @@ import com.res.bean.VillageBean;
 import com.res.bean.WorkAgreementBean;
 import com.res.bean.WorkBean;
 import com.res.bean.WorkSubTypeBean;
+import com.res.bean.WorkTemplateBean;
 import com.res.bean.WorkTypeBean;
+import com.res.bean.chapterDesciptionDto;
 import com.res.constants.RESConstants;
 import com.res.entity.AccountHead;
 import com.res.entity.AdministrationSanction;
 import com.res.entity.AdministrationSanctionType;
 import com.res.entity.AgencyType;
 import com.res.entity.Block;
+import com.res.entity.Chapter;
 import com.res.entity.Contractor;
 import com.res.entity.Designation;
 import com.res.entity.District;
@@ -56,7 +72,9 @@ import com.res.entity.Division;
 import com.res.entity.DocumentUpload;
 import com.res.entity.GramPanchayat;
 import com.res.entity.IssuingAuthority;
+import com.res.entity.Item;
 import com.res.entity.LineDepartment;
+import com.res.entity.Measurement;
 import com.res.entity.Office;
 import com.res.entity.OfficeType;
 import com.res.entity.PhysicalStageType;
@@ -68,6 +86,8 @@ import com.res.entity.TechnicalStatus;
 import com.res.entity.Users;
 import com.res.entity.Village;
 import com.res.entity.Work;
+import com.res.entity.WorkEstimation;
+import com.res.entity.WorkEstimationItems;
 import com.res.entity.WorkLegacyIdGeneration;
 import com.res.entity.WorkNature;
 import com.res.entity.WorkRequisitionIdGeneration;
@@ -84,12 +104,16 @@ import com.res.repository.DesignationRepository;
 import com.res.repository.DistrictRepository;
 import com.res.repository.DocumentRepository;
 import com.res.repository.GramPanchayatRepository;
+import com.res.repository.ItemRepository;
+import com.res.repository.MeasurementRepository;
 import com.res.repository.OfficeRepository;
 import com.res.repository.OfficeTypeRepository;
 import com.res.repository.RoleRepository;
 import com.res.repository.TechnicalSanctionRepository;
 import com.res.repository.UserRepository;
 import com.res.repository.VillageRepository;
+import com.res.repository.WorkEstimationItemsRepository;
+import com.res.repository.WorkEstimationRepository;
 import com.res.repository.WorkLegacyIdGenerationRepository;
 import com.res.repository.WorkRepository;
 import com.res.repository.WorkRequisitionIdGenerationRepository;
@@ -98,6 +122,7 @@ import com.res.response.ResponseObject;
 import com.res.service.EeService;
 import com.res.service.UserService;
 import com.res.util.RESUtil;
+
 
 import antlr.StringUtils;
 
@@ -115,6 +140,9 @@ public class EeServiceImpl implements EeService {
 
 	@Autowired
 	private workEmbRepository embRepository;
+
+	@Autowired
+	private WorkEstimationItemsRepository workEstimationItemsRepository;
 
 	@Autowired
 	private DesignationRepository designationRepository;
@@ -143,12 +171,15 @@ public class EeServiceImpl implements EeService {
 	@Autowired
 	private VillageRepository villageRepository;
 
-
 	@Autowired
 	private OfficeRepository officeRepository;
 
 	@Autowired
 	private GramPanchayatRepository gramPanchayatRepository;
+
+
+	@Autowired
+	private workEmbRepository workEmbRepository;
 
 	@Autowired
 	private BlockRepository blockRepository;
@@ -158,6 +189,15 @@ public class EeServiceImpl implements EeService {
 
 	@Autowired
 	private WorkLegacyIdGenerationRepository workLegacyIdGenerationRepository;
+
+	@Autowired
+	private MeasurementRepository measurementRepository;
+
+	@Autowired
+	private ItemRepository itemRepository;
+
+	@Autowired
+	private WorkEstimationRepository workEstimationRepository;
 
 	@Value("${document.root}")
 	private String documentRootPath;
@@ -762,8 +802,11 @@ public class EeServiceImpl implements EeService {
 			}
 			bean.setTotalExpenditureTill31March2018String(String.valueOf(entity
 					.getTotalExpenditureTill31March2018()));
-			bean.setPhysicalStageId(entity.getPhysicalStageType()
-					.getPhysicalStageId());
+			if (entity.getPhysicalStageType() != null) {
+				bean.setPhysicalStageId(entity.getPhysicalStageType().getPhysicalStageId());
+			} else {
+				bean.setPhysicalStageId(null);
+			}
 			bean.setAgreementDateString(RESUtil.convertDateToString(entity
 					.getAgreementDate()));
 			bean.setTenderedRateSign(entity.getTenderedRateSign());
@@ -2460,13 +2503,12 @@ public class EeServiceImpl implements EeService {
 					if (objArr[12] != null)
 						bean.setParentId(Long.parseLong(objArr[12].toString()));
 
-                       workEmb byWorkId = embRepository.findByWorkId(bean.getWorkId());
+					workEmb byWorkId = embRepository.findByWorkId(bean.getWorkId());
 
 					if (byWorkId != null) {
 						bean.setEmbNo(byWorkId.getEmbNo());
-						
-					}
 
+					}
 
 					bean.setIndex(++index);
 					beanList.add(bean);
@@ -2538,9 +2580,7 @@ public class EeServiceImpl implements EeService {
 
 			Office office2 = officeRepository.findOne(user.getOffice().getId());
 
-
-			Office office =  new Office();
-
+			Office office = new Office();
 
 			if (office2 != null) {
 				office.setOfficeName(office2.getOfficeName());
@@ -2560,13 +2600,11 @@ public class EeServiceImpl implements EeService {
 		return list;
 	}
 
-	
-@Override
-public WorkJson fetchWorkWithEmbIssuedForEnginner(UserBean user, Pageable pageable, String searchBoxVal,
+	@Override
+	public WorkJson fetchWorkWithEmbIssuedForEnginner(UserBean user, Pageable pageable, String searchBoxVal,
 			String ProjectId, String blockId, String grampanchayatId, String villageId) {
-	
 
-				WorkJson workjson = new WorkJson();
+		WorkJson workjson = new WorkJson();
 		try {
 			Long project = null;
 			if (ProjectId != null) {
@@ -2597,8 +2635,8 @@ public WorkJson fetchWorkWithEmbIssuedForEnginner(UserBean user, Pageable pageab
 			if (embs != null) {
 
 			}
-			work = workRepository.fetchWorkWithEmbIssuedEngineer(pageable,  
-					 id, searchBoxVal);
+			work = workRepository.fetchWorkWithEmbIssuedEngineer(pageable,
+					id, searchBoxVal);
 
 			if (work != null) {
 				List<Work> entityList = work.getContent();
@@ -2607,11 +2645,14 @@ public WorkJson fetchWorkWithEmbIssuedForEnginner(UserBean user, Pageable pageab
 
 					int index = pageable.getPageNumber() * pageable.getPageSize();
 					for (Work proj : entityList) {
-						//proj.setProjectName("TS");
+						// proj.setProjectName("TS");
 						WorkBean bean = convertWorkEntityToBean(proj);
+						workEmb byWorkId = embRepository.findByWorkId(proj.getId());
 
-						
-
+						if (byWorkId != null) {
+							bean.setEmbNo(byWorkId.getEmbNo());
+							bean.setEmbDate(byWorkId.geteMbIssueDate() + "");
+						}
 						bean.setIndex(++index);
 						beanList.add(bean);
 					}
@@ -2626,7 +2667,689 @@ public WorkJson fetchWorkWithEmbIssuedForEnginner(UserBean user, Pageable pageab
 			logger.error("An exception occurred.", e);
 			return workjson;
 		}
+	}
+
+	private void populateWorkTemplateBeanFromEntity(WorkEstimationItems workEstimationItem,
+			WorkTemplateBean workTemplateBean) {
+		workTemplateBean.setId(workEstimationItem.getId());
+		if (null != workEstimationItem.getAmoountMachinery()) {
+			workTemplateBean.setAmoountMachinery(workEstimationItem.getAmoountMachinery().toString());
+		}
+		if (null != workEstimationItem.getAmount()) {
+			workTemplateBean.setAmount(workEstimationItem.getAmount().toString());
+		}
+		if (null != workEstimationItem.getAmountExcavation()) {
+			workTemplateBean.setAmountExcavation(workEstimationItem.getAmountExcavation().toString());
+		}
+		if (null != workEstimationItem.getAmountLooseningSoil()) {
+			workTemplateBean.setAmountLooseningSoil(workEstimationItem.getAmountLooseningSoil().toString());
+		}
+		if (null != workEstimationItem.getAmountMaterial()) {
+			workTemplateBean.setAmountMaterial(workEstimationItem.getAmountMaterial().toString());
+		}
+
+		// HEIGHT / DEPTH
+		if (workEstimationItem.getHeightDepth() != null) {
+			workTemplateBean.setMeasureHeightDepth(true);
+			workTemplateBean.setHeightDepth(
+					workEstimationItem.getHeightDepth()
+							.stripTrailingZeros()
+							.toPlainString());
+		} else {
+			workTemplateBean.setMeasureHeightDepth(true);
+			workTemplateBean.setHeightDepth("1");
+		}
+
+		// WIDTH
+		if (workEstimationItem.getWidth() != null) {
+			workTemplateBean.setMeasureWidth(true);
+			workTemplateBean.setWidth(
+					workEstimationItem.getWidth()
+							.stripTrailingZeros()
+							.toPlainString());
+		} else {
+			workTemplateBean.setMeasureWidth(true);
+			workTemplateBean.setWidth("1");
+		}
+
+		// LENGTH
+		if (workEstimationItem.getLength() != null) {
+			workTemplateBean.setMeasureLength(true);
+			workTemplateBean.setLength(
+					workEstimationItem.getLength()
+							.stripTrailingZeros()
+							.toPlainString());
+		} else {
+			workTemplateBean.setMeasureLength(true);
+			workTemplateBean.setLength("1");
+		}
+		workTemplateBean.setId(workEstimationItem.getId());
+		workTemplateBean.setItemDesc(workEstimationItem.getItemDesc());
+		if (null != workEstimationItem.getAmountLabour()) {
+			workTemplateBean.setLabourComponentValue(workEstimationItem.getAmountLabour().toString());
+			workTemplateBean.setLabourComponent(true);
+		}
+		if (null != workEstimationItem.getNo()) {
+			workTemplateBean.setNo(workEstimationItem.getNo().stripTrailingZeros().toPlainString());
+		}
+		if (null != workEstimationItem.getQuantity()) {
+			workTemplateBean.setQuantity(workEstimationItem.getQuantity().stripTrailingZeros().toPlainString());
+		}
+		if (null != workEstimationItem.getRate()) {
+			workTemplateBean.setRate(workEstimationItem.getRate().stripTrailingZeros().toPlainString());
+		}
+		if (null != workEstimationItem.getRateLabour()) {
+			workTemplateBean.setRateLabour(workEstimationItem.getRateLabour().stripTrailingZeros().toPlainString());
+		}
+		workTemplateBean.setSorItemNo(workEstimationItem.getSorItemNo());
+		workTemplateBean.setUnit(workEstimationItem.getUnit());
+		workTemplateBean.setHasChild(workEstimationItem.getHasChild());
+		if (null != workEstimationItem.getHasChild() && workEstimationItem.getHasChild()) {
+			workTemplateBean.setParentItem(new WorkTemplateBean());
+		}
+
+		if (null != workEstimationItem.getUnit() && !workEstimationItem.getUnit().isEmpty()) {
+			workTemplateBean.setUnitReadOnly(true);
+		}
+		if (null != workEstimationItem.getRate()) {
+			workTemplateBean.setRateReadOnly(true);
+		}
+		if (null != workEstimationItem.getSorItemNo() && !workEstimationItem.getSorItemNo().isEmpty()) {
+			workTemplateBean.setSorItemNoReadOnly(true);
+		}
+		if (null != workEstimationItem.getItemDesc() && !workEstimationItem.getItemDesc().isEmpty()) {
+			workTemplateBean.setDescReadOnly(true);
+		}
+		workTemplateBean.setGroup(workEstimationItem.getGroup());
+		workTemplateBean.setNew(false);
+	}
+
+	@Override
+	public List<chapterDesciptionDto> loadItemChapterWise(String workId, UserBean fetchLoggedInUserDetails) {
+
+		List<chapterDesciptionDto> beanlist = new ArrayList<>();
+
+		Long workid = Long.parseLong(workId);
+		Work one = workRepository.findOne(workid);
+		WorkEstimation byWork = workEstimationRepository.findByWorkAndEnabled(one, true);
+
+		List<WorkEstimationItems> workEstimationItems = workEstimationItemsRepository
+				.findByWorkEstimationAndEnabled(byWork, true);
+
+		if (workEstimationItems == null || workEstimationItems.isEmpty()) {
+			return beanlist;
+		}
+
+		// 1️⃣ Convert entity → WorkTemplateBean
+		List<WorkTemplateBean> workTemplateItems = new ArrayList<>();
+
+		for (WorkEstimationItems entity : workEstimationItems) {
+			WorkTemplateBean bean = new WorkTemplateBean();
+
+			List<Measurement> mesuremtnlist = measurementRepository.findByEstimateSorIdOrderByIdDesc(entity.getId());
+
+			if (mesuremtnlist != null && !mesuremtnlist.isEmpty()
+					&& mesuremtnlist.get(0).getCreatedDate() != null) {
+
+				Date createdDate = mesuremtnlist.get(0).getCreatedDate();
+
+				SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+				String formattedDate = sdf.format(createdDate);
+
+				bean.setLastMeasurementDate(formattedDate);
+
+			} else {
+				bean.setLastMeasurementDate("");
+			}
+
+			populateWorkTemplateBeanFromEntity(entity, bean);
+			workTemplateItems.add(bean);
+		}
+
+		// 2️⃣ Collect all SOR Item Numbers
+		String previous = null;
+
+List<String> sorItemNos = new ArrayList<>();
+
+for (WorkEstimationItems w : workEstimationItems) {
+    String sor = w.getSorItemNo();
+
+    if (sor != null) {
+        previous = sor;
+        sorItemNos.add(sor);
+    } else if (previous != null) {
+        sorItemNos.add(previous);
+    }
 }
+
+List<Item> items = null;
+
+if (!sorItemNos.isEmpty()) {
+    items = itemRepository.findByItemNumberIn(sorItemNos);
+}
+
+             
+
+		// 4️⃣ Build Map: sorItemNo → Chapter
+		Map<String, Chapter> sorChapterMap = items.stream()
+				.collect(Collectors.toMap(Item::getItemNumber, Item::getChapter, (a, b) -> a));
+
+		// 5️⃣ Group WorkTemplateBeans by Chapter
+
+		Map<Chapter, List<WorkTemplateBean>> chapterGroupMap = workTemplateItems.stream()
+				.filter(bean -> bean.getSorItemNo() != null)
+				.filter(bean -> sorChapterMap.containsKey(bean.getSorItemNo()))
+				.collect(Collectors.groupingBy(bean -> sorChapterMap.get(bean.getSorItemNo())));
+
+		// 6️⃣ Build final DTO list
+		for (Map.Entry<Chapter, List<WorkTemplateBean>> entry : chapterGroupMap.entrySet()) {
+
+			Chapter chapter = entry.getKey();
+
+			chapterDesciptionDto dto = new chapterDesciptionDto();
+			dto.setChapterId(chapter.getId());
+			dto.setChapterName(chapter.getChapterName());
+			dto.setItemList(entry.getValue());
+
+			beanlist.add(dto);
+		}
+
+		beanlist.sort(Comparator.comparing(chapterDesciptionDto::getChapterName, String.CASE_INSENSITIVE_ORDER));
+
+		return beanlist;
+	}
+
+
+
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public ResponseObject addMeasurement(UserBean fetchLoggedInUserDetails, MeasurementDto dto, String ip) {
+
+		ResponseObject object = new ResponseObject();
+		String uploadedFilePath = null;
+
+		try {
+
+			Measurement measurement = null;
+
+			// ---------- Edit / New ----------
+			if (dto.getMeasurementId() != null) {
+				measurement = measurementRepository.findOne(dto.getMeasurementId());
+			}
+			if (measurement == null) {
+				measurement = new Measurement();
+			}
+
+			// ---------- Work EMB ----------
+			if (dto.getWorkId() != null) {
+				workEmb byWorkId = workEmbRepository.findByWorkId(dto.getWorkId());
+				if (byWorkId != null && byWorkId.getEmbNo() != null) {
+					measurement.seteMbNo(byWorkId.getEmbNo().toString());
+				}
+				measurement.setWorkId(dto.getWorkId());
+			}
+			if (dto.getEstimateSorId() != null) {
+				measurement.setEstimateSorId(dto.getEstimateSorId());
+			}
+			if (dto.getCalculatedAmount() != null) {
+				measurement.setCalculatedAmount(dto.getCalculatedAmount());
+
+			}
+
+			if (dto.getPlaceDescription() != null) {
+				measurement.setPlaceDescription(dto.getPlaceDescription());
+			}
+
+			measurement.setIpAddress(ip);
+			if (dto.getSorItemNo() != null) {
+				measurement.setSorItemNo(dto.getSorItemNo());
+			}
+
+			if (dto.getUnit() != null) {
+				measurement.setUnit(dto.getUnit());
+			}
+
+			if (dto.getItemDesc() != null) {
+				measurement.setItemDesc(dto.getItemDesc());
+			}
+
+			// ---------- BigDecimal fields ----------
+			if (dto.getQuantity() != null) {
+				measurement.setQuantity(new BigDecimal(dto.getQuantity()));
+			}
+
+			if (dto.getLength() != null) {
+				measurement.setLength(new BigDecimal(dto.getLength()));
+			}
+
+			if (dto.getWidth() != null) {
+				measurement.setWidth(new BigDecimal(dto.getWidth()));
+			}
+
+			if (dto.getHeightDepth() != null && !dto.getHeightDepth().trim().isEmpty()
+					&& !"null".equalsIgnoreCase(dto.getHeightDepth().trim())) {
+
+				measurement.setHeightDepth(new BigDecimal(dto.getHeightDepth().trim()));
+			}
+
+			// ---------- Previous Measurement ----------
+			if (dto.getPreviousMeasurementL() != null) {
+				measurement.setPreviousMeasurementL(dto.getPreviousMeasurementL());
+			}
+			if (dto.getPreviousMeasurementW() != null) {
+				measurement.setPreviousMeasurementW(dto.getPreviousMeasurementW());
+			}
+			if (dto.getPreviousMeasurementT_T() != null) {
+				measurement.setPreviousMeasurementT_T(dto.getPreviousMeasurementT_T());
+			}
+			if (dto.getPreviousMeasurementNo() != null) {
+				measurement.setPreviousMeasurementNo(dto.getPreviousMeasurementNo());
+			}
+			if (dto.getCurrentMesurementNo() != null) {
+				measurement.setCurrentMesurementNo(dto.getCurrentMesurementNo());
+			}
+
+			if (dto.getRemainingMeasurementNo() != null) {
+				measurement.setRemainingMeasurementNo(dto.getRemainingMeasurementNo());
+			}
+
+			// ---------- Remaining Measurement ----------
+			if (dto.getRemainingMeasurementL() != null) {
+				measurement.setRemainingMeasurementL(dto.getRemainingMeasurementL());
+			}
+			if (dto.getRemainingMeasurementW() != null) {
+				measurement.setRemainingMeasurementW(dto.getRemainingMeasurementW());
+			}
+			if (dto.getRemainingMeasurementT() != null) {
+				measurement.setRemainingMeasurementT(dto.getRemainingMeasurementT());
+			}
+
+			// ---------- Current Measurement ----------
+			if (dto.getCurrentMesurementL() != null && dto.getCurrentMesurementL() != 0) {
+				measurement.setCurrentMesurementL(dto.getCurrentMesurementL());
+			}
+			if (dto.getCurrentMesurementW() != null && dto.getCurrentMesurementW() != 0) {
+				measurement.setCurrentMesurementW(dto.getCurrentMesurementW());
+			}
+			if (dto.getCurrentMesurementT() != null && dto.getCurrentMesurementT() != 0) {
+				measurement.setCurrentMesurementT(dto.getCurrentMesurementT());
+			}
+
+			if (dto.getRemarks() != null) {
+				measurement.setRemarks(dto.getRemarks());
+			}
+			measurement.getAmoountMachinery();
+			// ---------- Save Measurement ----------
+			Measurement savedMeasurement = measurementRepository.save(measurement);
+
+			// ---------- File Upload (Optional) ----------
+			if (dto.getDocumentUpload() != null && !dto.getDocumentUpload().isEmpty()) {
+
+				MultipartFile file = dto.getDocumentUpload();
+				String geteMbNo = measurement.geteMbNo();
+				geteMbNo = geteMbNo.replace("/", "");
+
+				uploadedFilePath = saveFile(file, geteMbNo, savedMeasurement.getId());
+
+				DocumentUpload documentUpload = new DocumentUpload();
+				documentUpload.setDocumentName(file.getOriginalFilename());
+				documentUpload.setDocumentDesc("Measurement File For Emb " + dto.geteMbNo());
+				documentUpload.setDocumentUploadPath(uploadedFilePath);
+
+				DocumentUpload savedDoc = documentRepository.save(documentUpload);
+
+				if (savedDoc != null) {
+					savedMeasurement.setDocumentId(savedDoc.getDocumentId());
+					measurementRepository.save(savedMeasurement);
+				}
+			}
+
+			object.setSuccessMessage("Saved successfully");
+
+		} catch (Exception e) {
+
+			// ---------- Manual rollback for file ----------
+			if (uploadedFilePath != null) {
+				try {
+					Files.deleteIfExists(Paths.get(uploadedFilePath));
+				} catch (Exception ex) {
+					logger.error("Failed to delete file after rollback", ex);
+				}
+			}
+
+			logger.error("Transaction failed", e);
+			object.setErrorMessage("Failed to save measurement");
+		}
+
+		return object;
+	}
+
+
+	private String saveFile(MultipartFile file, String embNo, Long measurementId) throws Exception {
+
+		Date date = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
+		String strDate = formatter.format(date);
+
+		String documentsPath = documentRootPath + "EMB/";
+		File dir = new File(documentsPath);
+
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+
+		String fileExtension = "pdf";
+		if (file.getOriginalFilename() != null) {
+			String[] fileArr = file.getOriginalFilename().split("\\.");
+			fileExtension = fileArr[fileArr.length - 1];
+		}
+
+		String fileName = "MeasurementDocument_" + strDate + "_" + embNo + "_" + measurementId + "." + fileExtension;
+
+		File serverFile = new File(dir.getAbsolutePath() + File.separator + fileName);
+
+		try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile))) {
+
+			stream.write(file.getBytes());
+		}
+
+		return serverFile.getAbsolutePath();
+	}
+
+	@Override
+	public List<Double> loadPreviousDataByEstimateId(UserBean user, Long estimateSorId) {
+		List<Double> list = new ArrayList<>();
+
+		try {
+
+			List<Measurement> list2 = measurementRepository.findByEstimateSorIdOrderByIdDesc(estimateSorId);
+			Double l = 0.0D;
+			Double w = 0.0D;
+			Double t = 0.0D;
+			Double no = 0.0D;
+			if (list2 != null && !list2.isEmpty()) {
+
+				for (Measurement measurement : list2) {
+					if (measurement.getCurrentMesurementL() != null) {
+						l += measurement.getCurrentMesurementL();
+					} else {
+						measurement.setCurrentMesurementL(0.0D);
+						l += measurement.getCurrentMesurementL();
+					}
+					if (measurement.getCurrentMesurementW() != null) {
+						w += measurement.getCurrentMesurementW();
+					} else {
+						measurement.setCurrentMesurementW(0.0D);
+						w += measurement.getCurrentMesurementW();
+					}
+					if (measurement.getCurrentMesurementT() != null) {
+						t += measurement.getCurrentMesurementT();
+					} else {
+						measurement.setCurrentMesurementT(0.0D);
+						t += measurement.getCurrentMesurementT();
+					}
+
+					if (measurement.getCurrentMesurementNo() != null) {
+						no += measurement.getCurrentMesurementNo();
+					} else {
+						measurement.setCurrentMesurementNo(0.0D);
+						no += measurement.getCurrentMesurementNo();
+					}
+
+				}
+
+				list.add(l);
+				list.add(w);
+				list.add(t);
+				list.add(no);
+			} else {
+				list.add(0.0D);
+				list.add(0.0D);
+				list.add(0.0D);
+				list.add(0.0D);
+			}
+
+			return list;
+		} catch (Exception e) {
+			logger.info("some error Occured In Fetching Data", e);
+			return list;
+		}
+
+	}
+
+	@Override
+	public List<Double> loadPreviousDataByEstimateIdInEdit(UserBean fetchLoggedInUserDetails, Long estimateSorId,
+			Long mId) {
+		List<Double> list = new ArrayList<>();
+
+		try {
+
+			List<Measurement> list2 = measurementRepository.findByEstimateSorIdOrderByIdDesc(estimateSorId);
+			Double l = 0.0D;
+			Double w = 0.0D;
+			Double t = 0.0D;
+			Double no = 0.0D;
+
+			if (list2 != null && !list2.isEmpty()) {
+
+				for (Measurement measurement : list2) {
+					if (mId == measurement.getId()) {
+
+					} else {
+						if (measurement.getCurrentMesurementL() != null) {
+							l += measurement.getCurrentMesurementL();
+						} else {
+							measurement.setCurrentMesurementL(0.0D);
+							l += measurement.getCurrentMesurementL();
+						}
+						if (measurement.getCurrentMesurementW() != null) {
+							w += measurement.getCurrentMesurementW();
+						} else {
+							measurement.setCurrentMesurementW(0.0D);
+							w += measurement.getCurrentMesurementW();
+						}
+						if (measurement.getCurrentMesurementT() != null) {
+							t += measurement.getCurrentMesurementT();
+						} else {
+							measurement.setCurrentMesurementT(0.0D);
+							t += measurement.getCurrentMesurementT();
+						}
+						if (measurement.getCurrentMesurementNo() != null) {
+							no += measurement.getCurrentMesurementNo();
+						} else {
+							measurement.setCurrentMesurementNo(0.0D);
+							no += measurement.getCurrentMesurementNo();
+						}
+					}
+
+				}
+
+				list.add(l);
+				list.add(w);
+				list.add(t);
+				list.add(no);
+			} else {
+				list.add(0.0D);
+				list.add(0.0D);
+				list.add(0.0D);
+				list.add(0.0D);
+			}
+
+			return list;
+		} catch (Exception e) {
+			logger.info("some error Occured In Fetching Data", e);
+			return list;
+		}
+
+	}
+
+
+@Override
+public List<MeasurementDto> LoadAllMeasurementListByEstimateSorId(UserBean fetchLoggedInUserDetails,
+		Long estimateSorId) {
+	List<MeasurementDto> beanist = new LinkedList<>();
+
+	try {
+		
+		
+		List<Measurement> list2 = measurementRepository.findByEstimateSorIdOrderByIdDesc(estimateSorId);
+
+		Double quanti  = 0.0D;
+		Double amounttotal = 0.0D;
+		
+		if (list2 != null && !list2.isEmpty()) {
+			for (Measurement m : list2) {
+				MeasurementDto bean = new MeasurementDto();
+
+				bean.setSorItemNo(m.getSorItemNo());
+				bean.setEstimateSorId(m.getEstimateSorId());
+				bean.setDocId(m.getDocumentId());
+				bean.seteMbNo(m.geteMbNo());
+				bean.setIpAddress(m.getIpAddress());
+				bean.setValuationDate(m.getModifiedDate() + "");
+				if (m.getModifiedBy() != null) {
+					bean.setMeasuredBy(userRepository.findOne(Long.parseLong(m.getModifiedBy())).getUsername());
+				}
+				bean.setUnit(m.getUnit());
+				BigDecimal qty = new BigDecimal(m.getQuantity()+"");
+				qty = qty.setScale(2, RoundingMode.HALF_UP);
+
+				bean.setQuantity(qty.toString());
+				WorkEstimationItems one = workEstimationItemsRepository.findOne(Integer.valueOf(m.getEstimateSorId()+""));
+				BigDecimal amt = new BigDecimal(one.getAmount()+"");
+				amt = amt.setScale(2, RoundingMode.HALF_UP);
+
+				bean.setAmount(amt.toString());
+				bean.setRate(one.getRate() + "");
+				bean.setItemDesc(one.getItemDesc());
+				bean.setEstimateSorId(estimateSorId);
+				
+				if(m.getCalculatedAmount()!=null) {
+					bean.setCalculatedAmount(m.getCalculatedAmount());
+					
+				
+					
+				}
+				
+				
+				if(m.getPlaceDescription()!=null) {
+					bean.setPlaceDescription(m.getPlaceDescription());
+				}
+				if(m.getCalculatedAmount()!=null) {
+					
+					BigDecimal amt2 = new BigDecimal(m.getCalculatedAmount()+"");
+					amt2 = amt2.setScale(2, RoundingMode.HALF_UP);
+
+					//bean.setAmount(amt.toString());
+					bean.setCalculatedAmount(amt2+"");
+				}
+				
+				if(m.getPlaceDescription()!=null) {
+					bean.setPlaceDescription(m.getPlaceDescription());
+				}
+				Double l = m.getCurrentMesurementL() != null ? m.getCurrentMesurementL() : 1d;
+				Double t = m.getCurrentMesurementT() != null ? m.getCurrentMesurementT() : 1d;
+				Double w = m.getCurrentMesurementW() != null ? m.getCurrentMesurementW() : 1d;
+
+				Double multi = l * t * w;
+
+				bean.setRemarks(m.getRemarks());
+				bean.setNo(m.getNo()+"");
+				bean.setLength(m.getLength() + "");
+				bean.setWidth(m.getWidth() + "");
+				bean.setHeightDepth(m.getHeightDepth() + "");
+				bean.setRemainingMeasurementL(m.getRemainingMeasurementL());
+				bean.setPreviousMeasurementL(m.getPreviousMeasurementL());
+				bean.setRemainingMeasurementW(m.getRemainingMeasurementW());
+				bean.setPreviousMeasurementW(m.getPreviousMeasurementW());
+				bean.setRemainingMeasurementT(m.getRemainingMeasurementT());
+				bean.setPreviousMeasurementT_T(m.getPreviousMeasurementT_T());
+				if(m.getDscStatus() == (short)1) {
+					bean.setDscStatus(false);
+				}else {
+					bean.setDscStatus(true);
+				}
+				
+				
+				if(m.getCurrentMesurementL() == null) {
+					bean.setCurrentMesurementL(0.0D);
+				}else {
+					bean.setCurrentMesurementL(m.getCurrentMesurementL());
+				}
+				if(m.getCurrentMesurementW() == null) {
+					bean.setCurrentMesurementW(0.0D);
+				}else {
+					bean.setCurrentMesurementW(m.getCurrentMesurementW());
+				}
+				if(m.getCurrentMesurementT() == null) {
+					bean.setCurrentMesurementT(0.0D);
+				}else {
+					bean.setCurrentMesurementT(m.getCurrentMesurementT());
+				}
+				
+				
+				bean.setQuantity(multi+"");
+				quanti +=  Double.parseDouble(bean.getQuantity());
+				amounttotal += (bean.getCalculatedAmount() == null || bean.getCalculatedAmount().isEmpty())
+				        ? 0d
+				        : Double.parseDouble(bean.getCalculatedAmount());
+
+				bean.setMeasurementId(m.getId());
+				beanist.add(bean);
+			}
+			String formatted = new BigDecimal(amounttotal.toString())
+			        .setScale(2, RoundingMode.HALF_UP)
+			        .toString();
+			String formatted2 = new BigDecimal(quanti.toString())
+			        .setScale(2, RoundingMode.HALF_UP)
+			        .toString();
+
+			beanist.get(0).setAmountTotal(formatted);
+			beanist.get(0).setQuantityTotal(formatted2);
+		}
+
+	} catch (Exception e) {
+		logger.info("Error", e);
+	}
+
+	return beanist;
+}
+
+
+
+
+
+
+
+
+@Override
+public ResponseObject  VerifyTheMesurementWithDSC(com.res.bean.DscSaveRequest req) {
+	ResponseObject object = new ResponseObject();
+	
+	
+	try {
+		
+		short a = 0;
+		List<Measurement> list = measurementRepository.findByWorkIdAndDscStatus(req.getWorkId(),a);
+		for(Measurement measuremnt : list ) {
+			measuremnt.setDscStatus((short)1);
+			measuremnt.setDscString(req.getSignedData());
+			measurementRepository.save(measuremnt);
+		}
+		object.setSuccessMessage("Data Signed With DSC");
+		
+	} catch (Exception e) {
+		logger.info("Some Error Occured During Saving Data",e);
+		object.setErrorMessage("Data Cannot be Signed With DSC");
+	}
+	
+	
+	return object;
+	
+}
+
+
 
 
 
