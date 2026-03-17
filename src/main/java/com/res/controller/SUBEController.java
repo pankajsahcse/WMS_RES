@@ -1,7 +1,11 @@
 package com.res.controller;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -9,8 +13,10 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +62,7 @@ import com.res.bean.chapterDesciptionDto;
 import com.res.constants.RESConstants;
 import com.res.entity.Users;
 import com.res.json.WorkJson;
+import com.res.repository.MeasurementRepository;
 import com.res.response.ResponseObject;
 import com.res.service.AdminService;
 import com.res.service.CommonService;
@@ -83,6 +90,9 @@ public class SUBEController extends BaseController {
 
 	@Autowired
 	private CommonService commonService;
+
+	@Autowired
+	private MeasurementRepository measurementRepository;
 
 	RestTemplate restTemplate = new RestTemplate();
 
@@ -844,6 +854,89 @@ public class SUBEController extends BaseController {
 	public List<MeasurementDto> LoadAllMeasurementListByEstimateSorId(HttpServletRequest request,@PathVariable("estimateSorId") Long estimateSorId){
 		return eeService.LoadAllMeasurementListByEstimateSorId(fetchLoggedInUserDetails(request), estimateSorId);
 		
+	}
+	
+	@RequestMapping(value = "/deleteMeasurementById/{id}", method = RequestMethod.POST)
+@ResponseBody
+public ResponseObject deleteMeasurementById(@PathVariable Long id, HttpServletRequest request) {
+
+    ResponseObject responseObject = new ResponseObject();
+
+    try {
+
+        measurementRepository.delete(id);
+   
+        responseObject.setSuccessMessage("Measurement deleted successfully");
+
+    } catch (Exception e) {
+
+        logger.error("Error deleting measurement: ", e);
+
+        responseObject.setErrorMessage("Error deleting measurement");
+
+    }
+    return responseObject;
+}
+
+@GetMapping(value = "/downloadMeasurementFile/{documentId}")
+	public void downloadDocument(@PathVariable String documentId, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		logger.info(" downloadDocument = documentId" + documentId);
+		
+		
+		String fileName = commonService.fetchDownloadFileNameEMB(Long.parseLong(documentId));
+		if (fileName != null) {
+			File file = new File(fileName);
+			if (file.exists()) {
+				InputStream is = null;
+				OutputStream os = null;
+				try {
+					is = new FileInputStream(file);
+					os = response.getOutputStream();
+
+					// Set response headers
+					response.setContentType("application/octet-stream");
+					response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+
+					// Read and write file content
+					byte[] buffer = new byte[1024];
+					int len;
+					while ((len = is.read(buffer)) != -1) {
+						os.write(buffer, 0, len);
+					}
+					os.flush();
+				} catch (IOException e) {
+					logger.error("Error while downloading document with ID: " + documentId, e);
+					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to download file.");
+				} finally {
+					if (os != null) {
+						try {
+							os.close();
+						} catch (IOException e) {
+							logger.warn("Failed to close output stream", e);
+						}
+					}
+					if (is != null) {
+						try {
+							is.close();
+						} catch (IOException e) {
+							logger.warn("Failed to close input stream", e);
+						}
+					}
+				}
+			} else {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found.");
+			}
+		} else {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid document ID or file name.");
+		}
+		// obj.downloadDocument(documentId.substring(0, documentId.length()-4), request,
+		// response);
+	}
+	
+	@GetMapping(value = "/getMeasurementSummaryByWorkId/{workId}")
+	public Map<String, Object> getMeasurementSummaryByWorkId(@PathVariable("workId") Long workId) {
+		return eeService.getMeasurementSummaryByWorkId(workId);
 	}
 
 	

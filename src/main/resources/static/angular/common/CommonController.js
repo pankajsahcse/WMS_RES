@@ -1194,22 +1194,33 @@ $scope.loadAddNewWorkEstimationFormH = function() {
 			$scope.templateType=1;
 		}
 		
-		$scope.estimationId = $routeParams.estimationId;
-		$scope.id = $routeParams.id;
-		
-		var response = $http.get('fetchWorkDetailsH/'+$routeParams.estimationId);
+		var response = $http.get('fetchWorkDetails/'+$routeParams.id);
 		response.success(function(data, status, headers, config) {
 			$scope.workData = data;
+			console.log('Work details loaded:', $scope.workData);
 			$loading.finish('sample-1');
 		}).then(function (){
 			
 			$loading.start('sample-1');
-			var response1 = $http.get('fetchWorkEstimationDetailsByIdH/'+$routeParams.estimationId);
+			var response1 = $http.get('fetchWorkEstimationDetailsById/'+$scope.workData.workId);
 			response1.success(function(data, status, headers, config) {
 				// $scope.workData = data;
 				
+				    $scope.workData.competentAuthName=data.competentAuthName;
+				    $scope.workData.competentAuthDesig=data.competentAuthDesig;
+				    $scope.workData.revisedLetterNo=data.revisedLetterNo;
+				    $scope.workData.letterNoDate=data.letterNoDate;
+				    
+				    console.log('Competent Authority Details:', {
+				        competentAuthName: data.competentAuthName,
+				        competentAuthDesig: data.competentAuthDesig,
+				        revisedLetterNo: data.revisedLetterNo,
+				        letterNoDate: data.letterNoDate
+				    });
+				    
 					$scope.workData.estimatedAmount = data.estimatedAmount;
 					
+					$scope.workData.grandTotalOriginalAmoumnt = data.grandTotal;
 					$scope.workData.grandTotal = data.grandTotal;
 					$scope.workData.expectedTenderedAmt = data.expectedTenderedAmt;
 					$scope.workData.expectedTenderedRatePer = data.expectedTenderedRatePer;
@@ -1255,6 +1266,10 @@ $scope.loadAddNewWorkEstimationFormH = function() {
 					$scope.tenderRateGreaterThan10=false;
 					
 					$scope.workData.estimationType=data.estimationType;
+					$scope.workData.hasNonSorItems=data.hasNonSorItems;
+					$scope.workData.tenPercentCheck=data.tenPercentCheck;
+					
+					
 				
 				if(null== data.workTemplateItems){
 					$loading.start('sample-1');

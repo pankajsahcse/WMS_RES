@@ -3403,6 +3403,13 @@ public class CommonServiceImpl implements CommonService {
 		if (workEstimation.getTenPercentCheck() != null) {
 			workEstimationBean.setTenPercentCheck(workEstimation.getTenPercentCheck());
 		}
+		
+		// Populate Executive Engineer office details from Work entity
+		Work work = workEstimation.getWork();
+		if (work != null && work.getExecutiveEngineerOffice() != null) {
+			workEstimationBean.setExecutiveEngineerOfficeId(work.getExecutiveEngineerOffice().getId());
+			workEstimationBean.setExecutiveEngineerOfficeName(work.getExecutiveEngineerOffice().getOfficeName());
+		}
 	}
 
 	private void populateWorkTemplateBeanFromEntity(WorkEstimationItems workEstimationItem,
@@ -3782,6 +3789,7 @@ public class CommonServiceImpl implements CommonService {
 		String fileName = document.getDocumentName();
 		String compareString = fileName.split("_")[0];
 		String fileWithFullPath = null;
+		
 		switch (compareString) {
 		case "agreement":
 			fileWithFullPath = documentRootPath + workDocumentPath + fileName;
@@ -42186,4 +42194,18 @@ public class CommonServiceImpl implements CommonService {
 		return bean;
 	}
 
+	@Override
+	public String fetchDownloadFileNameEMB(Long documentId) {
+
+	    DocumentUpload document = documentRepository.findOne(documentId);
+
+	    if (document != null && document.getDocumentUploadPath() != null 
+	            && !document.getDocumentUploadPath().isEmpty()) {
+
+	        return document.getDocumentUploadPath();
+
+	    } else {
+	        return null;
+	    }
+	}
 }

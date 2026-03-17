@@ -14,7 +14,9 @@
 
 	<!-- Your custom JS -->
 	<script th:src="@{/js/language.js}"></script>
-	<script th:src="@{/angular/ceoJanpad/EEController.js}"></script>
+	<script th:src="@{/angular/ee/EEController.js}"></script>
+	<script th:src="@{/angular/common/CommonController.js}"></script>
+<script th:src="@{/angular/ee/EEController.js}"></script>
 	<style>
 		.top-header {
 			background: #1a2942;
@@ -275,7 +277,7 @@
 							</div>
 						</div>
 						<form data-ng-submit="addWorkEstimationData(billForm.$valid)"
-							name="billForm" data-ng-init="loadAddNewWorkEstimationForm()"
+							name="billForm" data-ng-init="loadWorkDetailsForMeasurement()"
 							novalidate="novalidate">
 							<div class="card-header">
 								<span >Estimation Details</span>
@@ -589,9 +591,7 @@
 						
 							
 
-							<div class="card-footer text-right">
-							<a class="btn btn-sm btn-primary" href="#viewPendingWorkEstimations"><span>Back</span></a>		
-							</div>
+
 						</form>
 					</div>
 				</div>
@@ -813,7 +813,7 @@
 
 																				<button class="btn btn-sm btn-danger"
 																					data-ng-show="m.dscStatus"
-																					ng-click="deleteMeasurement(m.measurementId,m.estimateSorId)">
+																					ng-click="deleteMeasurement(m.measurementId, m.estimateSorId, j)">
 																					<i class="fa fa-trash"></i> Delete
 																				</button>
 
@@ -855,7 +855,7 @@
 							</div>
 
 							<div>
-								<h4 class="text-center mb-3" data-ng-init="loadSummaryEmbTabelByWorkId()">Summary</h4>
+								<h4 class="text-center mb-3">Summary</h4>
 
 								<table class="table table-bordered text-center">
 									<thead class="table-light">
@@ -1639,7 +1639,7 @@
 	}
 </style>
 
-<div class="modal fade" id="measurementModal" tabindex="-1" role="dialog" ng-app="dms" ng-controller="WdtController">
+<div class="modal fade" id="measurementModal" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 

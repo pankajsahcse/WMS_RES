@@ -8,7 +8,7 @@ import com.res.entity.WorkEstimation;
 import com.res.entity.WorkEstimationItems;
 
 public interface WorkEstimationItemsRepository extends
-		JpaRepository<WorkEstimationItems, Integer> {
+		JpaRepository<WorkEstimationItems, Long> {
 
 	List<WorkEstimationItems> findByWorkEstimationAndEnabled(
 			WorkEstimation workEstimation, Boolean enabled);

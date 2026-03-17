@@ -15,7 +15,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -2432,7 +2434,7 @@ public class EeServiceImpl implements EeService {
 
 		WorkAgreementJson workAgreementJson = null;
 
-		if (searchBoxVal.isEmpty()) {
+		if (searchBoxVal != null && searchBoxVal.isEmpty()) {
 			searchBoxVal = null;
 		}
 
@@ -2771,7 +2773,15 @@ public class EeServiceImpl implements EeService {
 
 		Long workid = Long.parseLong(workId);
 		Work one = workRepository.findOne(workid);
-		WorkEstimation byWork = workEstimationRepository.findByWorkAndEnabled(one, true);
+		
+		// Get the most recent work estimation (ordered by modified date desc)
+		List<WorkEstimation> workEstimations = workEstimationRepository.findByWorkAndEnabledOrderByModifiedDateDesc(one, true);
+		
+		if (workEstimations == null || workEstimations.isEmpty()) {
+			return beanlist;
+		}
+		
+		WorkEstimation byWork = workEstimations.get(0); // Get the most recent one
 
 		List<WorkEstimationItems> workEstimationItems = workEstimationItemsRepository
 				.findByWorkEstimationAndEnabled(byWork, true);
@@ -3209,39 +3219,46 @@ public List<MeasurementDto> LoadAllMeasurementListByEstimateSorId(UserBean fetch
 				bean.setIpAddress(m.getIpAddress());
 				bean.setValuationDate(m.getModifiedDate() + "");
 				if (m.getModifiedBy() != null) {
-					bean.setMeasuredBy(userRepository.findOne(Long.parseLong(m.getModifiedBy())).getUsername());
+					bean.setMeasuredBy(m.getModifiedBy());
 				}
 				bean.setUnit(m.getUnit());
-				BigDecimal qty = new BigDecimal(m.getQuantity()+"");
-				qty = qty.setScale(2, RoundingMode.HALF_UP);
-
-				bean.setQuantity(qty.toString());
-				WorkEstimationItems one = workEstimationItemsRepository.findOne(Integer.valueOf(m.getEstimateSorId()+""));
-				BigDecimal amt = new BigDecimal(one.getAmount()+"");
-				amt = amt.setScale(2, RoundingMode.HALF_UP);
-
-				bean.setAmount(amt.toString());
-				bean.setRate(one.getRate() + "");
-				bean.setItemDesc(one.getItemDesc());
+				
+				// Handle null quantity
+				if (m.getQuantity() != null) {
+					BigDecimal qty = new BigDecimal(m.getQuantity()+"");
+					qty = qty.setScale(2, RoundingMode.HALF_UP);
+					bean.setQuantity(qty.toString());
+				} else {
+					bean.setQuantity("0.00");
+				}
+				
+				WorkEstimationItems one = workEstimationItemsRepository.findOne(m.getEstimateSorId());
+				if (one != null) {
+					// Handle null amount
+					if (one.getAmount() != null) {
+						BigDecimal amt = new BigDecimal(one.getAmount()+"");
+						amt = amt.setScale(2, RoundingMode.HALF_UP);
+						bean.setAmount(amt.toString());
+					} else {
+						bean.setAmount("0.00");
+					}
+					
+					bean.setRate(one.getRate() + "");
+					bean.setItemDesc(one.getItemDesc());
+				}
 				bean.setEstimateSorId(estimateSorId);
 				
 				if(m.getCalculatedAmount()!=null) {
 					bean.setCalculatedAmount(m.getCalculatedAmount());
-					
-				
-					
 				}
-				
 				
 				if(m.getPlaceDescription()!=null) {
 					bean.setPlaceDescription(m.getPlaceDescription());
 				}
+				
 				if(m.getCalculatedAmount()!=null) {
-					
 					BigDecimal amt2 = new BigDecimal(m.getCalculatedAmount()+"");
 					amt2 = amt2.setScale(2, RoundingMode.HALF_UP);
-
-					//bean.setAmount(amt.toString());
 					bean.setCalculatedAmount(amt2+"");
 				}
 				
@@ -3317,8 +3334,46 @@ public List<MeasurementDto> LoadAllMeasurementListByEstimateSorId(UserBean fetch
 }
 
 
-
-
+@Override
+public Map<String, Object> getMeasurementSummaryByWorkId(Long workId) {
+	Map<String, Object> summary = new HashMap<>();
+	Map<String, Double> dateAmountMap = new LinkedHashMap<>();
+	double totalAmount = 0.0;
+	
+	try {
+		logger.info("Getting measurement summary for workId: " + workId);
+		
+		// Get all measurements for this work
+		List<Measurement> measurements = measurementRepository.findByWorkId(workId);
+		
+		logger.info("Found " + (measurements != null ? measurements.size() : 0) + " measurements");
+		
+		if (measurements != null && !measurements.isEmpty()) {
+			// Group by date and sum amounts
+			for (Measurement m : measurements) {
+				logger.info("Processing measurement ID: " + m.getId() + ", Date: " + m.getModifiedDate() + ", Amount: " + m.getCalculatedAmount());
+				
+				if (m.getModifiedDate() != null && m.getCalculatedAmount() != null) {
+					String dateStr = new SimpleDateFormat("yyyy-MM-dd").format(m.getModifiedDate());
+					double amount = Double.parseDouble(m.getCalculatedAmount());
+					
+					dateAmountMap.put(dateStr, dateAmountMap.getOrDefault(dateStr, 0.0) + amount);
+					totalAmount += amount;
+				}
+			}
+		}
+		
+		summary.put("embSummary", dateAmountMap);
+		summary.put("totalAmount", totalAmount);
+		
+		logger.info("Summary result: " + summary);
+		
+	} catch (Exception e) {
+		logger.error("Error getting measurement summary", e);
+	}
+	
+	return summary;
+}
 
 
 

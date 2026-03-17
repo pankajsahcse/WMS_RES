@@ -1,6 +1,7 @@
 package com.res.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Pageable;
 
@@ -74,6 +75,8 @@ public interface EeService {
     List<Double> loadPreviousDataByEstimateId(UserBean fetchLoggedInUserDetails, Long estimateSorId);
 
 	List<MeasurementDto> LoadAllMeasurementListByEstimateSorId(UserBean fetchLoggedInUserDetails, Long estimateSorId);
+
+	Map<String, Object> getMeasurementSummaryByWorkId(Long workId);
 
 	ResponseObject VerifyTheMesurementWithDSC(DscSaveRequest req);
 

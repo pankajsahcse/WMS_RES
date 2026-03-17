@@ -135,6 +135,11 @@
 	};
 
 	function fetchWorkListWithTsStatus() {
+		// Destroy existing DataTable if it exists
+		if ($.fn.DataTable.isDataTable('#dynamic-table')) {
+			$('#dynamic-table').DataTable().destroy();
+		}
+		
 		t = $("#dynamic-table")
 			.DataTable(
 				{
@@ -221,17 +226,7 @@
 					},
 
 					"fnServerParams": function (aoData) {
-
-						aoData.push({
-							"name": "searchBoxVal",
-							"value": $('#searchBox').val().trim()
-						});
-						aoData.push({ "name": "projectName", "value": $('#projectName').val() });
-
-						aoData.push({ "name": "blockName", "value": $('#block').val() });
-						aoData.push({ "name": "grampanchayatId", "value": $('#grampanchayat').val() });
-						aoData.push({ "name": "villageId", "value": $('#village').val() });
-
+						// No filter parameters needed
 					},
 					"fnCreatedRow": function (nRow, aData, iDataIndex) {
 
@@ -333,24 +328,6 @@
 		angular.element("#dynamic-table").scope().downloadDocument(id);
 	};
 
-	$('#filter-btn').click(function () {
-		$('#filters').fadeToggle(300);
-	});
-	$('.filter-close').click(function (e) {
-		e.preventDefault();
-		$(this).parent('#filters').fadeOut(300);
-	});
-	$('#applyFilters').click(function (e) {
-		//e.preventDefault();
-		$('#filters').fadeOut(300);
-		//$('#searchForm').submit();
-	});
-	var filter_box = $('#filters');
-	$(document).mouseup(function (e) {
-		if (!filter_box.is(e.target) && filter_box.has(e.target).length === 0) {
-			$('#filters:visible').fadeOut('300');
-		}
-	});
 	/*]]>*/
 </script>
 
@@ -424,120 +401,8 @@
 						</div>
 						<div class="card-body">
 
-							<div class="pr">
-								<form name="searchForm" novalidate="novalidate" id="searchForm">
-									<fieldset class="legend-border">
-										<legend class="legend-border">Filters</legend>
-
-										<div class="row">
-											<div class="form-group col-sm-3" data-ng-show="false">
-												<label>Work Name</label>
-												<input type="text" class="form-control" id="searchBox" name="searchBox"
-													placeholder="Search by Work Name" data-ng-model="workName"
-													data-ng-change="reloadJqueryDatatable();" maxlength="100" />
-
-
-											</div>
-											<div class="form-group col-sm-3">
-												<label>Project Name</label>
-												<select data-ng-disabled="isDisabled" class="form-control"
-													id="projectName" required="required"
-													data-ng-init="loadProjectByDistrict();" data-ng-model="projectId"
-													name="projectId" data-ng-change="reloadJqueryDatatable();">
-													<option value="" disabled="disabled">--Select--</option>
-													<option value="{{mh.id}}"
-														data-ng-repeat="mh in projectsData | orderBy : 'projectName'">
-														{{mh.projectName}}</option>
-												</select>
-
-											</div>
-
-
-
-
-
-
-
-
-
-											<div class="form-group col-sm-3">
-												<label>Gram Panchayat</label>
-												<select class="form-control" id="grampanchayat"
-													data-ng-model="grampanchaytID" data-ng-init=""
-													data-ng-change="villageId=null;loadVillageByGPId(grampanchaytID);reloadJqueryDatatable();"
-													name="financialYear">
-													<option value="" disabled="disabled">--Select
-														Gram Panchayat--</option>
-													<option
-														data-ng-repeat="gp in gramPanchayats  | orderBy : 'gramPanchayatName'"
-														value="{{gp.gramPanchayatId}}">{{gp.gramPanchayatName}}</option>
-												</select>
-											</div>
-											<div class="form-group col-sm-3">
-												<label>Village</label>
-												<select class="form-control" id="village" data-ng-model="villageId"
-													data-ng-init="" data-ng-change="reloadJqueryDatatable();"
-													name="financialYear">
-													<option value="" disabled="disabled">--Select
-														Village--</option>
-													<option data-ng-repeat="vi in villages | orderBy : 'villageName'"
-														value="{{vi.villageId}}">{{vi.villageName}}</option>
-												</select>
-											</div>
-
-										</div>
-
-
-
-
-
-
-
-
-									</fieldset>
-								</form>
-							</div>
 							<!--<div class="form-group text-right"><a class="btn btn-secondary" href="#workCreation"> <span >Create Work</span></a></div>-->
-							<div class="pr">
-								<form name="searchForm" novalidate="novalidate" id="searchForm"
-									data-ng-submit="searchBySearchBox()">
-									<div class="row ">
-										<!-- <div class="input-group mb-3 mr-6  col-md-6 filter-box">
-											<input type="text" class="form-control" id="searchBox"
-												placeholder="Search by ProjectName Or ProjectCode[Please enter atleast two characters]"
-												data-ng-model="searchBox" />
-											
-											<div class="btn-group pr">
-												<button class="btn btn-secondary" type="submit"
-													title="Search">
-													<i class="fa fa-search"></i>
-												</button>
-												<button class="btn btn-secondary" type="reset"
-													data-ng-click="resetFunction()" title="Reset">
-													<i class="fa fa-refresh"></i>
-												</button>
-													
-												<button class="btn btn-secondary" id="filter-btn"
-													title="Filter" type="button">
-													<i class="fa fa-filter"></i>
-												</button>
-												<div id="filters">
-													<a href="" class="filter-close"><i
-														class="icon-close icons"></i></a>
-												</div>
-											</div>
-											
-											&nbsp;&nbsp;
-											
-										</div> -->
-
-
-
-
-
-									</div>
-								</form>
-							</div>
+							
 							<div class="row">
 								<div class="col-md-12">
 									<div data-ng-if="responseObject.successMessage != null" class="text-success">
@@ -582,68 +447,73 @@
 	<!-- /.container-fluid -->
 	<!-- Issue e-MB Modal -->
 	<div class="modal fade" id="embModal" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog modal-md" role="document">
-			<div class="modal-content">
+		<div class="modal-dialog modal-lg" role="document" style="max-width: 900px;">
+			<div class="modal-content" style="border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
 
 				<!-- Header -->
-				<div class="modal-header bg-warning text-dark">
-					<h5 class="modal-title">
+				<div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0;">
+					<h5 class="modal-title" style="font-weight: 600; font-size: 18px;">
 						<i class="fa fa-file-text-o"></i>
 						Issue e-MB Number
 					</h5>
-					<button type="button" class="close" data-dismiss="modal">
+					<button type="button" class="close text-white" data-dismiss="modal" style="opacity: 1;">
 						<span>&times;</span>
 					</button>
 				</div>
 				<form name="issueEMBNumber" data-ng-submit="IssueEMBNumber(issueEMBNumber.$valid)"
 					novalidate="novalidate">
 					<!-- Body -->
-					<div class="modal-body" style="padding: 25px 30px;">
+					<div class="modal-body" style="padding: 30px 35px; background-color: #f8f9fa;">
 
-						<div class="card shadow-sm border-0" style="width: 100%;">
-							<div class="card-body" style="padding: 28px;">
+						<div class="card" style="border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px;">
+							<div class="card-body" style="padding: 30px;">
 
 								<!-- Row 1 -->
-								<div class="row" style="margin-bottom: 18px;">
+								<div class="row" style="margin-bottom: 25px;">
 
-									<div class="col-md-4">
+									<div class="col-md-6">
 										<div class="form-group">
-											<label class="fw-semibold" style="font-size: 13px;">
+											<label style="font-weight: 600; font-size: 14px; color: #495057; margin-bottom: 8px;">
 												Allocated Sub Engineer Office Name <span class="text-danger">*</span>
 											</label>
 											<input type="text" class="form-control"
 												data-ng-model="emb.subEngineerOffice" data-ng-disabled="true"
-												style="height: 40px; font-size: 14px;" />
+												style="height: 45px; font-size: 14px; border-radius: 6px; background-color: #e9ecef;" />
 										</div>
 									</div>
 
-									<div class="col-md-4">
+									<div class="col-md-6">
 										<div class="form-group">
-											<label class="fw-semibold" style="font-size: 13px;">
+											<label style="font-weight: 600; font-size: 14px; color: #495057; margin-bottom: 8px;">
 												Work Name <span class="text-danger">*</span>
 											</label>
 											<input type="text" class="form-control" data-ng-model="emb.workName"
-												data-ng-disabled="true" style="height: 40px; font-size: 14px;" />
+												data-ng-disabled="true" style="height: 45px; font-size: 14px; border-radius: 6px; background-color: #e9ecef;" />
 										</div>
 									</div>
 
-									<div class="col-md-4">
+								</div>
+
+								<!-- Row 2 -->
+								<div class="row" style="margin-bottom: 25px;">
+
+									<div class="col-md-12">
 										<div class="form-group">
-											<label class="fw-semibold" style="font-size: 13px;">
+											<label style="font-weight: 600; font-size: 14px; color: #495057; margin-bottom: 8px;">
 												Allocated Sub Engineer <span class="text-danger">*</span>
 											</label>
 											<select name="allocatedUserId" data-ng-required="true" class="form-control"
 												data-ng-model="emb.allocatedUserId"
-												style="height: 40px; font-size: 14px;">
+												style="height: 45px; font-size: 14px; border-radius: 6px; border: 1px solid #ced4da;">
 												<option value="">-- Select Sub Engineer --</option>
 												<option data-ng-repeat="i in EngineerList" value="{{i.id}}">
 													{{i.username}}
 												</option>
 											</select>
 
-											<div class="text-danger" data-ng-if="issueEMBNumber.$submitted &amp;&amp;
+											<div class="text-danger" style="font-size: 13px; margin-top: 5px;" data-ng-if="issueEMBNumber.$submitted &amp;&amp;
 			                 issueEMBNumber.allocatedUserId.$error.required">
-												Please select Sub Engineer
+												<i class="fa fa-exclamation-circle"></i> Please select Sub Engineer
 											</div>
 
 										</div>
@@ -651,22 +521,22 @@
 
 								</div>
 
-								<!-- Row 2 -->
+								<!-- Row 3 -->
 								<div class="row">
 
 									<div class="col-md-12">
 										<div class="form-group">
-											<label class="fw-semibold" style="font-size: 13px;">
+											<label style="font-weight: 600; font-size: 14px; color: #495057; margin-bottom: 8px;">
 												Remarks <span class="text-danger">*</span>
 											</label>
-											<textarea class="form-control" rows="4" name="remarks"
+											<textarea class="form-control" rows="5" name="remarks"
 												data-ng-model="emb.remarks" data-ng-required="true"
 												placeholder="Enter remarks here..."
-												style="font-size: 14px; resize: vertical;"></textarea>
-											<div class="text-danger" data-ng-if="issueEMBNumber.$submitted 
+												style="font-size: 14px; resize: vertical; border-radius: 6px; border: 1px solid #ced4da;"></textarea>
+											<div class="text-danger" style="font-size: 13px; margin-top: 5px;" data-ng-if="issueEMBNumber.$submitted 
 			                  &amp;&amp;
 			                  issueEMBNumber.remarks.$error.required">
-												Please enter remarks
+												<i class="fa fa-exclamation-circle"></i> Please enter remarks
 											</div>
 										</div>
 									</div>
@@ -681,12 +551,12 @@
 
 
 					<!-- Footer -->
-					<div class="modal-footer">
-						<button type="submit" class="btn btn-primary" id="saveEmbBtn">
+					<div class="modal-footer" style="background-color: #f8f9fa; border-top: 1px solid #dee2e6; padding: 15px 30px;">
+						<button type="submit" class="btn btn-primary" id="saveEmbBtn" style="padding: 10px 25px; font-size: 14px; border-radius: 6px; font-weight: 500;">
 							<i class="fa fa-save"></i> Issue E-MB
 						</button>
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">
-							Close
+						<button type="button" class="btn btn-secondary" data-dismiss="modal" style="padding: 10px 25px; font-size: 14px; border-radius: 6px; font-weight: 500;">
+							<i class="fa fa-times"></i> Close
 						</button>
 					</div>
 				</form>
