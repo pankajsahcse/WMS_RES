@@ -249,17 +249,7 @@
 					},
 
 					"fnServerParams": function (aoData) {
-
-						aoData.push({
-							"name": "searchBoxVal",
-							"value": $('#searchBox').val().trim()
-						});
-						aoData.push({ "name": "projectName", "value": $('#projectName').val() });
-
-						aoData.push({ "name": "blockName", "value": $('#block').val() });
-						aoData.push({ "name": "grampanchayatId", "value": $('#grampanchayat').val() });
-						aoData.push({ "name": "villageId", "value": $('#village').val() });
-
+						// No filter parameters needed
 					},
 					"fnCreatedRow": function (nRow, aData, iDataIndex) {
 
@@ -295,7 +285,17 @@
 					},
 					{
 						"data": "embDate",
-						"bSortable": false
+						"bSortable": false,
+						"render": function(data, type, row) {
+							if (data) {
+								var date = new Date(data);
+								var day = ("0" + date.getDate()).slice(-2);
+								var month = ("0" + (date.getMonth() + 1)).slice(-2);
+								var year = date.getFullYear();
+								return day + "-" + month + "-" + year;
+							}
+							return "";
+						}
 					}
 						, {
 						"data": "workName",
@@ -323,24 +323,6 @@
 		angular.element("#dynamic-table").scope().downloadDocument(id);
 	};
 
-	$('#filter-btn').click(function () {
-		$('#filters').fadeToggle(300);
-	});
-	$('.filter-close').click(function (e) {
-		e.preventDefault();
-		$(this).parent('#filters').fadeOut(300);
-	});
-	$('#applyFilters').click(function (e) {
-		//e.preventDefault();
-		$('#filters').fadeOut(300);
-		//$('#searchForm').submit();
-	});
-	var filter_box = $('#filters');
-	$(document).mouseup(function (e) {
-		if (!filter_box.is(e.target) && filter_box.has(e.target).length === 0) {
-			$('#filters:visible').fadeOut('300');
-		}
-	});
 	/*]]>*/
 </script>
 
@@ -414,119 +396,8 @@
 						</div>
 						<div class="card-body">
 
-							<div class="pr">
-								<form name="searchForm" novalidate="novalidate" id="searchForm">
-									<fieldset class="legend-border">
-										<legend class="legend-border">Filters</legend>
-
-										<div class="row">
-											<div class="form-group col-sm-3">
-												<label>E-Mb No. </label>
-												<input type="text" class="form-control" id="searchBox" name="searchBox"
-													placeholder="Search by Emb No." data-ng-model="workName"
-													data-ng-change="reloadJqueryDatatable();" maxlength="100" />
-
-
-											</div>
-											<div class="form-group col-sm-3">
-												<label>Project Name</label>
-												<select data-ng-disabled="isDisabled" class="form-control"
-													id="projectName" required="required"
-													data-ng-init="loadProjectByDistrict();" data-ng-model="projectId"
-													name="projectId" data-ng-change="reloadJqueryDatatable();">
-													<option value="" disabled="disabled">--Select--</option>
-													<option value="{{mh.id}}"
-														data-ng-repeat="mh in projectsData | orderBy : 'projectName'">
-														{{mh.projectName}}</option>
-												</select>
-
-											</div>
-
-
-
-
-
-
-
-
-											<div class="form-group col-sm-3">
-												<label>Gram Panchayat</label>
-												<select class="form-control" id="grampanchayat"
-													data-ng-model="grampanchaytID" data-ng-init=""
-													data-ng-change="villageId=null;loadVillageByGPId(grampanchaytID);reloadJqueryDatatable();"
-													name="financialYear">
-													<option value="" disabled="disabled">--Select
-														Gram Panchayat--</option>
-													<option
-														data-ng-repeat="gp in gramPanchayats  | orderBy : 'gramPanchayatName'"
-														value="{{gp.gramPanchayatId}}">{{gp.gramPanchayatName}}</option>
-												</select>
-											</div>
-											<div class="form-group col-sm-3">
-												<label>Village</label>
-												<select class="form-control" id="village" data-ng-model="villageId"
-													data-ng-init="" data-ng-change="reloadJqueryDatatable();"
-													name="financialYear">
-													<option value="" disabled="disabled">--Select
-														Village--</option>
-													<option data-ng-repeat="vi in villages | orderBy : 'villageName'"
-														value="{{vi.villageId}}">{{vi.villageName}}</option>
-												</select>
-											</div>
-
-										</div>
-
-
-
-
-
-
-
-
-									</fieldset>
-								</form>
-							</div>
 							<!--<div class="form-group text-right"><a class="btn btn-secondary" href="#workCreation"> <span >Create Work</span></a></div>-->
-							<div class="pr">
-								<form name="searchForm" novalidate="novalidate" id="searchForm"
-									data-ng-submit="searchBySearchBox()">
-									<div class="row ">
-										<!-- <div class="input-group mb-3 mr-6  col-md-6 filter-box">
-											<input type="text" class="form-control" id="searchBox"
-												placeholder="Search by ProjectName Or ProjectCode[Please enter atleast two characters]"
-												data-ng-model="searchBox" />
-											
-											<div class="btn-group pr">
-												<button class="btn btn-secondary" type="submit"
-													title="Search">
-													<i class="fa fa-search"></i>
-												</button>
-												<button class="btn btn-secondary" type="reset"
-													data-ng-click="resetFunction()" title="Reset">
-													<i class="fa fa-refresh"></i>
-												</button>
-													
-												<button class="btn btn-secondary" id="filter-btn"
-													title="Filter" type="button">
-													<i class="fa fa-filter"></i>
-												</button>
-												<div id="filters">
-													<a href="" class="filter-close"><i
-														class="icon-close icons"></i></a>
-												</div>
-											</div>
-											
-											&nbsp;&nbsp;
-											
-										</div> -->
-
-
-
-
-
-									</div>
-								</form>
-							</div>
+							
 							<div class="row">
 								<div class="col-md-12">
 									<div data-ng-if="responseObject.successMessage != null" class="text-success">

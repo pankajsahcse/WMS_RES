@@ -4239,6 +4239,81 @@ res.controller('EEController', function ($scope, $loading, $rootScope, $window, 
 	};
 
 
+	// Load work details for displaying Work Requisition Id and Estimation Type
+	$scope.loadWorkDetailsForMeasurement = function () {
+		$loading.start('sample-1');
+		
+		// First call: fetch basic work details
+		$http.get('fetchWorkDetails/' + $routeParams.id)
+			.then(function (response) {
+				$scope.workData = response.data;
+				console.log('Work details loaded:', $scope.workData);
+				
+				// Second call: fetch estimation details for competent authority info
+				return $http.get('fetchWorkEstimationDetailsById/' + $routeParams.id);
+			})
+			.then(function (response) {
+				// Merge estimation details into workData
+				if (response.data) {
+					var data = response.data;
+					
+					// Competent Authority Details
+					$scope.workData.competentAuthName = data.competentAuthName;
+					$scope.workData.competentAuthDesig = data.competentAuthDesig;
+					$scope.workData.revisedLetterNo = data.revisedLetterNo;
+					$scope.workData.letterNoDate = data.letterNoDate;
+					
+					// Estimation Amounts and Calculations
+					$scope.workData.estimatedAmount = data.estimatedAmount;
+					$scope.workData.grandTotalOriginalAmoumnt = data.grandTotal;
+					$scope.workData.grandTotal = data.grandTotal;
+					$scope.workData.expectedTenderedAmt = data.expectedTenderedAmt;
+					$scope.workData.expectedTenderedRatePer = data.expectedTenderedRatePer;
+					$scope.workData.overheadChargesPer = data.overheadChargesPer;
+					$scope.workData.overheadChargesAmt = data.overheadChargesAmt;
+					$scope.workData.labourWelfareComponentPer = data.labourWelfareComponentPer;
+					$scope.workData.labourWelfareComponentAmt = data.labourWelfareComponentAmt;
+					$scope.workData.applicableGstPer = data.applicableGstPer;
+					$scope.workData.applicableGstAmt = data.applicableGstAmt;
+					$scope.workData.workChargeContingencyPer = data.workChargeContingencyPer;
+					$scope.workData.workChargeContingencyAmt = data.workChargeContingencyAmt;
+					$scope.workData.administrativeExpenditurePer = data.administrativeExpenditurePer;
+					$scope.workData.administrativeExpenditureAmt = data.administrativeExpenditureAmt;
+					$scope.workData.othersCharges = data.othersCharges;
+					
+					// Comments and Forward Dates
+					$scope.workData.comments = data.comments;
+					$scope.workData.subEngComments = data.subEngComments;
+					$scope.workData.subEngFwdDate = data.subEngFwdDate;
+					$scope.workData.sdoComments = data.sdoComments;
+					$scope.workData.sdoFwdDate = data.sdoFwdDate;
+					$scope.workData.aeComments = data.aeComments;
+					$scope.workData.aeFwdDate = data.aeFwdDate;
+					$scope.workData.eeComments = data.eeComments;
+					$scope.workData.eeFwdDate = data.eeFwdDate;
+					$scope.workData.seComments = data.seComments;
+					$scope.workData.seFwdDate = data.seFwdDate;
+					$scope.workData.ceComments = data.ceComments;
+					$scope.workData.ceFwdDate = data.ceFwdDate;
+					
+					// Other Estimation Details
+					$scope.workData.estimationId = data.estimationId;
+					$scope.workData.status = data.status;
+					$scope.workData.estimationSubmissionDate = data.estimationSubmissionDate;
+					$scope.workData.estimationType = data.estimationType;
+					$scope.workData.hasNonSorItems = data.hasNonSorItems;
+					$scope.workData.tenPercentCheck = data.tenPercentCheck;
+					
+					console.log('All estimation details loaded:', data);
+				}
+				$loading.finish('sample-1');
+			})
+			.catch(function (error) {
+				console.error("Error loading work/estimation details:", error);
+				$loading.finish('sample-1');
+			});
+	};
+
 	$scope.LoadEstiamtionItemDetails = function () {
 
 		$loading.start('sample-1');
@@ -4248,6 +4323,9 @@ res.controller('EEController', function ($scope, $loading, $rootScope, $window, 
 
 				$scope.ChapterItemData = response.data;
 				$loading.finish('sample-1');
+				
+				// Load summary after estimation data is loaded
+				$scope.loadSummaryEmbTabelByWorkId();
 
 			}, function (error) {
 
@@ -4267,6 +4345,129 @@ res.controller('EEController', function ($scope, $loading, $rootScope, $window, 
 
 		fetchWorkListWithTsStatus();
 
+	};
+
+	// Load office details for Technical Sanction (EMB Modal)
+	$scope.loadOfficeOfTsDone = function(workId) {
+		console.log('=== loadOfficeOfTsDone called ===');
+		console.log('Work ID:', workId);
+		
+		$loading.start('sample-1');
+		var response = $http.get('fetchWorkEstimationDetailsById/' + workId);
+		response.success(function(data, status, headers, config) {
+			console.log('API Response:', data);
+			
+			if (data) {
+				// Initialize emb object if not exists
+				$scope.emb = $scope.emb || {};
+				
+				// Populate modal fields
+				$scope.emb.workName = data.workName;
+				$scope.emb.workId = data.workId;
+				
+				// Set office ID for loading engineers
+				if (data.executiveEngineerOfficeId) {
+					$scope.selectedOfficeId = data.executiveEngineerOfficeId;
+					$scope.emb.executiveEngineerOfficeId = data.executiveEngineerOfficeId;
+					console.log('✅ Office ID set:', $scope.selectedOfficeId);
+				} else {
+					console.error('❌ executiveEngineerOfficeId NOT found in response');
+					console.log('Available fields:', Object.keys(data));
+				}
+				
+				// Set Sub Engineer Office Name if available
+				if (data.executiveEngineerOfficeName) {
+					$scope.emb.subEngineerOffice = data.executiveEngineerOfficeName;
+					console.log('✅ Office Name set:', data.executiveEngineerOfficeName);
+				} else {
+					console.warn('⚠️ executiveEngineerOfficeName NOT found in response');
+				}
+				
+				console.log('Final emb object:', $scope.emb);
+			}
+			$loading.finish('sample-1');
+		});
+		response.error(function(data, status, headers, config) {
+			console.error('❌ API Error:', status, data);
+			$loading.finish('sample-1');
+		});
+	};
+
+	// Load engineers for IT (EMB Modal)
+	$scope.LoadEngineersForIT = function() {
+		console.log('=== LoadEngineersForIT called ===');
+		console.log('Selected Office ID:', $scope.selectedOfficeId);
+		
+		if ($scope.selectedOfficeId) {
+			$loading.start('sample-1');
+			var response = $http.get('fetchSubEngineerByOfficeId/' + $scope.selectedOfficeId);
+			response.success(function(data, status, headers, config) {
+				$scope.EngineerList = data;
+				console.log('✅ Sub Engineers loaded:', data.length, 'engineers');
+				console.log('Engineers:', data);
+				$loading.finish('sample-1');
+			});
+			response.error(function(data, status, headers, config) {
+				console.error('❌ Error loading sub engineers:', status, data);
+				$loading.finish('sample-1');
+			});
+		} else {
+			console.error('❌ No office ID selected! Cannot load engineers.');
+			console.log('Scope data:', {
+				selectedOfficeId: $scope.selectedOfficeId,
+				emb: $scope.emb
+			});
+		}
+	};
+
+	// Issue EMB Number - Form Submit Handler
+	$scope.IssueEMBNumber = function(isValid) {
+		console.log('=== IssueEMBNumber called ===');
+		console.log('Form Valid:', isValid);
+		console.log('EMB Data:', $scope.emb);
+		
+		if (!isValid) {
+			console.warn('⚠️ Form validation failed');
+			return;
+		}
+		
+		$loading.start('sample-1');
+		
+		// Prepare data for submission matching EmbDto structure
+		var embData = {
+			workid: $scope.emb.workId,  // Note: lowercase 'id' in backend
+			engineerId: $scope.emb.allocatedUserId,
+			OfficeId: $scope.selectedOfficeId,
+			workName: $scope.emb.workName,
+			remarks: $scope.emb.remarks
+		};
+		
+		console.log('Submitting EMB data:', embData);
+		
+		var response = $http.post('IssueEmbNumber', embData);
+		response.success(function(data, status, headers, config) {
+			console.log('✅ EMB issued successfully:', data);
+			$loading.finish('sample-1');
+			
+			// Close modal
+			$('#embModal').modal('hide');
+			
+			// Show success message
+			alert('EMB Number issued successfully!');
+			
+			// Reload table
+			if (typeof fetchWorkListWithTsStatus === 'function') {
+				fetchWorkListWithTsStatus();
+			}
+			
+			// Reset form
+			$scope.emb = {};
+		});
+		response.error(function(data, status, headers, config) {
+			console.error('❌ Error issuing EMB:', status, data);
+			$loading.finish('sample-1');
+			alert('Error issuing EMB Number. Please try again.');
+		});
 	};
 
 
@@ -4313,30 +4514,51 @@ res.controller('EEController', function ($scope, $loading, $rootScope, $window, 
 		$scope.mesurement = $scope.mesurement || {}
 		$scope.mesurement = {}
 		$scope.uploadDoc1 = null
-		$scope.mesurement.sorItemNo = j.sorItemNo;
-		$scope.mesurement.no = j.no;
-		$scope.mesurement.itemDesc = j.itemDesc;
-		$scope.mesurement.unit = j.unit;
-		$scope.mesurement.quantity = j.quantity;
-		$scope.mesurement.rate = j.rate;
-		$scope.mesurement.measureLength = j.length;
-		$scope.mesurement.measureWidth = j.width;
-		$scope.mesurement.measureHeightDepth = j.heightDepth;
+		$scope.mesurement.sorItemNo = j.sorItemNo || 'N/A';
+		$scope.mesurement.no = j.no || 1;
+		$scope.mesurement.itemDesc = j.itemDesc || 'No Description';
+		$scope.mesurement.unit = j.unit || 'SQM';
+		$scope.mesurement.quantity = j.quantity || 0;
+		$scope.mesurement.rate = j.rate || 100; // Default rate set to 100
+		$scope.mesurement.measureLength = j.length || 0;
+		$scope.mesurement.measureWidth = j.width || 0;
+		$scope.mesurement.measureHeightDepth = j.heightDepth || 0;
+
+		// Set default current measurement values
+		$scope.mesurement.currentMesurementL = 0;
+		$scope.mesurement.currentMesurementW = 0;
+		$scope.mesurement.currentMesurementT = 0;
+		$scope.mesurement.currentMesurementNo = 1;
 
 		$scope.mesurement.estimateSorId = j.id;
-		if (!j.id) return;
+		if (!j.id) {
+			console.warn('⚠️ No estimate SOR ID found, using defaults');
+			// Calculate with default values
+			$scope.calculateCurrentAmount();
+			return;
+		}
 
 
 		$scope.loadPreviousData(j.id).then(function (data) {
 
 			// ✅ NOW IT WAITS
 			debugger;
-			$scope.mesurement.previousMeasurementL = data[0];
-			$scope.mesurement.previousMeasurementW = data[1];
-			$scope.mesurement.previousMeasurementT_T = data[2];
-			$scope.mesurement.previousMeasurementNo = data[3];
+			$scope.mesurement.previousMeasurementL = data[0] || 0;
+			$scope.mesurement.previousMeasurementW = data[1] || 0;
+			$scope.mesurement.previousMeasurementT_T = data[2] || 0;
+			$scope.mesurement.previousMeasurementNo = data[3] || 0;
 
 			$scope.calculateRemainingMeasurement();
+			// Calculate initial amount with defaults
+			$scope.calculateCurrentAmount();
+		}).catch(function(error) {
+			console.error('Error loading previous data:', error);
+			// Set defaults if API fails
+			$scope.mesurement.previousMeasurementL = 0;
+			$scope.mesurement.previousMeasurementW = 0;
+			$scope.mesurement.previousMeasurementT_T = 0;
+			$scope.mesurement.previousMeasurementNo = 0;
+			$scope.calculateCurrentAmount();
 		});
 
 
@@ -4510,31 +4732,34 @@ res.controller('EEController', function ($scope, $loading, $rootScope, $window, 
 	}
 
 
-	$scope.deleteMeasurement = function (id, esorid) {
+	$scope.deleteMeasurement = function (id, esorid, itemObj) {
 
 		if (confirm("Are you sure you want to delete this measurement?")) {
 
 			$http.post('deleteMeasurementById/' + id)
 				.then(function (response) {
 
-					// ✅ Success case (service null return karta hai)
-					if (!response.data) {
-
-						alert("Measurement deleted successfully!");
-
-						// 🔄 List reload karo
-						$http.get('loadMeasurementByEsorId/' + esorid)
-							.then(function (res) {
-								j.measurementList = res.data;
-
-
-							}, function (err) {
-								console.error('Failed to load measurement data', err);
-							});
-
+					if (response.data && response.data.successMessage) {
+						alert(response.data.successMessage);
+						
+						// Hide the expanded view after delete
+						if (itemObj) {
+							itemObj.shortView = false;
+							itemObj.measurementList = [];
+						}
+						
+						// Update summary after deletion
+						if ($scope.loadSummaryEmbTabelByWorkId) {
+							$scope.loadSummaryEmbTabelByWorkId();
+						}
+						
+						// Force digest cycle
+						$scope.$applyAsync();
+						
+					} else if (response.data && response.data.errorMessage) {
+						alert(response.data.errorMessage);
 					} else {
-						// ❌ Error message service se aaya
-						alert(response.data);
+						alert("Unexpected response from server");
 					}
 
 				}, function (error) {
@@ -4633,6 +4858,47 @@ res.controller('EEController', function ($scope, $loading, $rootScope, $window, 
 		});
 	};
 
+	// Load Summary EMB Table by Work ID
+	$scope.loadSummaryEmbTabelByWorkId = function() {
+	
+		
+		$scope.embSummary = {};
+		$scope.totalAmount = 0;
+		
+		// Use already loaded ChapterItemData (estimation items)
+		if ($scope.ChapterItemData && $scope.ChapterItemData.length > 0) {
+				
+			// Get the first item's date (estimation date)
+			var estimationDate = new Date();
+			var dateStr = estimationDate.toISOString().split('T')[0];
+			
+			// Calculate total from all estimation items
+			var total = 0;
+			angular.forEach($scope.ChapterItemData, function(chapter) {
+				if (chapter.itemList && chapter.itemList.length > 0) {
+					angular.forEach(chapter.itemList, function(item) {
+						// Only sum items that don't have children (actual items, not groups)
+						if (item.amount && !item.hasChild) {
+							total += parseFloat(item.amount) || 0;
+						}
+					});
+				}
+			});
+			
+			$scope.embSummary[dateStr] = total;
+			$scope.totalAmount = total;
+			
+		} else {
+			
+		}
+		
+		console.log('Summary loaded:', $scope.embSummary, 'Total:', $scope.totalAmount);
+	};
+
+	$scope.loadSummaryEmbTabelByWorkIdpdf = function() {
+		// Load summary for PDF table - uses same data
+		$scope.loadSummaryEmbTabelByWorkId();
+	};
 
 
 	$scope.SaveMeasurementWithDsc = function () {
@@ -4727,11 +4993,180 @@ res.controller('EEController', function ($scope, $loading, $rootScope, $window, 
 						}
 						return m;
 					});
+					
+					// Update summary after loading measurements
+					$scope.loadSummaryEmbTabelByWorkId();
 				}, function (err) {
 					console.error('Failed to load measurement data', err);
 				});
 		}
 	};
+
+	// ========== ADDITIONAL MISSING FUNCTIONS START ==========
+	
+	$scope.calculateQuantity = function(billItem) {
+		if (!billItem) return;
+		
+		let no = billItem.no || 0;
+		let length = billItem.length || 0;
+		let width = billItem.width || 0;
+		let heightDepth = billItem.heightDepth || 0;
+		
+		let quantity = no * length * width * heightDepth;
+		billItem.quantity = Math.round(quantity * 100) / 100;
+		
+		if (billItem.rate) {
+			$scope.calculateAmount(billItem);
+		}
+	};
+
+	$scope.calculateAmount = function(billItem) {
+		if (!billItem) return;
+		
+		let quantity = billItem.quantity || 0;
+		let rate = billItem.rate || 0;
+		let amount = quantity * rate;
+		
+		billItem.amount = Math.round(amount * 100) / 100;
+		$scope.calculateTotalLabourComponent();
+	};
+
+	$scope.calculateTotalLabourComponent = function() {
+		if (!$scope.workData || !$scope.workData.workTemplateItems) return;
+		
+		let total = 0;
+		$scope.workData.workTemplateItems.forEach(function(item) {
+			if (item.labourComponentValue) {
+				total += parseFloat(item.labourComponentValue) || 0;
+			}
+		});
+		
+		$scope.workData.totalLabourComponent = Math.round(total * 100) / 100;
+	};
+
+	$scope.editEstimation = function() {
+		if (!$scope.tsEstimationData || !$scope.tsEstimationData.workId) {
+			alert('Work ID not found');
+			return;
+		}
+		$window.location.href = '#/editEstimation/' + $scope.tsEstimationData.workId;
+	};
+
+	$scope.updateTSStatus = function(isValid, statusId) {
+		if (!isValid) {
+			alert('Please fill all required fields');
+			return;
+		}
+		
+		if (!confirm('Are you sure you want to update the status?')) {
+			return;
+		}
+		
+		$loading.start('sample-1');
+		var data = {
+			technicalSanctionId: $scope.tsEstimationData.technicalSanctionId,
+			statusId: statusId,
+			comments: $scope.tsStatusComments
+		};
+		
+		$http.post('updateTechnicalSanctionStatus', data)
+			.success(function() {
+				$loading.finish('sample-1');
+				alert('Status updated successfully');
+				$window.location.reload();
+			})
+			.error(function() {
+				$loading.finish('sample-1');
+				alert('Error updating status');
+			});
+	};
+
+	$scope.printAdministrativeSectionReport = function(workId, tsId) {
+		if (!workId || !tsId) {
+			alert('Invalid parameters');
+			return;
+		}
+		$window.open('printTechnicalSanctionReport/' + workId + '/' + tsId, '_blank');
+	};
+
+	$scope.callChapterListBySORId = function() {
+		if (!$scope.sorData || !$scope.sorData.sorName) return;
+		
+		$loading.start('sample-1');
+		$http.get('fetchChaptersBySORId/' + $scope.sorData.sorName)
+			.success(function(data) {
+				$scope.chapterData = data;
+				$loading.finish('sample-1');
+			})
+			.error(function() {
+				$loading.finish('sample-1');
+				alert('Error loading chapters');
+			});
+	};
+
+	$scope.callItemsByChapterId = function() {
+		if (!$scope.sorData || !$scope.sorData.chapterName) return;
+		
+		$loading.start('sample-1');
+		$http.get('fetchItemsByChapterId/' + $scope.sorData.chapterName)
+			.success(function(data) {
+				$scope.sorChapterItems = data;
+				$loading.finish('sample-1');
+			})
+			.error(function() {
+				$loading.finish('sample-1');
+				alert('Error loading items');
+			});
+	};
+
+	$scope.fetchItemNo = function() {
+		if (!$scope.sorData || !$scope.sorData.itemNo || $scope.sorData.itemNo.length < 2) {
+			alert('Please enter at least 2 characters to search');
+			return;
+		}
+		
+		$loading.start('sample-1');
+		$http.get('searchSORItems/' + $scope.sorData.itemNo)
+			.success(function(data) {
+				$scope.sorChapterItems = data;
+				$loading.finish('sample-1');
+			})
+			.error(function() {
+				$loading.finish('sample-1');
+				alert('Error searching items');
+			});
+	};
+
+	$scope.selectSORItemsNew = function(index) {
+		if (!$scope.sorChapterItems || !$scope.sorChapterItems[index]) return;
+		
+		var selectedItem = $scope.sorChapterItems[index];
+		selectedItem.confirmed = !selectedItem.confirmed;
+	};
+
+	$scope.removeTheseRowItemsForUpg = function() {
+		$scope.sorData = {};
+		$scope.sorChapterItems = [];
+		$scope.chapterData = [];
+	};
+
+	$scope.resetItemDataValues = function() {
+		if (!$scope.itemData) {
+			$scope.itemData = {};
+		}
+		
+		$scope.itemData.sorItemNo = null;
+		$scope.itemData.itemDesc = null;
+		$scope.itemData.no = null;
+		$scope.itemData.length = null;
+		$scope.itemData.width = null;
+		$scope.itemData.heightDepth = null;
+		$scope.itemData.quantity = null;
+		$scope.itemData.rate = null;
+		$scope.itemData.amount = null;
+	};
+
+	// ========== ADDITIONAL MISSING FUNCTIONS END ==========
 
 
 

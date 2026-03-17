@@ -1906,4 +1906,335 @@ res.controller('EEController', function ($scope, $loading, $rootScope, $window, 
 
 	};
 
+	// ========== MEASUREMENT FUNCTIONS START ==========
+	
+	$scope.calculateCurrentAmount = function () {
+
+		let no = $scope.mesurement.currentMesurementNo || 1;
+		let rate = $scope.mesurement.rate || 1;
+		let t = $scope.mesurement.currentMesurementT || 1;
+		let w = $scope.mesurement.currentMesurementW || 1;
+		let l = $scope.mesurement.currentMesurementL || 1;
+
+		rate = rate == 0 ? 1 : rate;
+		t = t == 0 ? 1 : t;
+		w = w == 0 ? 1 : w;
+		l = l == 0 ? 1 : l;
+		no = no == 0 ? 1 : no;
+
+		// original amount
+		var cal = rate * t * w * l * no;
+		cal = Math.round(cal * 100000) / 100000;
+
+		// 10% cut
+		var cut = cal * 0.10;
+		cut = Math.round(cut * 100000) / 100000;
+
+		// final amount
+		var finalAmount = cal - cut;
+		finalAmount = Math.round(finalAmount * 100000) / 100000;
+
+		// assign final amount
+		$scope.mesurement.calculatedAmount = finalAmount;
+
+		// string with details
+		$scope.mesurement.cutMessage =
+			"Original Amount: " + cal +
+			" | 10% Contractor Cut: " + cut +
+			" | Final Amount after Cut: " + finalAmount;
+
+	};
+
+	$scope.openMeasurementModal = function (j) {
+
+		console.log('=== openMeasurementModal called ===');
+		console.log('Item data:', j);
+		
+		$scope.mesurement = $scope.mesurement || {}
+		$scope.mesurement = {}
+		$scope.uploadDoc1 = null
+		$scope.mesurement.sorItemNo = j.sorItemNo || 'N/A';
+		$scope.mesurement.no = j.no || 1;
+		$scope.mesurement.itemDesc = j.itemDesc || 'No Description';
+		$scope.mesurement.unit = j.unit || 'SQM';
+		$scope.mesurement.quantity = j.quantity || 0;
+		$scope.mesurement.rate = j.rate || 100; // Default rate set to 100
+		$scope.mesurement.measureLength = j.length || 0;
+		$scope.mesurement.measureWidth = j.width || 0;
+		$scope.mesurement.measureHeightDepth = j.heightDepth || 0;
+
+		// Set default current measurement values
+		$scope.mesurement.currentMesurementL = 0;
+		$scope.mesurement.currentMesurementW = 0;
+		$scope.mesurement.currentMesurementT = 0;
+		$scope.mesurement.currentMesurementNo = 1;
+
+		console.log('Mesurement object initialized:', $scope.mesurement);
+
+		$scope.mesurement.estimateSorId = j.id;
+		if (!j.id) {
+			console.warn('⚠️ No estimate SOR ID found, using defaults');
+			// Calculate with default values
+			$scope.calculateCurrentAmount();
+			return;
+		}
+
+		if (typeof $scope.loadPreviousData === 'function') {
+			$scope.loadPreviousData(j.id).then(function (data) {
+				console.log('Previous data loaded:', data);
+				$scope.mesurement.previousMeasurementL = data[0] || 0;
+				$scope.mesurement.previousMeasurementW = data[1] || 0;
+				$scope.mesurement.previousMeasurementT_T = data[2] || 0;
+				$scope.mesurement.previousMesurementNo = data[3] || 0;
+
+				if (typeof $scope.calculateRemainingMeasurement === 'function') {
+					$scope.calculateRemainingMeasurement();
+				}
+				$scope.calculateCurrentAmount();
+			}).catch(function(error) {
+				console.error('Error loading previous data:', error);
+				$scope.mesurement.previousMeasurementL = 0;
+				$scope.mesurement.previousMeasurementW = 0;
+				$scope.mesurement.previousMeasurementT_T = 0;
+				$scope.mesurement.previousMesurementNo = 0;
+				$scope.calculateCurrentAmount();
+			});
+		} else {
+			console.warn('loadPreviousData function not found');
+			$scope.calculateCurrentAmount();
+		}
+	};
+
+	$scope.checkCurrentMeasurementNo = function () {
+		// Validation logic if needed
+	};
+
+	$scope.checkCurrentMeasurementL = function () {
+		if ($scope.mesurement.remainingMeasurementL && 
+		    $scope.mesurement.remainingMeasurementL < $scope.mesurement.currentMesurementL) {
+			console.warn('Current measurement L exceeds remaining');
+		}
+	};
+
+	$scope.checkCurrentMeasurementW = function () {
+		if ($scope.mesurement.remainingMeasurementW && 
+		    $scope.mesurement.remainingMeasurementW < $scope.mesurement.currentMesurementW) {
+			console.warn('Current measurement W exceeds remaining');
+		}
+	};
+
+	$scope.checkCurrentMeasurementT = function () {
+		if ($scope.mesurement.remainingMeasurementT && 
+		    $scope.mesurement.remainingMeasurementT < $scope.mesurement.currentMesurementT) {
+			console.warn('Current measurement T exceeds remaining');
+		}
+	};
+
+	// ========== MEASUREMENT FUNCTIONS END ==========
+
+	// ========== ITEM CALCULATION FUNCTIONS START ==========
+	
+	$scope.calculateQuantity = function(billItem) {
+		if (!billItem) return;
+		
+		let no = billItem.no || 0;
+		let length = billItem.length || 0;
+		let width = billItem.width || 0;
+		let heightDepth = billItem.heightDepth || 0;
+		
+		// Calculate quantity based on measurements
+		let quantity = no * length * width * heightDepth;
+		
+		// Round to 2 decimal places
+		billItem.quantity = Math.round(quantity * 100) / 100;
+		
+		// Recalculate amount if rate exists
+		if (billItem.rate) {
+			$scope.calculateAmount(billItem);
+		}
+	};
+
+	$scope.calculateAmount = function(billItem) {
+		if (!billItem) return;
+		
+		let quantity = billItem.quantity || 0;
+		let rate = billItem.rate || 0;
+		
+		// Calculate amount
+		let amount = quantity * rate;
+		
+		// Round to 2 decimal places
+		billItem.amount = Math.round(amount * 100) / 100;
+		
+		// Recalculate total labour component
+		$scope.calculateTotalLabourComponent();
+	};
+
+	$scope.calculateTotalLabourComponent = function() {
+		if (!$scope.workData || !$scope.workData.workTemplateItems) return;
+		
+		let total = 0;
+		
+		$scope.workData.workTemplateItems.forEach(function(item) {
+			if (item.labourComponentValue) {
+				total += parseFloat(item.labourComponentValue) || 0;
+			}
+		});
+		
+		$scope.workData.totalLabourComponent = Math.round(total * 100) / 100;
+	};
+
+	// ========== ITEM CALCULATION FUNCTIONS END ==========
+
+	// ========== ESTIMATION FUNCTIONS START ==========
+	
+	$scope.editEstimation = function() {
+		if (!$scope.tsEstimationData || !$scope.tsEstimationData.workId) {
+			alert('Work ID not found');
+			return;
+		}
+		
+		// Redirect to edit estimation page
+		$window.location.href = '#/editEstimation/' + $scope.tsEstimationData.workId;
+	};
+
+	$scope.updateTSStatus = function(isValid, statusId) {
+		if (!isValid) {
+			alert('Please fill all required fields');
+			return;
+		}
+		
+		if (!confirm('Are you sure you want to update the status?')) {
+			return;
+		}
+		
+		$loading.start('sample-1');
+		
+		var data = {
+			technicalSanctionId: $scope.tsEstimationData.technicalSanctionId,
+			statusId: statusId,
+			comments: $scope.tsStatusComments
+		};
+		
+		var response = $http.post('updateTechnicalSanctionStatus', data);
+		response.success(function(data, status, headers, config) {
+			$loading.finish('sample-1');
+			alert('Status updated successfully');
+			$window.location.reload();
+		});
+		response.error(function(data, status, headers, config) {
+			$loading.finish('sample-1');
+			alert('Error updating status');
+		});
+	};
+
+	$scope.printAdministrativeSectionReport = function(workId, tsId) {
+		if (!workId || !tsId) {
+			alert('Invalid parameters');
+			return;
+		}
+		
+		// Open report in new window
+		$window.open('printTechnicalSanctionReport/' + workId + '/' + tsId, '_blank');
+	};
+
+	// ========== ESTIMATION FUNCTIONS END ==========
+
+	// ========== SOR ITEM FUNCTIONS START ==========
+	
+	$scope.callChapterListBySORId = function() {
+		if (!$scope.sorData || !$scope.sorData.sorName) {
+			return;
+		}
+		
+		$loading.start('sample-1');
+		var response = $http.get('fetchChaptersBySORId/' + $scope.sorData.sorName);
+		response.success(function(data, status, headers, config) {
+			$scope.chapterData = data;
+			$loading.finish('sample-1');
+		});
+		response.error(function(data, status, headers, config) {
+			$loading.finish('sample-1');
+			alert('Error loading chapters');
+		});
+	};
+
+	$scope.callItemsByChapterId = function() {
+		if (!$scope.sorData || !$scope.sorData.chapterName) {
+			return;
+		}
+		
+		$loading.start('sample-1');
+		var response = $http.get('fetchItemsByChapterId/' + $scope.sorData.chapterName);
+		response.success(function(data, status, headers, config) {
+			$scope.sorChapterItems = data;
+			$loading.finish('sample-1');
+		});
+		response.error(function(data, status, headers, config) {
+			$loading.finish('sample-1');
+			alert('Error loading items');
+		});
+	};
+
+	$scope.fetchItemNo = function() {
+		if (!$scope.sorData || !$scope.sorData.itemNo || $scope.sorData.itemNo.length < 2) {
+			alert('Please enter at least 2 characters to search');
+			return;
+		}
+		
+		$loading.start('sample-1');
+		var response = $http.get('searchSORItems/' + $scope.sorData.itemNo);
+		response.success(function(data, status, headers, config) {
+			$scope.sorChapterItems = data;
+			$loading.finish('sample-1');
+		});
+		response.error(function(data, status, headers, config) {
+			$loading.finish('sample-1');
+			alert('Error searching items');
+		});
+	};
+
+	$scope.selectSORItemsNew = function(index) {
+		if (!$scope.sorChapterItems || !$scope.sorChapterItems[index]) {
+			return;
+		}
+		
+		var selectedItem = $scope.sorChapterItems[index];
+		
+		// Toggle selection
+		selectedItem.confirmed = !selectedItem.confirmed;
+		
+		console.log('Item selected:', selectedItem);
+	};
+
+	$scope.removeTheseRowItemsForUpg = function() {
+		// Reset SOR selection data
+		$scope.sorData = {};
+		$scope.sorChapterItems = [];
+		$scope.chapterData = [];
+		
+		console.log('SOR items cleared');
+	};
+
+	$scope.resetItemDataValues = function() {
+		if (!$scope.itemData) {
+			$scope.itemData = {};
+		}
+		
+		// Reset item form values
+		$scope.itemData.sorItemNo = null;
+		$scope.itemData.itemDesc = null;
+		$scope.itemData.no = null;
+		$scope.itemData.length = null;
+		$scope.itemData.width = null;
+		$scope.itemData.heightDepth = null;
+		$scope.itemData.quantity = null;
+		$scope.itemData.rate = null;
+		$scope.itemData.amount = null;
+		
+		console.log('Item data values reset');
+	};
+
+	// ========== SOR ITEM FUNCTIONS END ==========
+
 });

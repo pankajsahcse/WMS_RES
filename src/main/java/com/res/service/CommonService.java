@@ -760,6 +760,7 @@ public interface CommonService {
 	
 	SqmAllocationJson getAllWorksByGeneralInspectionByWorkId(Pageable pageable, String loggedInrole,
 			Long loggedInOfficeId, String loggedInUserName, Long workId);
+	String fetchDownloadFileNameEMB(Long documentId);
 	
 	
 	
