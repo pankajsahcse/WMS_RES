@@ -24,6 +24,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -49,6 +57,9 @@ import com.res.bean.GramPanchayatBean;
 import com.res.bean.KmlFilePoints;
 import com.res.bean.LineDepartmentBean;
 import com.res.bean.MeasurementDto;
+import com.res.bean.GramPanchayatBean;
+import com.res.bean.KmlFilePoints;
+import com.res.bean.LineDepartmentBean;
 import com.res.bean.OfficeBean;
 import com.res.bean.OfficeTypeBean;
 import com.res.bean.PhysicalStageTypeBean;
@@ -60,6 +71,9 @@ import com.res.bean.WorkSubTypeBean;
 import com.res.bean.WorkTemplateBean;
 import com.res.bean.WorkTypeBean;
 import com.res.bean.chapterDesciptionDto;
+import com.res.bean.WorkBean;
+import com.res.bean.WorkSubTypeBean;
+import com.res.bean.WorkTypeBean;
 import com.res.constants.RESConstants;
 import com.res.entity.AccountHead;
 import com.res.entity.AdministrationSanction;
@@ -77,6 +91,7 @@ import com.res.entity.IssuingAuthority;
 import com.res.entity.Item;
 import com.res.entity.LineDepartment;
 import com.res.entity.Measurement;
+import com.res.entity.LineDepartment;
 import com.res.entity.Office;
 import com.res.entity.OfficeType;
 import com.res.entity.PhysicalStageType;
@@ -100,6 +115,7 @@ import com.res.entity.workEmb;
 import com.res.exception.RESBusinessException;
 import com.res.json.WorkAgreementJson;
 import com.res.json.WorkJson;
+import com.res.exception.RESBusinessException;
 import com.res.repository.AdministrationSanctionRepository;
 import com.res.repository.BlockRepository;
 import com.res.repository.DesignationRepository;
@@ -121,6 +137,9 @@ import com.res.repository.WorkRepository;
 import com.res.repository.WorkRequisitionIdGenerationRepository;
 import com.res.repository.workEmbRepository;
 import com.res.response.ResponseObject;
+import com.res.repository.WorkLegacyIdGenerationRepository;
+import com.res.repository.WorkRepository;
+import com.res.repository.WorkRequisitionIdGenerationRepository;
 import com.res.service.EeService;
 import com.res.service.UserService;
 import com.res.util.RESUtil;
@@ -278,6 +297,9 @@ public class EeServiceImpl implements EeService {
 				 * legalDocumentUpload.getDocumentId())); }
 				 */
 				Work entity = new Work();
+				
+				System.err.println("work creating method called");
+				
 				TechnicalSanction technicalSanctionEntity = new TechnicalSanction();
 				AdministrationSanction administrationSanctionEntity = new AdministrationSanction();
 				if (bean.getAdministrationSanctionBean()
@@ -375,9 +397,10 @@ public class EeServiceImpl implements EeService {
 						// legalDocumentUpload.getDocumentId()));
 					}
 				}
-
+				
 				// Legacy Work ID Generation
-
+				
+				
 				String lastWord = bean.getExecutiveEngineerOfficeName()
 						.substring(
 								bean.getExecutiveEngineerOfficeName()
@@ -529,7 +552,6 @@ public class EeServiceImpl implements EeService {
 					.getId()));
 		if (bean.getSubEngineer() != null)
 			entity.setSubEngineer(new Users(bean.getSubEngineer().getId()));
-
 		if (bean.getSubDivisionOfficerId() != null)
 			entity.setSubDivisionalOfficer(new Users(bean.getSubDivisionOfficerId()));
 		if (bean.getWorkStatusBean() != null)
@@ -691,7 +713,6 @@ public class EeServiceImpl implements EeService {
 		administrationSanctionEntity.setContingencyAmount(bean
 				.getContingencyAmount());
 	}
-
 	private void convertWorkBeanToAdministrationSanctionEntityForRevised(
 			AdministrationSanction administrationSanctionEntity, Work entity,
 			WorkBean bean) throws RESBusinessException {
@@ -824,7 +845,6 @@ public class EeServiceImpl implements EeService {
 				bean.setExecutiveEngineerOfficeName(entity
 						.getExecutiveEngineerOffice().getOfficeName());
 			}
-
 			if (entity.getSubDivisionalOfficer() != null) {
 				bean.setSubDivisionOfficerId(entity
 						.getSubDivisionalOfficer().getId());
@@ -921,7 +941,6 @@ public class EeServiceImpl implements EeService {
 				bean.setExecutiveEngineerOfficeName(entity
 						.getExecutiveEngineerOffice().getOfficeName());
 			}
-
 			if (entity.getSubDivisionalOfficer() != null) {
 				bean.setSubDivisionOfficerId(entity
 						.getSubDivisionalOfficer().getId());
@@ -1323,7 +1342,6 @@ public class EeServiceImpl implements EeService {
 					workLegacyIdGenerationRepository.save(workLegacyIdGenerationOld);
 				}
 			}
-
 			convertWorkBeanToEntityDuringEdit(entity, workBean);
 			workRepository.save(entity);
 
@@ -1622,7 +1640,6 @@ public class EeServiceImpl implements EeService {
 					.getAssistantEngineerId()));
 		if (workBean.getSubEngineerId() != null)
 			entity.setSubEngineer(new Users(workBean.getSubEngineerId()));
-
 		if (workBean.getSubDivisionOfficerId() != null)
 			entity.setSubDivisionalOfficer(new Users(workBean.getSubDivisionOfficerId()));
 		/* entity.setStatus(RESConstants.STATUS_ACTIVE); */
@@ -1775,7 +1792,6 @@ public class EeServiceImpl implements EeService {
 		if (workBean.getTsIssuingAuthorityId() != null)
 			technicalSanctionEntity.setTsIssuingAuthority(new Designation(
 					workBean.getTsIssuingAuthorityId()));
-
 	}
 
 	private void convertWorkBeanToAdministrationSanctionEntityDuringEdit(
@@ -1818,6 +1834,10 @@ public class EeServiceImpl implements EeService {
 
 				// Generate Work Requisition Number
 
+				
+				
+				
+				
 				String lastWord = bean.getExecutiveEngineerOfficeName()
 						.substring(
 								bean.getExecutiveEngineerOfficeName()
@@ -1830,30 +1850,57 @@ public class EeServiceImpl implements EeService {
 					lastWord = lastWord + "_RD";
 				}
 
-				WorkRequisitionIdGeneration workRequisitionIdGeneration = workRequisitionIdGenerationRepository
-						.findByDivisionAgency(lastWord);
-				if (workRequisitionIdGeneration == null) {
+				WorkRequisitionIdGeneration workRequisitionIdGeneration = workRequisitionIdGenerationRepository.findByDivisionAgency(lastWord);
+				if (workRequisitionIdGeneration==null) {
 					entity.setWorkRequisitionNo(lastWord + "_1");
 					persistFirstRequestIdGeneration(lastWord, 1);
 				} else {
-					int newCount = workRequisitionIdGeneration.getCounter() + 1;
+					int newCount = workRequisitionIdGeneration.getCounter()+1;
 					workRequisitionIdGeneration.setCounter(newCount);
 					workRequisitionIdGenerationRepository.save(workRequisitionIdGeneration);
 					entity.setWorkRequisitionNo(lastWord + "_" + newCount);
-
-					/*
-					 * WorkLegacyIdGeneration workLegacyIdGeneration = workLegacyIdGenerationList
-					 * .get(workLegacyIdGenerationList.size() - 1);
-					 * int count = workLegacyIdGeneration.getCounter();
-					 * persistNextLegacyIdGeneration(lastWord, count);
-					 */
-
+					
+					/*WorkLegacyIdGeneration workLegacyIdGeneration = workLegacyIdGenerationList
+							.get(workLegacyIdGenerationList.size() - 1);
+					int count = workLegacyIdGeneration.getCounter();
+					persistNextLegacyIdGeneration(lastWord, count);*/
+					
+					
 				}
+				
 
 				convertWorkBeanToEntityDuringRequisition(entity, bean);
+				
+				System.out.println("chceking the engineer " + entity.getExecutiveEngineerOffice());
+				
+				Office eeOffice = entity.getExecutiveEngineerOffice();
+
+				System.out.println("EE Office: " + eeOffice);
+
+				
+				
 				entity.setFinancialYear("AS Pending");
 				entity.setBillingFlag((short) 0);
 				workRepository.save(entity);
+				
+//				convertWorkBeanToEntityDuringRequisition(entity, bean);
+//
+//				// find correct SDO based on office
+//				Users sdoUser = userRepository.findByOfficeAndRole(
+//				        entity.getOffice(),
+//				        RESConstants.ROLE_SDO
+//				);
+//
+//				// assign to work
+//				entity.setSubDivisionalOfficer(sdoUser);
+//
+//				entity.setFinancialYear("AS Pending");
+//				entity.setBillingFlag((short) 0);
+//
+//				workRepository.save(entity);
+				
+				
+				
 
 				// Handle KML file
 				if (bean.getKmlFile() != null && !bean.getKmlFile().isEmpty()) {
@@ -2093,7 +2140,6 @@ public class EeServiceImpl implements EeService {
 		workLegacyIdGenerationRepository.save(workLegacyIdGeneration);
 
 	}
-
 	@Override
 	public List<KmlFilePoints> processKmlFile(KmlFilePoints bean) {
 		MultipartFile file = bean.getKmlFile();
@@ -2118,7 +2164,6 @@ public class EeServiceImpl implements EeService {
 			gpcode = b.getGramPanchayatId().toString();
 
 		}
-
 		try {
 			// Build the SAXBuilder
 			SAXBuilder saxBuilder = new SAXBuilder();
@@ -2272,7 +2317,6 @@ public class EeServiceImpl implements EeService {
 		pointsList.get(0).setGpCodeList(Arrays.asList(gpcode));
 		return pointsList;
 	}
-
 	private GramPanchayatBean convertGramPanchayatEntityToBean(GramPanchayat entity) {
 
 		GramPanchayatBean bean = new GramPanchayatBean();

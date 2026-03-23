@@ -21,6 +21,12 @@ import com.res.json.WorkAgreementJson;
 import com.res.json.WorkJson;
 import com.res.response.ResponseObject;
 
+import com.res.bean.BlockBean;
+import com.res.bean.GramPanchayatBean;
+import com.res.bean.KmlFilePoints;
+import com.res.bean.VillageBean;
+import com.res.bean.WorkBean;
+
 
 public interface EeService {
 

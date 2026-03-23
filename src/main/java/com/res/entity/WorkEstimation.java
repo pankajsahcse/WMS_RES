@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 /**
  * The persistent class for the mst_work_status database table.
@@ -169,6 +170,9 @@ public class WorkEstimation extends Auditable implements Serializable {
 	@Column(name = "has_non_sor_items")
 	private Boolean hasNonSorItems = false;
 	
+
+	
+
 	@Column(name = "ten_percent_check")
 	private Boolean tenPercentCheck = false;
 	 

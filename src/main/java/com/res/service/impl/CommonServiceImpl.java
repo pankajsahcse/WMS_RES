@@ -2066,7 +2066,7 @@ public class CommonServiceImpl implements CommonService {
 			bean.setPacAmount(entity.getPacAmount());
 		if (entity.getAgreementCopy() != null)
 			bean.setAgreementCopyId(entity.getAgreementCopy().getDocumentId());
-		bean.setAgreementNumber(entity.getAgreementNumber()); 
+		bean.setAgreementNumber(entity.getAgreementNumber());
 
 		if (entity.getIsLegacy() == 1) {
 			if (entity.getContractor() != null) {
@@ -5768,6 +5768,7 @@ public class CommonServiceImpl implements CommonService {
 						entity.setCommentsSubEng(bean.getComments());
 						entity.setSubEngFwdDate(new Date());
 						entity.setStatus(new WorkEstimationStatus(7L));
+						
 						// Check for 10% revision
 						boolean exceeds10Percent = false;
 						if (entity1 != null) {
@@ -5791,6 +5792,17 @@ public class CommonServiceImpl implements CommonService {
 						entity.setCommentsSdo(bean.getComments());
 						entity.setSdoFwdDate(new Date());
 						entity.setStatus(new WorkEstimationStatus(2L));
+						if (entity.getGrandTotal() != null
+								&& entity.getGrandTotal().compareTo(new BigDecimal(1500000)) < 0) {
+							// Less than 15 lakh - SDO directly Approve
+							entity.setStatus(new WorkEstimationStatus(5L));
+							entity.setEstimationApprovedBy(RESUtil.getUserDetail().getUsername());
+							work.setWorkRequestStatusId(new RequestStatus(3L));
+						} else {
+							// 15 lakh or more - Forward to EE
+							entity.setStatus(new WorkEstimationStatus(2L));
+							work.setWorkRequestStatusId(new RequestStatus(3L));
+						}
 					}
 					/*
 					 * else if (null != bean.getLoggedInUserRole() &&
@@ -5891,7 +5903,9 @@ public class CommonServiceImpl implements CommonService {
 						entity.setCeFwdDate(new Date());
 					}
 					// if (null == work.getEstimatedCost()) {
-					work.setEstimatedCost(new BigDecimal(bean.getGrandTotal()));
+					if (bean.getGrandTotal() != null && !bean.getGrandTotal().trim().isEmpty()) {
+						work.setEstimatedCost(new BigDecimal(bean.getGrandTotal()));
+					}
 					// }
 					workRepository.save(work);
 				} else if (null != bean && null != bean.getStatus() && (bean.getStatus().equals("Revert"))) {
@@ -5956,6 +5970,23 @@ public class CommonServiceImpl implements CommonService {
 							workEstimationItems.setId(null);
 						}
 						workEstimationItemsRepository.save(workEstimationItems);
+					}
+				}
+				// Auto-generate TS when SDO approves < 15 lakh
+				if (RESConstants.ROLE_SDO.equals(bean.getLoggedInUserRole())
+						&& entity.getStatus() != null
+						&& entity.getStatus().getId() == 5L) {
+					try {
+						Users sdoUser = userRepository.findByUsername(RESUtil.getUserDetail().getUsername());
+						changeTechnicalSanctionStatus(String.valueOf(entity.getId()), sdoUser);
+						// Set TS status to DISPATCHED (3) so it appears in EE's Technical Sanction module
+						TechnicalSanction generatedTs = technicalSanctionRepository.findByWorkEstimateId(entity);
+						if (generatedTs != null) {
+							generatedTs.setTechnicalStatus(new TechnicalStatus(RESConstants.TS_STATUS_DISPATCHED));
+							technicalSanctionRepository.save(generatedTs);
+						}
+					} catch (Exception tsEx) {
+						logger.error("TS generation failed for estimation " + entity.getId() + " : " + tsEx.getMessage());
 					}
 				}
 
@@ -7738,15 +7769,15 @@ public class CommonServiceImpl implements CommonService {
 			if (sqmAllocation != null) {
 				List<SqmAllocation> entityList = sqmAllocation.getContent();
 				List<SqmAllocationBean> beanList = new ArrayList<>();
-				InspectionDetails inspectionDetails  =null;
+				InspectionDetails inspectionDetails = null;
 				if (entityList != null && !entityList.isEmpty()) {
 
 					int index = pageable.getPageNumber() * pageable.getPageSize();
 					for (SqmAllocation work : entityList) {
 						inspectionDetails = inspectionDetailsRepo.findByWorkIdAndSqmAllocationId(workId, work.getId());
 						SqmAllocationBean bean = convertSqmAllocationEntityToBeanDuringListing(work);
-						if(inspectionDetails!=null)
-						bean.setInspectionId(inspectionDetails.getId());
+						if (inspectionDetails != null)
+							bean.setInspectionId(inspectionDetails.getId());
 						List<InspectionSqmAnswer> ispAnswerList = inspectionSqmAnswerRepository
 								.findBySqmAllocationIdIdAndCodeOrderByCreatedDateDesc(bean.getId(),
 										RESConstants.overallObservationGrading);
@@ -7866,15 +7897,16 @@ public class CommonServiceImpl implements CommonService {
 			if (sqmAllocation != null) {
 				List<SqmAllocation> entityList = sqmAllocation.getContent();
 				List<SqmAllocationBean> beanList = new ArrayList<>();
-				InspectionDetails inspectionDetails  =null;
+				InspectionDetails inspectionDetails = null;
 				if (entityList != null && !entityList.isEmpty()) {
 
 					int index = pageable.getPageNumber() * pageable.getPageSize();
 					for (SqmAllocation work : entityList) {
-						inspectionDetails = inspectionDetailsRepo.findByWorkIdAndRandomAllocationId(workId, work.getId());
+						inspectionDetails = inspectionDetailsRepo.findByWorkIdAndRandomAllocationId(workId,
+								work.getId());
 						SqmAllocationBean bean = convertSqmAllocationEntityToBeanDuringListing(work);
-						if(inspectionDetails!=null)
-						bean.setInspectionId(inspectionDetails.getId());
+						if (inspectionDetails != null)
+							bean.setInspectionId(inspectionDetails.getId());
 						List<InspectionSqmAnswer> ispAnswerList = inspectionSqmAnswerRepository
 								.findBySqmAllocationIdIdAndCodeOrderByCreatedDateDesc(bean.getId(),
 										RESConstants.overallObservationGrading);
@@ -17481,6 +17513,7 @@ public class CommonServiceImpl implements CommonService {
 				expenditureAmountTotal = (entity.getTotalExpenditureTill31March2018()
 						.subtract(entity.getTotalExpenditureOnContingencyTill31March2018()))
 								.add(expenditureAmountTotal);
+						
 			}
 
 			bean.setExpenditureAmountTotal(expenditureAmountTotal);
@@ -17762,6 +17795,10 @@ public class CommonServiceImpl implements CommonService {
 				// login
 				work = workRepository.findPendingWorkEstimationsBySubDivisionalOfficer(pageable, searchBoxVal, workType,
 						workSubType, entity);
+
+				System.err.println("our work of sdo fetching " + work);
+				System.err.println("Total records fetched: " + work.getTotalElements());
+				System.err.println("Work list size: " + work.getContent().size());
 
 				count = workRepository.countPendingWorkEstimationsBySubDivisionalOfficer(entity);
 			}
@@ -21481,15 +21518,14 @@ public class CommonServiceImpl implements CommonService {
 				inspectionAnswerImage.setRemark(encodedImg.getRemarks());
 				inspectionAnswerImage.setLatitude(encodedImg.getLatitude());
 				inspectionAnswerImage.setLongitude(encodedImg.getLongitude());
-				
+
 				if (imageJson.getInspectionId() == null) {
-				    throw new RuntimeException("InspectionId is null");
+					throw new RuntimeException("InspectionId is null");
 				}
 
-				InspectionDetails inspectionRef =
-				        inspectionDetailsRepo.findById(imageJson.getInspectionId());
-				if(inspectionRef!=null) {
-				inspectionAnswerImage.setInspection(inspectionRef);
+				InspectionDetails inspectionRef = inspectionDetailsRepo.findById(imageJson.getInspectionId());
+				if (inspectionRef != null) {
+					inspectionAnswerImage.setInspection(inspectionRef);
 				}
 				inspectionAnswerImage.setDocumentUpload(documentUpload);
 				// if (isRandomInspection) {
@@ -33886,7 +33922,10 @@ public class CommonServiceImpl implements CommonService {
 			String generatedString = "";
 			Work work = workEstimation.getWork();
 
-			String officeName = user.getOffice().getOfficeName();
+			// Use work's executiveEngineerOffice instead of user's office (avoids NPE for SDO role)
+			String officeName = (work.getExecutiveEngineerOffice() != null)
+					? work.getExecutiveEngineerOffice().getOfficeName()
+					: (user.getOffice() != null ? user.getOffice().getOfficeName() : "UNKNOWN");
 
 			String office = officeName.substring(officeName.lastIndexOf(",") + 1);
 
@@ -34275,9 +34314,10 @@ public class CommonServiceImpl implements CommonService {
 							username = sqmUser.getUsername();
 						}
 					}
-					
+
 					entityList = inspectionSqmAnswerRepository.findSqmInspectionListBasedOnWork(loggedInOfficeId,
-							exeOfficeId1, workStatusId1, workTypeId1, username, grading1, pageable.getOffset(), maxLimit);
+							exeOfficeId1, workStatusId1, workTypeId1, username, grading1, pageable.getOffset(),
+							maxLimit);
 					totalCount = inspectionSqmAnswerRepository.countSqmInspectionListBasedOnWork(loggedInOfficeId)
 							.size();
 					totalDisplayCount = inspectionSqmAnswerRepository.countIdisplaySqmInspectionListBasedOnWork(
@@ -41227,6 +41267,7 @@ public class CommonServiceImpl implements CommonService {
 				bean.setAgreementNumber(workAgreement.getAgreementNumber());
 				bean.setAgreementDate(RESUtil.convertDateToString(workAgreement.getAgreementDate()));
 				
+
 			}
 			WorkTender workTender = workTenderRepository.findByWorkIdOrderByCreatedDateDesc(entity.getId()).size() > 0
 					? workTenderRepository.findByWorkIdOrderByCreatedDateDesc(entity.getId()).get(0)
@@ -41267,12 +41308,12 @@ public class CommonServiceImpl implements CommonService {
 				bean.setWorkStatus(entity.getWorkStatusId().getWorkStatusNameE());
 			}
 
-			//bean.setTenderedRateSign(entity.getTenderedRateSign());
-			//bean.setTenderedRatePer(entity.getTenderedRatePer());
+			// bean.setTenderedRateSign(entity.getTenderedRateSign());
+			// bean.setTenderedRatePer(entity.getTenderedRatePer());
 
-		//	if (entity.getPacAmount() != null)
-		//		bean.setPacAmount(entity.getPacAmount());
-			//bean.setTenderCost(entity.getTenderCost());
+			// if (entity.getPacAmount() != null)
+			// bean.setPacAmount(entity.getPacAmount());
+			// bean.setTenderCost(entity.getTenderCost());
 
 			if (entity.getWorkRequestStatusId() != null) {
 				bean.setWorkRequestStatus(entity.getWorkRequestStatusId().getStatusNameE());
