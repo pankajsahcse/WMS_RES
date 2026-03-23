@@ -5,6 +5,12 @@ import java.util.List;
 
  
 public class WorkAgreementBean  {
+
+
+
+	private String embNo;
+
+
 	
 	private Long workAgreementId;
 	 
@@ -237,6 +243,15 @@ public class WorkAgreementBean  {
 		this.revisedOn = revisedOn;
 	}
 
+	public String getEmbNo() {
+		return embNo;
+	}
+
+	public void setEmbNo(String embNo) {
+		this.embNo = embNo;
+	}
+
+	
 	
 	
 

@@ -869,6 +869,24 @@ public class Work extends Auditable implements Serializable {
 		this.subDivisionalOfficer = subDivisionalOfficer;
 	}
 
+
+	@Column(name = "e_Mb_Status")
+	private Long eMbStatus;
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	public Long geteMbStatus() {
+		return eMbStatus;
+	}
+
+	public void seteMbStatus(Long eMbStatus) {
+		this.eMbStatus = eMbStatus;
+	}
+
+
+	
 	
 	
 	

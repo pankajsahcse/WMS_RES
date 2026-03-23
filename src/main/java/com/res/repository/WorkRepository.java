@@ -2560,7 +2560,7 @@ public interface WorkRepository
 			@Param("isLegacy") Short isLegacy, @Param("workRequestStatusIdList") List<Long> workRequestStatusIdList,
 			@Param("officeId") Long officeId);
 
-	@Query("select count(*) from Work w where (w.status is null or w.status!='Deleted') and w.isLegacy = :isLegacy and w.workRequestStatusId.id in :workRequestStatusIdList and w.executiveEngineerOffice.id = :officeId")
+	@Query("select count(*) from Work w where (w.status is null or w.status!='Deleted') and w.isLegacy = :isLegacy and w.workRequestStatusId.id in :workRequestStatusIdList and  w.executiveEngineerOffice.id = :officeId")
 	long countByIsLegacyAndWorkRequestStatusAndExecutiveOfficeList(@Param("isLegacy") Short isLegacy,
 			@Param("workRequestStatusIdList") List<Long> workRequestStatusIdList, @Param("officeId") Long officeId);
 
@@ -5457,4 +5457,27 @@ public interface WorkRepository
 
 	Page<Work> findByBillingFlagAndChiefEngineerOffice(Pageable pageable, short s, Office office);
 
+    @Query("SELECT w FROM Work w WHERE  " +
+		     
+		     
+		       " w.eMbStatus IS NOT NULL " +
+		       "AND w.id IN ( " +
+		       "   SELECT e.workId FROM workEmb e " +
+		       "   WHERE e.engineerId = :engineerId " +
+		       "   AND (:search IS NULL OR e.embNo LIKE %:search%) " +
+		       ") " 
+		      
+		      
+		       
+		      )
+		Page<Work> fetchWorkWithEmbIssuedEngineer(
+		        Pageable pageable,
+		     
+		       
+		     
+		      
+		      
+		        @Param("engineerId") Long engineerId,
+		        @Param("search") String search
+		);
 }

@@ -3403,6 +3403,13 @@ public class CommonServiceImpl implements CommonService {
 		if (workEstimation.getTenPercentCheck() != null) {
 			workEstimationBean.setTenPercentCheck(workEstimation.getTenPercentCheck());
 		}
+		
+		// Populate Executive Engineer office details from Work entity
+		Work work = workEstimation.getWork();
+		if (work != null && work.getExecutiveEngineerOffice() != null) {
+			workEstimationBean.setExecutiveEngineerOfficeId(work.getExecutiveEngineerOffice().getId());
+			workEstimationBean.setExecutiveEngineerOfficeName(work.getExecutiveEngineerOffice().getOfficeName());
+		}
 	}
 
 	private void populateWorkTemplateBeanFromEntity(WorkEstimationItems workEstimationItem,
@@ -3782,6 +3789,7 @@ public class CommonServiceImpl implements CommonService {
 		String fileName = document.getDocumentName();
 		String compareString = fileName.split("_")[0];
 		String fileWithFullPath = null;
+		
 		switch (compareString) {
 		case "agreement":
 			fileWithFullPath = documentRootPath + workDocumentPath + fileName;
@@ -5783,6 +5791,7 @@ public class CommonServiceImpl implements CommonService {
 							&& bean.getLoggedInUserRole().equals(RESConstants.ROLE_SDO)) {
 						entity.setCommentsSdo(bean.getComments());
 						entity.setSdoFwdDate(new Date());
+						entity.setStatus(new WorkEstimationStatus(2L));
 						if (entity.getGrandTotal() != null
 								&& entity.getGrandTotal().compareTo(new BigDecimal(1500000)) < 0) {
 							// Less than 15 lakh - SDO directly Approve
@@ -17503,7 +17512,8 @@ public class CommonServiceImpl implements CommonService {
 					&& entity.getTotalExpenditureOnContingencyTill31March2018() != null) {
 				expenditureAmountTotal = (entity.getTotalExpenditureTill31March2018()
 						.subtract(entity.getTotalExpenditureOnContingencyTill31March2018()))
-						.add(expenditureAmountTotal);
+								.add(expenditureAmountTotal);
+						
 			}
 
 			bean.setExpenditureAmountTotal(expenditureAmountTotal);
@@ -30235,35 +30245,36 @@ public class CommonServiceImpl implements CommonService {
 
 		InspectionDetailsBean bean = new InspectionDetailsBean();
 		InspectionDetails inspection = inspectionDetailsRepo.findByBillId(billId);
-		if (inspection != null) {
-			List<InspectionAnswersNew> list = inspectionAnswerRepositoryNew.findByInspection(inspection);
-			List<InspectionAnswerNewBean> answers = new LinkedList<InspectionAnswerNewBean>();
-			/* ---------- MAP CHILD ANSWERS ---------- */
-			for (InspectionAnswersNew dto : list) {
+		if(inspection!=null) {
+		List<InspectionAnswersNew> list = inspectionAnswerRepositoryNew.findByInspection(inspection);
+		List<InspectionAnswerNewBean> answers = new LinkedList<InspectionAnswerNewBean>();
+		/* ---------- MAP CHILD ANSWERS ---------- */
+		for (InspectionAnswersNew dto : list) {
 
-				InspectionAnswerNewBean answerBean = new InspectionAnswerNewBean();
+			InspectionAnswerNewBean answerBean = new InspectionAnswerNewBean();
 
-				Object[] row = repository.fetchQuestionsById(dto.getQuestionId());
-				// MasterInspectionQuestion miq =
-				// masterInspectionQuestionRepository.findOne(dto.getQuestionId());
-				// answer.setAnswerId(generateAnswerId());
-				answerBean.setInspectionTypeId(dto.getInspectionTypeId());
-				answerBean.setQuestionId(dto.getQuestionId());
-				// answerBean.setCode(miq.getCode());
-				if (row != null && row.length > 0 && row[0] != null) {
-					Object[] inner = (Object[]) row[0];
-					if (inner.length > 1 && inner[1] != null) {
-						answerBean.setQuestionText((String) inner[1]);
-					}
+			Object[] row = repository.fetchQuestionsById(dto.getQuestionId());
+			// MasterInspectionQuestion miq =
+			// masterInspectionQuestionRepository.findOne(dto.getQuestionId());
+			// answer.setAnswerId(generateAnswerId());
+			answerBean.setInspectionTypeId(dto.getInspectionTypeId());
+			answerBean.setQuestionId(dto.getQuestionId());
+			// answerBean.setCode(miq.getCode());
+			if (row != null && row.length > 0 && row[0] != null) {
+				Object[] inner = (Object[]) row[0];
+				if (inner.length > 1 && inner[1] != null) {
+					answerBean.setQuestionText((String) inner[1]);
 				}
-				answerBean.setAnswer(dto.getAnswer());
-
-				answers.add(answerBean);
 			}
-			return answers;
+			answerBean.setAnswer(dto.getAnswer());
+
+			answers.add(answerBean);
+	    	}
+		return answers;
 		}
 		return null;
 
+		
 	}
 
 	@Override
@@ -34436,10 +34447,9 @@ public class CommonServiceImpl implements CommonService {
 							username = sqmUser.getUsername();
 						}
 					}
-
+					
 					entityList = inspectionSqmAnswerRepository.findSqmInspectionListBasedOnWorkForEE(loggedInOfficeId,
-							exeOfficeId1, workStatusId1, workTypeId1, username, grading1, pageable.getOffset(),
-							maxLimit);
+							exeOfficeId1, workStatusId1, workTypeId1, username, grading1, pageable.getOffset(), maxLimit);
 					totalCount = inspectionSqmAnswerRepository.countSqmInspectionListBasedOnWorkForEE(loggedInOfficeId)
 							.size();
 					totalDisplayCount = inspectionSqmAnswerRepository.countIdisplaySqmInspectionListBasedOnWorkForEE(
@@ -34568,8 +34578,8 @@ public class CommonServiceImpl implements CommonService {
 			long size = 0L;
 
 			// ROLE_ADMIN
-			if (loggedInrole.equals(RESConstants.ROLE_ADMIN) || loggedInrole.equals(RESConstants.ROLE_EnC)
-					|| loggedInrole.equals(RESConstants.ROLE_CE) || loggedInrole.equals(RESConstants.ROLE_ADMIN_VIEW)) {
+			if (loggedInrole.equals(RESConstants.ROLE_ADMIN) || loggedInrole.equals(RESConstants.ROLE_EnC)||loggedInrole.equals(RESConstants.ROLE_CE)
+					|| loggedInrole.equals(RESConstants.ROLE_ADMIN_VIEW)) {
 
 				if (grading1 == null) {
 
@@ -36158,11 +36168,11 @@ public class CommonServiceImpl implements CommonService {
 		// dummy
 		billDataInspectionBean.setRegistrationNo(workBean.getWorkRequisitionNo());
 		billDataInspectionBean.setContractorName(workBean.getContractorBean().getName());
-		if (workBean.getDistrictName() != null) {
+		if(workBean.getDistrictName()!=null) {
 			billDataInspectionBean.setDistrictName(workBean.getDistrictName());
 		}
-		if (workBean.getPacAmount() != null) {
-			billDataInspectionBean.setPacAmount(workBean.getPacAmount().toString());
+		if(workBean.getPacAmount()!=null) {
+		billDataInspectionBean.setPacAmount(workBean.getPacAmount().toString());
 		}
 		setURLForCCInspection(billDataInspectionBean, workBean.getWorkTypeId());
 		return billDataInspectionBean;
@@ -41256,6 +41266,7 @@ public class CommonServiceImpl implements CommonService {
 			if (workAgreement != null) {
 				bean.setAgreementNumber(workAgreement.getAgreementNumber());
 				bean.setAgreementDate(RESUtil.convertDateToString(workAgreement.getAgreementDate()));
+				
 
 			}
 			WorkTender workTender = workTenderRepository.findByWorkIdOrderByCreatedDateDesc(entity.getId()).size() > 0
@@ -42224,4 +42235,18 @@ public class CommonServiceImpl implements CommonService {
 		return bean;
 	}
 
+	@Override
+	public String fetchDownloadFileNameEMB(Long documentId) {
+
+	    DocumentUpload document = documentRepository.findOne(documentId);
+
+	    if (document != null && document.getDocumentUploadPath() != null 
+	            && !document.getDocumentUploadPath().isEmpty()) {
+
+	        return document.getDocumentUploadPath();
+
+	    } else {
+	        return null;
+	    }
+	}
 }

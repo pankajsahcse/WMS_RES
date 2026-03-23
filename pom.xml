@@ -27,6 +27,11 @@
 	</properties>
 
 	<dependencies>
+	      <dependency>
+            <groupId>com.itextpdf</groupId>
+               <artifactId>itextpdf</artifactId>
+                <version>5.5.13.3</version>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -114,6 +119,7 @@
 			<version>1.4.0</version> </dependency> <dependency>
 		<groupId>commons-lang</groupId> 
 			<artifactId>commons-lang</artifactId> <version>2.6</version> </dependency> -->
+			
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-io</artifactId>
@@ -197,8 +203,7 @@
 						<groupId>org.springframework.boot</groupId>
 						<artifactId>spring-boot-maven-plugin</artifactId>
 						<configuration>
-							<!-- this will get rid of version info from war file
-							name -->
+							<!-- this will get rid of version info from war file name -->
 							<finalName>${project.artifactId}</finalName>
 						</configuration>
 					</plugin>

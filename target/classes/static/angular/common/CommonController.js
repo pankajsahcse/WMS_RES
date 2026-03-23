@@ -1194,22 +1194,51 @@ $scope.loadAddNewWorkEstimationFormH = function() {
 			$scope.templateType=1;
 		}
 		
+<<<<<<< HEAD
+		var response = $http.get('fetchWorkDetails/'+$routeParams.id);
+		response.success(function(data, status, headers, config) {
+			$scope.workData = data;
+			console.log('Work details loaded:', $scope.workData);
+=======
 		$scope.estimationId = $routeParams.estimationId;
 		$scope.id = $routeParams.id;
 		
 		var response = $http.get('fetchWorkDetailsH/'+$routeParams.estimationId);
 		response.success(function(data, status, headers, config) {
 			$scope.workData = data;
+>>>>>>> pankaj/main
 			$loading.finish('sample-1');
 		}).then(function (){
 			
 			$loading.start('sample-1');
+<<<<<<< HEAD
+			var response1 = $http.get('fetchWorkEstimationDetailsById/'+$scope.workData.workId);
+			response1.success(function(data, status, headers, config) {
+				// $scope.workData = data;
+				
+				    $scope.workData.competentAuthName=data.competentAuthName;
+				    $scope.workData.competentAuthDesig=data.competentAuthDesig;
+				    $scope.workData.revisedLetterNo=data.revisedLetterNo;
+				    $scope.workData.letterNoDate=data.letterNoDate;
+				    
+				    console.log('Competent Authority Details:', {
+				        competentAuthName: data.competentAuthName,
+				        competentAuthDesig: data.competentAuthDesig,
+				        revisedLetterNo: data.revisedLetterNo,
+				        letterNoDate: data.letterNoDate
+				    });
+				    
+					$scope.workData.estimatedAmount = data.estimatedAmount;
+					
+					$scope.workData.grandTotalOriginalAmoumnt = data.grandTotal;
+=======
 			var response1 = $http.get('fetchWorkEstimationDetailsByIdH/'+$routeParams.estimationId);
 			response1.success(function(data, status, headers, config) {
 				// $scope.workData = data;
 				
 					$scope.workData.estimatedAmount = data.estimatedAmount;
 					
+>>>>>>> pankaj/main
 					$scope.workData.grandTotal = data.grandTotal;
 					$scope.workData.expectedTenderedAmt = data.expectedTenderedAmt;
 					$scope.workData.expectedTenderedRatePer = data.expectedTenderedRatePer;
@@ -1255,6 +1284,13 @@ $scope.loadAddNewWorkEstimationFormH = function() {
 					$scope.tenderRateGreaterThan10=false;
 					
 					$scope.workData.estimationType=data.estimationType;
+<<<<<<< HEAD
+					$scope.workData.hasNonSorItems=data.hasNonSorItems;
+					$scope.workData.tenPercentCheck=data.tenPercentCheck;
+					
+					
+=======
+>>>>>>> pankaj/main
 				
 				if(null== data.workTemplateItems){
 					$loading.start('sample-1');
@@ -9566,7 +9602,19 @@ if($scope.userData.worksIds!=null&&$scope.userData.worksIds.length>0){
 			        .error(function () {
 			            $scope.wrongCurrentPassword = false;
 			        });
+<<<<<<< HEAD
+			};
+			
+			
+			
+		$scope.loadIssuedEmb = function(){
+		alert("loadIssuedEmb");
+			 fetchWorkListWithTsStatus() 
+
+	};
+=======
 			};									
+>>>>>>> pankaj/main
 				
 	
 });

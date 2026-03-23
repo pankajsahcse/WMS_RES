@@ -12,6 +12,7 @@ import com.res.entity.RequestStatus;
 import com.res.entity.TechnicalSanctionType;
 import com.res.entity.Work;
 import com.res.entity.WorkEstimation;
+import com.res.entity.WorkEstimationItems;
 import com.res.entity.WorkEstimationStatus;
 
 public interface WorkEstimationRepository extends
@@ -123,14 +124,36 @@ public interface WorkEstimationRepository extends
 			"			 where we1.status=?1 and we1.enabled= ?2  " + 
 			"            and w.executive_engineer_office_id=?3 " + 
 			"            and (w.status is null or w.status!='Deleted') " + 
-			"             and  usr_role.role_code='ROLE_EE' " + 
-			"   order by w.id desc Limit ?4, ?5", nativeQuery=true)
+			//"             and innerTable.estimation_approved_by='aseemsuper@gmail.com' " + 
+			"            and  usr_role.role_code='ROLE_EE' "+
+			"   order by w.id desc Limit ?4, ?5"
+//			+ "  ORDER BY w.id ?\n#pageable\n"
+			,countQuery="Select count(1) from " + 
+					"(SELECT * FROM work_estimate where status=5 and enabled=1 order by modified_date desc) innerTable      " + 
+					"			 			inner join work_estimate we1 on we1.id=innerTable.id       " + 
+					"			 			inner join work w on w.id=innerTable.work_id       " + 
+					"			 			 left join mst_district d on d.id=w.district_id      " + 
+					"			 			 left join mst_work_type wt on w.work_type_id=wt.work_type_id      " + 
+					"			 			 left join mst_work_sub_type wst on w.work_sub_type_id=wst.work_sub_type_id      " + 
+					"			 			 left join mst_request_status wrs on w.work_request_status_id=wrs.id      " + 
+					"			 			 left join mst_line_department ld on w.line_department_id=ld.line_department_id      " + 
+					"			 			 left join technical_sanction ts on innerTable.work_id=ts.work_id      " + 
+					"			 			 left join mst_technical_status mts on ts.technical_sanction_status=mts.id     " + 
+					"			 			 left join mst_technical_sanction_type tst on ts.technical_sanction_type_id=tst.technical_sanction_type_id      " + 
+					"			             left join users usr on  innerTable.estimation_approved_by=usr.username     " + 
+					"			             left join user_role usr_role on usr.id=usr_role.id     " + 
+					"			 			 where we1.status=5 and we1.enabled= 1    " + 
+					"			             and w.executive_engineer_office_id=32    " + 
+					"                        and (w.status is null or w.status!='Deleted') " + 
+				
+					"			             and  usr_role.role_code='ROLE_EE'  ", nativeQuery=true)
 	List<Object[]> findByStatusIdAndEnabledNotOrderByModifiedDateDescByQueryEE(
 			@Param("estimationStatusId") Long estimationStatusId, 
 			@Param("enabled") Boolean enabled,
 			@Param("executive_engineer_office_id") Long executive_engineer_office_id,
 			@Param("offset") int offset,
 			@Param("maxLimit") int maxLimit
+			//,@Param("pageable") Pageable pageable
 			);
 	
 	@Query(value="SELECT    " + 
@@ -328,11 +351,7 @@ public interface WorkEstimationRepository extends
 	// Query for finding list of Technical Sanction in different logins.
 	Page<WorkEstimation> findByStatusIdAndEnabledAndModifiedByOrderByModifiedDateDesc(Pageable pageable,Long estimationStatusId,  Boolean enabled, String modifiedBy);
 	
-	@Query("from WorkEstimation we where we.enabled = :enabled and we.status.id in :statusIds and we.work.executiveEngineerOffice.id = :officeId and (we.work.status is null or we.work.status!='Deleted') order by we.modifiedDate desc")
-	Page<WorkEstimation> findByStatusIdsAndEnabledAndExecutiveEngineerOfficeId(Pageable pageable, @Param("statusIds") List<Long> statusIds, @Param("enabled") Boolean enabled, @Param("officeId") Long officeId);
-
-	@Query("select count(*) from WorkEstimation we where we.enabled = :enabled and we.status.id in :statusIds and we.work.executiveEngineerOffice.id = :officeId and (we.work.status is null or we.work.status!='Deleted')")
-	long countByStatusIdsAndEnabledAndExecutiveEngineerOfficeId(@Param("statusIds") List<Long> statusIds, @Param("enabled") Boolean enabled, @Param("officeId") Long officeId);
+//	Page<WorkEstimation> findByStatusIdAndEnabledAndWorkExecutiveEngineerOfficeIdOrderByModifiedDateDesc(Pageable pageable,Long estimationStatusId,  Boolean enabled, Long officeId);
 	
 	// Query for counting list of Technical Sanction in different logins.
 	@Query("select count(*) from WorkEstimation we where we.enabled = :enabled and we.modifiedBy = :modifiedBy and we.status.id = :status and (we.work.status is null or we.work.status!='Deleted')")
@@ -350,6 +369,8 @@ public interface WorkEstimationRepository extends
 	long countByStatusIdAndModifiedByAndFiltered(@Param("enabled") Boolean enabled,@Param("modifiedBy") String modifiedBy,@Param("status") Long status);
 
 	List<WorkEstimation> findByWork(Work work);
+
+	WorkEstimation findByWorkAndEnabled(Work work, Boolean enabled);
 
 	
 
@@ -532,6 +553,7 @@ public interface WorkEstimationRepository extends
 			"			 			 where we1.status=?1 and we1.enabled= ?2    " + 
 			"			             and w.executive_engineer_office_id=?3    " + 
 			"                       and (w.status is null or w.status!='Deleted') " +
+		
 			"			             and  usr_role.role_code='ROLE_EE'  ", nativeQuery=true)
 	long findByStatusIdAndEnabledNotOrderByModifiedDateDescByQueryEECount(@Param("estimationStatusId") Long estimationStatusId, 
 			@Param("enabled") Boolean enabled,
@@ -645,6 +667,8 @@ public interface WorkEstimationRepository extends
 	 
 	 @Query(value = "SELECT * FROM work_estimate WHERE work_id = :workId ORDER BY id DESC LIMIT 1", nativeQuery = true)
 	 WorkEstimation findLatestByWorkId(@Param("workId") Long workId);
+
+	// List<WorkEstimationItems> findByWorkEstimationAndEnabled(WorkEstimation byWork, boolean b);
 
 
 	

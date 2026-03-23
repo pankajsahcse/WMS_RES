@@ -113,6 +113,9 @@ public class WebserviceController {
 	private InspectionService inspectionService;
 
 	@Autowired
+	private InspectionSqmAnswerRepository inspectionSqmAnswerRepository;
+
+	@Autowired
 	private SqmAllocationRepository sqmAllocationRepository;
 
 	@Autowired

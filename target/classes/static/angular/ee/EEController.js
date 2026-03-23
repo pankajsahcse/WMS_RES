@@ -2,6 +2,75 @@ var res = angular.module('res');
 
 
 res.directive('fileModel', ['$parse', function ($parse) {
+<<<<<<< HEAD
+	return {
+		restrict: 'A',
+		link: function (scope, element, attrs) {
+			var model = $parse(attrs.fileModel);
+			var modelSetter = model.assign;
+			var maxSizeUpload = 5000000;//in bytes (here 5 MB)
+			var allowedExtensions = ['pdf', 'PDF'];
+
+			element.bind('change', function () {
+				var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);
+				var fileSize = element[0].files[0].size;
+				switch (attrs.fileModel) {
+					case "asPdfFile":
+						scope.maxSizeErrorAs = (fileSize > maxSizeUpload);
+						scope.fileExtentionErrorAs = (allowedExtensions.indexOf(fileExtension) < 0);
+						if (scope.fileExtentionErrorAs == false) {
+							scope.$apply(function () { modelSetter(scope, element[0].files[0]); });
+						}
+						break;
+					case "tsPdfFile":
+						scope.maxSizeErrorTs = (fileSize > maxSizeUpload);
+						scope.fileExtentionErrorTs = (allowedExtensions.indexOf(fileExtension) < 0);
+						if (scope.maxSizeErrorTs == false && scope.fileExtentionErrorTs == false) {
+							scope.$apply(function () { modelSetter(scope, element[0].files[0]); });
+						}
+						break;
+					case "dcPdfFile":
+						scope.maxSizeErrorDc = (fileSize > maxSizeUpload);
+						scope.fileExtentionErrorDc = (allowedExtensions.indexOf(fileExtension) < 0);
+						if (scope.fileExtentionErrorDc == false) {
+							scope.$apply(function () { modelSetter(scope, element[0].files[0]); });
+						}
+						break;
+					case "acPdfFile":
+						scope.maxSizeErrorAc = (fileSize > maxSizeUpload);
+						scope.fileExtentionErrorAc = (allowedExtensions.indexOf(fileExtension) < 0);
+						if (scope.fileExtentionErrorAc == false) {
+							scope.$apply(function () { modelSetter(scope, element[0].files[0]); });
+						}
+						break;
+					case "ecPdfFile":
+						scope.maxSizeErrorEc = (fileSize > maxSizeUpload);
+						scope.fileExtentionErrorEc = (allowedExtensions.indexOf(fileExtension) < 0);
+						if (scope.fileExtentionErrorEc == false) {
+							scope.$apply(function () { modelSetter(scope, element[0].files[0]); });
+						}
+						break;
+					case "ldPdfFile":
+						scope.noFileError = false;
+						scope.fileExtentionErrorLd = (allowedExtensions.indexOf(fileExtension) < 0);
+						scope.fileSizeErrorLd = (fileSize > maxSizeUpload);
+						if (scope.fileExtentionErrorLd == false) {
+							scope.$apply(function () { modelSetter(scope, element[0].files[0]); });
+						}
+						break;
+					default:
+						/*scope.$apply(function() {modelSetter(scope, element[0].files[0]);});*/
+						break;
+				}
+
+
+
+
+				/*if (element[0].files[0]) {
+					var fileSize = element[0].files[0].size;            		
+					var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
+				
+=======
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {        	
@@ -69,6 +138,7 @@ res.directive('fileModel', ['$parse', function ($parse) {
             		var fileSize = element[0].files[0].size;            		
                 	var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
             	
+>>>>>>> pankaj/main
 					if (fileSize > maxSizeUpload) {						
 						scope.maxSizeError = true;
 					} 
@@ -82,6 +152,16 @@ res.directive('fileModel', ['$parse', function ($parse) {
 					}
 					else {            		
 //	            		scope.noFileError = true;
+<<<<<<< HEAD
+						scope.$apply(function() {
+							modelSetter(scope, element[0].files[0]);
+						});
+					}    
+				}   */
+			});
+		}
+	};
+=======
 	            		scope.$apply(function() {
 							modelSetter(scope, element[0].files[0]);
 	            		});
@@ -90,10 +170,26 @@ res.directive('fileModel', ['$parse', function ($parse) {
             });
         }
     };
+>>>>>>> pankaj/main
 }]);
 
 
 /*res.directive('fileModel', ['$parse', function ($parse) {
+<<<<<<< HEAD
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {        	
+			var model = $parse(attrs.fileModel);
+			var modelSetter = model.assign;
+			var maxSizeUpload = 2000000;//in bytes (here 2 MB)
+			var allowedExtensions = ['pdf', 'PDF'];
+		    
+			element.bind('change', function() {
+				scope.fileExtentionErrorAs = false;
+									
+				var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
+			
+=======
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {        	
@@ -107,6 +203,7 @@ res.directive('fileModel', ['$parse', function ($parse) {
             	            		
             	var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
         	
+>>>>>>> pankaj/main
 				if (allowedExtensions.indexOf(fileExtension) < 0) {
 					scope.fileExtentionErrorAs = true;
 				} else {
@@ -114,6 +211,30 @@ res.directive('fileModel', ['$parse', function ($parse) {
 						modelSetter(scope, element[0].files[0]);
 					});
 				}					
+<<<<<<< HEAD
+								
+			});
+		}
+	};
+}]);*/
+
+/*res.directive('fileModelAs', ['$parse', function ($parse) {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {        	
+			var model = $parse(attrs.fileModelAs);
+			var modelSetter = model.assign;
+			var maxSizeUpload = 2000000;//in bytes (here 2 MB)
+			var allowedExtensions = ['pdf', 'PDF'];
+		    
+			element.bind('change', function() {
+//            	scope.noFileError = false;
+//            	scope.maxSizeError = false;
+				scope.fileExtentionErrorAs = false;
+				
+				var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
+				
+=======
             	            	
             });
         }
@@ -136,6 +257,7 @@ res.directive('fileModel', ['$parse', function ($parse) {
             	
             	var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
             	
+>>>>>>> pankaj/main
 				if (allowedExtensions.indexOf(fileExtension) < 0) {
 					scope.fileExtentionErrorAs = true;
 				} else {
@@ -143,12 +265,21 @@ res.directive('fileModel', ['$parse', function ($parse) {
 						modelSetter(scope, element[0].files[0]);
 					});
 				}
+<<<<<<< HEAD
+				
+				
+				if (element[0].files[0]) {
+					var fileSize = element[0].files[0].size;            		
+					var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
+				
+=======
             	
             	
             	if (element[0].files[0]) {
             		var fileSize = element[0].files[0].size;            		
                 	var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
             	
+>>>>>>> pankaj/main
 					if (fileSize > maxSizeUpload) {						
 						scope.maxSizeError = true;
 					} 
@@ -162,6 +293,16 @@ res.directive('fileModel', ['$parse', function ($parse) {
 					}
 					else {            		
 //	            		scope.noFileError = true;
+<<<<<<< HEAD
+						scope.$apply(function() {
+							modelSetter(scope, element[0].files[0]);
+						});
+					}    
+				}         	
+			});
+		}
+	};
+=======
 	            		scope.$apply(function() {
 							modelSetter(scope, element[0].files[0]);
 	            		});
@@ -170,10 +311,30 @@ res.directive('fileModel', ['$parse', function ($parse) {
             });
         }
     };
+>>>>>>> pankaj/main
 }]);
 */
 
 /*res.directive('fileModelTs', ['$parse', function ($parse) {
+<<<<<<< HEAD
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {        	
+			var model = $parse(attrs.fileModelTs);
+			var modelSetter = model.assign;
+			var maxSizeUpload = 2000000;//in bytes (here 2 MB)
+			var allowedExtensions = ['pdf', 'PDF'];
+		    
+			element.bind('change', function() {
+//            	scope.noFileError = false;
+//            	scope.maxSizeError = false;
+				scope.fileExtentionErrorTs = false;
+				
+				var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
+				
+				
+				if (allowedExtensions.indexOf(fileExtension) < 0) {
+=======
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {        	
@@ -191,18 +352,28 @@ res.directive('fileModel', ['$parse', function ($parse) {
             	
             	
             	if (allowedExtensions.indexOf(fileExtension) < 0) {
+>>>>>>> pankaj/main
 					scope.fileExtentionErrorTs = true;
 				} else {
 					scope.$apply(function() {
 						modelSetter(scope, element[0].files[0]);
 					});
 				}
+<<<<<<< HEAD
+				
+				
+				if (element[0].files[0]) {
+					var fileSize = element[0].files[0].size;            		
+					var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
+				
+=======
             	
             	
             	if (element[0].files[0]) {
             		var fileSize = element[0].files[0].size;            		
                 	var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
             	
+>>>>>>> pankaj/main
 					if (fileSize > maxSizeUpload) {						
 						scope.maxSizeError = true;
 					} 
@@ -214,6 +385,37 @@ res.directive('fileModel', ['$parse', function ($parse) {
 							modelSetter(scope, element[0].files[0]);
 						});
 					}
+<<<<<<< HEAD
+				} else {            		
+//            		scope.noFileError = true;
+					scope.$apply(function() {
+						modelSetter(scope, element[0].files[0]);
+					});
+				}            	
+			});
+		}
+	};
+}]);
+
+res.directive('fileModelDc', ['$parse', function ($parse) {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {        	
+			var model = $parse(attrs.fileModelDc);
+			var modelSetter = model.assign;
+			var maxSizeUpload = 2000000;//in bytes (here 2 MB)
+			var allowedExtensions = ['pdf', 'PDF'];
+		    
+			element.bind('change', function() {
+//            	scope.noFileError = false;
+//            	scope.maxSizeError = false;
+				scope.fileExtentionErrorDc = false;
+				
+				if (element[0].files[0]) {
+					var fileSize = element[0].files[0].size;            		
+					var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
+				
+=======
             	} else {            		
 //            		scope.noFileError = true;
             		scope.$apply(function() {
@@ -243,6 +445,7 @@ res.directive('fileModelDc', ['$parse', function ($parse) {
             		var fileSize = element[0].files[0].size;            		
                 	var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
             	
+>>>>>>> pankaj/main
 					if (fileSize > maxSizeUpload) {						
 						scope.maxSizeError = true;
 					} 
@@ -251,13 +454,48 @@ res.directive('fileModelDc', ['$parse', function ($parse) {
 					} else {
 						scope.$apply(function() {
 							modelSetter(scope, element[0].files[0]);
+<<<<<<< HEAD
+						});
+=======
 	            		});
+>>>>>>> pankaj/main
 					}
 					if (scope.maxSizeError == false && scope.fileExtentionError == false) {
 						scope.$apply(function() {
 							modelSetter(scope, element[0].files[0]);
 						});
 					}
+<<<<<<< HEAD
+				} else {            		
+//            		scope.noFileError = true;
+					scope.$apply(function() {
+						modelSetter(scope, element[0].files[0]);
+					});
+				}            	
+			});
+		}
+	};
+}]);
+
+res.directive('fileModelEc', ['$parse', function ($parse) {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {        	
+			var model = $parse(attrs.fileModelEc);
+			var modelSetter = model.assign;
+			var maxSizeUpload = 2000000;//in bytes (here 2 MB)
+			var allowedExtensions = ['pdf', 'PDF'];
+		    
+			element.bind('change', function() {
+//            	scope.noFileError = false;
+//            	scope.maxSizeError = false;
+				scope.fileExtentionErrorEc = false;
+				
+				if (element[0].files[0]) {
+					var fileSize = element[0].files[0].size;            		
+					var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
+				
+=======
             	} else {            		
 //            		scope.noFileError = true;
             		scope.$apply(function() {
@@ -287,6 +525,7 @@ res.directive('fileModelEc', ['$parse', function ($parse) {
             		var fileSize = element[0].files[0].size;            		
                 	var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
             	
+>>>>>>> pankaj/main
 					if (fileSize > maxSizeUpload) {						
 						scope.maxSizeError = true;
 					} 
@@ -295,13 +534,48 @@ res.directive('fileModelEc', ['$parse', function ($parse) {
 					} else {
 						scope.$apply(function() {
 							modelSetter(scope, element[0].files[0]);
+<<<<<<< HEAD
+						});
+=======
 	            		});
+>>>>>>> pankaj/main
 					}
 					if (scope.maxSizeError == false && scope.fileExtentionError == false) {
 						scope.$apply(function() {
 							modelSetter(scope, element[0].files[0]);
 						});
 					}
+<<<<<<< HEAD
+				} else {            		
+//            		scope.noFileError = true;
+					scope.$apply(function() {
+						modelSetter(scope, element[0].files[0]);
+					});
+				}            	
+			});
+		}
+	};
+}]);
+
+res.directive('fileModelAc', ['$parse', function ($parse) {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {        	
+			var model = $parse(attrs.fileModelAc);
+			var modelSetter = model.assign;
+			var maxSizeUpload = 2000000;//in bytes (here 2 MB)
+			var allowedExtensions = ['pdf', 'PDF'];
+		    
+			element.bind('change', function() {
+//            	scope.noFileError = false;
+//            	scope.maxSizeError = false;
+				scope.fileExtentionErrorAc = false;
+				
+				if (element[0].files[0]) {
+					var fileSize = element[0].files[0].size;            		
+					var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
+				
+=======
             	} else {            		
 //            		scope.noFileError = true;
             		scope.$apply(function() {
@@ -331,6 +605,7 @@ res.directive('fileModelAc', ['$parse', function ($parse) {
             		var fileSize = element[0].files[0].size;            		
                 	var fileExtension = element[0].files[0].name.substring(element[0].files[0].name.lastIndexOf('.') + 1);            	
             	
+>>>>>>> pankaj/main
 					if (fileSize > maxSizeUpload) {						
 						scope.maxSizeError = true;
 					} 
@@ -339,13 +614,28 @@ res.directive('fileModelAc', ['$parse', function ($parse) {
 					} else {
 						scope.$apply(function() {
 							modelSetter(scope, element[0].files[0]);
+<<<<<<< HEAD
+						});
+=======
 	            		});
+>>>>>>> pankaj/main
 					}
 					if (scope.maxSizeError == false && scope.fileExtentionError == false) {
 						scope.$apply(function() {
 							modelSetter(scope, element[0].files[0]);
 						});
 					}
+<<<<<<< HEAD
+				} else {            		
+//            		scope.noFileError = true;
+					scope.$apply(function() {
+					modelSetter(scope, element[0].files[0]);
+					});
+				}            	
+			});
+		}
+	};
+=======
             	} else {            		
 //            		scope.noFileError = true;
             		scope.$apply(function() {
@@ -355,18 +645,45 @@ res.directive('fileModelAc', ['$parse', function ($parse) {
             });
         }
     };
+>>>>>>> pankaj/main
 }]);*/
 
 
 
 /*res.run(['$rootScope', function($rootScope) {
+<<<<<<< HEAD
+	$rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
+		$rootScope.title = current.$$route.title;        
+	});
+=======
     $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
         $rootScope.title = current.$$route.title;        
     });
+>>>>>>> pankaj/main
 }]);*/
 
 /*//Directive for chart, pass in chart options
 res.directive('hcChart', function () {
+<<<<<<< HEAD
+	return {
+		restrict: 'E',
+		template: '<div></div>',
+		scope: {
+			options: '='
+		},
+		link: function (scope, element) {
+			Highcharts.chart(element[0], scope.options);
+		}
+	};
+})*/
+
+res.filter('inWords', function () {
+	return function (num) {
+		var a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+		var b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+		if (num) {
+=======
     return {
         restrict: 'E',
         template: '<div></div>',
@@ -385,6 +702,7 @@ res.filter('inWords', function() {
 		var b = ['', '', 'Twenty','Thirty','Forty','Fifty', 'Sixty','Seventy','Eighty','Ninety'];
 		
 		if(num){
+>>>>>>> pankaj/main
 			if ((num = num.toString()).length > 9) return 'overflow';
 			n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
 			if (!n) return; var str = '';
@@ -395,6 +713,20 @@ res.filter('inWords', function() {
 			str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'only ' : '';
 			return str;
 		}
+<<<<<<< HEAD
+	}
+});
+
+res.controller('EEController', function ($scope, $loading, $rootScope, $window, $routeParams, $http, $timeout) {
+
+	/*$scope.IsVisible = true;*/
+	$scope.started = false;
+
+	$scope.doTheBack = function () {
+		window.history.back();
+	};
+
+=======
 		}
 });	
 
@@ -407,6 +739,7 @@ res.controller('EEController', function($scope, $loading, $rootScope, $window, $
 		  window.history.back();
 		};
 	
+>>>>>>> pankaj/main
 	function closeModals() {
 		if ($scope.warning) {
 			$scope.warning.close();
@@ -419,6 +752,17 @@ res.controller('EEController', function($scope, $loading, $rootScope, $window, $
 		}
 	}
 
+<<<<<<< HEAD
+	$scope.$on('IdleStart', function () {
+		closeModals();
+	});
+
+	$scope.$on('IdleEnd', function () {
+		closeModals();
+	});
+
+	$scope.$on('IdleTimeout', function () {
+=======
 	$scope.$on('IdleStart', function() {
 		closeModals();
 	});
@@ -428,11 +772,32 @@ res.controller('EEController', function($scope, $loading, $rootScope, $window, $
 	});
 
 	$scope.$on('IdleTimeout', function() {
+>>>>>>> pankaj/main
 		closeModals();
 		alert("Your Session has expired, Please relogin.");
 		$window.location.reload();
 	});
 
+<<<<<<< HEAD
+	$scope.startOrStopSpinner = function (isStart) {
+
+		if (isStart) {
+			$loading.start('sample-1');
+		} else {
+			$loading.finish('sample-1');
+		}
+
+	};
+
+
+
+
+	$scope.loadStates = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchStates');
+		response.success(function (data, status, headers, config) {
+=======
 	$scope.startOrStopSpinner = function(isStart) {
 
 		if(isStart) {
@@ -451,10 +816,20 @@ res.controller('EEController', function($scope, $loading, $rootScope, $window, $
 		$loading.start('sample-1');
 		var response = $http.get('fetchStates');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.states = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadDistrictsByState = function (stateId) {
+
+		$loading.start('sample-1');
+		$scope.entrepreneurData.registeredAddress.districtId = "";
+		var response = $http.get('fetchDistrictsByState/' + stateId);
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadDistrictsByState = function(stateId) {
 
@@ -462,10 +837,21 @@ res.controller('EEController', function($scope, $loading, $rootScope, $window, $
 		$scope.entrepreneurData.registeredAddress.districtId = "";
 		var response = $http.get('fetchDistrictsByState/'+stateId);
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.districts = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+
+	$scope.loadBlocksByDistrict = function (districtId) {
+
+		$loading.start('sample-1');
+		$scope.entrepreneurData.registeredAddress.blockId = "";
+		var response = $http.get('fetchBlocksByDistrict/' + districtId);
+		response.success(function (data, status, headers, config) {
+=======
 	
 	
 	$scope.loadBlocksByDistrict = function(districtId) {
@@ -474,66 +860,127 @@ res.controller('EEController', function($scope, $loading, $rootScope, $window, $
 		$scope.entrepreneurData.registeredAddress.blockId = "";
 		var response = $http.get('fetchBlocksByDistrict/'+districtId);
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.blocks = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadDistrictsOfMP = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchDistrictsOfMP');
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadDistrictsOfMP = function() {
 
 		$loading.start('sample-1');
 		var response = $http.get('fetchDistrictsOfMP');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.districts = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadWorkType = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchWorkType');
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadWorkType = function() {
 
 		$loading.start('sample-1');
 		var response = $http.get('fetchWorkType');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.workTypes = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+	$scope.loadWorkNature = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchWorkNature');
+		response.success(function (data, status, headers, config) {
+=======
 	$scope.loadWorkNature = function() {
 
 		$loading.start('sample-1');
 		var response = $http.get('fetchWorkNature');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.workNatures = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadWorkSubTypeByWorkTypeId = function (workTypeId) {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchWorkSubTypeByWorkTypeId/' + workTypeId);
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadWorkSubTypeByWorkTypeId = function(workTypeId) {
 
 		$loading.start('sample-1');
 		var response = $http.get('fetchWorkSubTypeByWorkTypeId/'+workTypeId);
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.workSubTypes = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadUserDetail = function () {
+=======
 	
 	$scope.loadUserDetail = function() {
+>>>>>>> pankaj/main
 
 		$loading.start('sample-1');
 		var response = $http.get('fetchUserDetailsFromLoggedInUserName');
 
+<<<<<<< HEAD
+		response.success(function (data, status, headers, config) {
+			$scope.workData = data;
+			// Dependency create ke liye beans me set the value
+			//			$scope.workData.userBean.officeBean.id = $scope.workData.userBean.officeBean.id + "";
+
+=======
 		response.success(function(data, status, headers, config) {
 			$scope.workData = data;
 			// Dependency create ke liye beans me set the value
 //			$scope.workData.userBean.officeBean.id = $scope.workData.userBean.officeBean.id + "";
 			
+>>>>>>> pankaj/main
 			$scope.workData.userBean.officeBean.officeName = $scope.workData.userBean.officeBean.officeName + "";
 			$scope.workData.userBean.districtBean.districtName = $scope.workData.userBean.districtBean.districtName + "";
 			$scope.workData.userBean.districtBean.districtId = $scope.workData.userBean.districtBean.districtId;
 			$scope.loadAssistantEngineerByOfficeId($scope.workData.userBean.officeBean.id);
 			$scope.loadSubdivisionalOfficersByOfficeId($scope.workData.userBean.officeBean.id);
 			$scope.loadSubEngineerByOfficeId($scope.workData.userBean.officeBean.id);
+<<<<<<< HEAD
+			$scope.workData.workLocationLatitude = 0;
+			$scope.workData.workLocationLongitude = 0;
+			/*$scope.userData.officeTypeId = $scope.userData.officeTypeId+"";
+			$scope.loadOffices($scope.userData.officeTypeId)
+			$scope.userData.officeId = $scope.userData.officeId+"";*/
+			//			$loading.finish('sample-1');
+		}).then(function () {
+			var response = $http.get('fetchBlocksByDistrictNew/' + $scope.workData.userBean.districtBean.districtId);
+			response.success(function (data, status, headers, config) {
+				$scope.blocks = data;
+=======
 			$scope.workData.workLocationLatitude=0;
 			$scope.workData.workLocationLongitude=0;
 			/*$scope.userData.officeTypeId = $scope.userData.officeTypeId+"";
@@ -544,20 +991,50 @@ res.controller('EEController', function($scope, $loading, $rootScope, $window, $
 			var response = $http.get('fetchBlocksByDistrictNew/'+$scope.workData.userBean.districtBean.districtId);
 			response.success(function(data, status, headers, config) {
 				$scope.blocks = data;		
+>>>>>>> pankaj/main
 				$loading.finish('sample-1');
 			});
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadAssistantEngineerByOfficeId = function (officeId) {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchAssistantEngineerByOfficeId/' + officeId);
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadAssistantEngineerByOfficeId = function(officeId) {
 
 		$loading.start('sample-1');
 		var response = $http.get('fetchAssistantEngineerByOfficeId/'+officeId);
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.assistantEngineers = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadSubdivisionalOfficersByOfficeId = function (officeId) {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchSubdivisionalOfficersByOfficeId/' + officeId);
+		response.success(function (data, status, headers, config) {
+			$scope.subdivisionalOfficers = data;
+
+			$loading.finish('sample-1');
+		});
+	};
+
+
+
+	$scope.loadSubEngineerByOfficeId = function (officeId) {
+		$loading.start('sample-1');
+		var response = $http.get('fetchSubEngineerByOfficeId/' + officeId);
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadSubdivisionalOfficersByOfficeId = function(officeId) {
 
@@ -576,10 +1053,20 @@ res.controller('EEController', function($scope, $loading, $rootScope, $window, $
 		$loading.start('sample-1');
 		var response = $http.get('fetchSubEngineerByOfficeId/'+officeId);
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.subEngineers = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+
+	$scope.loadLineDepartment = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchLineDepartment');
+		response.success(function (data, status, headers, config) {
+=======
 	
 	
 	$scope.loadLineDepartment = function() {
@@ -587,20 +1074,99 @@ res.controller('EEController', function($scope, $loading, $rootScope, $window, $
 		$loading.start('sample-1');
 		var response = $http.get('fetchLineDepartment');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.lineDepartments = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadDistrictsOfMPNew = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchDistrictsOfMPNew');
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadDistrictsOfMPNew = function() {
 
 		$loading.start('sample-1');
 		var response = $http.get('fetchDistrictsOfMPNew');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.districtsMP = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadBlocksByDistrictNew = function (districtId) {
+
+		$loading.start('sample-1');
+
+		$http.get('fetchBlocksByDistrictNew/' + districtId)
+			.success(function (data) {
+
+				$scope.blocks = data;
+
+				// 🔥 IMPORTANT FIX (same as GP & Village)
+				if ($scope.workData.blockId) {
+					$scope.workData.blockId = Number($scope.workData.blockId);
+				}
+
+				$loading.finish('sample-1');
+			});
+	};
+
+
+	$scope.loadGramPanchayatByBlockCode = function (blockCode) {
+
+		$loading.start('sample-1');
+
+		$http.get('fetchGramPanchayatByBlockCode/' + blockCode)
+			.success(function (data) {
+
+				$scope.gramPanchayats = data;
+				$scope.villages = [];
+
+				// 🔥 IMPORTANT FIX
+				if ($scope.workData.gramPanchayatId) {
+					$scope.workData.gramPanchayatId =
+						Number($scope.workData.gramPanchayatId);
+				}
+
+				$loading.finish('sample-1');
+			});
+	};
+
+
+
+	$scope.loadVillageByGramPanchayatCode = function (gramPanchayatCode) {
+
+		$loading.start('sample-1');
+
+		$http.get('fetchVillageByGramPanchayatCode/' + gramPanchayatCode)
+			.success(function (data) {
+
+				$scope.villages = data;
+
+				// 🔥 IMPORTANT FIX
+				if ($scope.workData.villageId) {
+					$scope.workData.villageId =
+						Number($scope.workData.villageId);
+				}
+
+				$loading.finish('sample-1');
+			});
+	};
+
+
+	$scope.loadAgencyType = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchAgencyType');
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadBlocksByDistrictNew = function (districtId) {
 
@@ -670,40 +1236,77 @@ $scope.loadGramPanchayatByBlockCode = function (blockCode) {
 		$loading.start('sample-1');
 		var response = $http.get('fetchAgencyType');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.agencyTypes = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadPhysicalStageType = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchPhysicalStageType');
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadPhysicalStageType = function() {
 
 		$loading.start('sample-1');
 		var response = $http.get('fetchPhysicalStageType');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.physicalStageTypes = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadTechnicalSanctionType = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchTechnicalSanctionType');
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadTechnicalSanctionType = function() {
 
 		$loading.start('sample-1');
 		var response = $http.get('fetchTechnicalSanctionType');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.technicalSanctionTypes = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadAdministrationSanctionType = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchAdministrationSanctionType');
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadAdministrationSanctionType = function() {
 
 		$loading.start('sample-1');
 		var response = $http.get('fetchAdministrationSanctionType');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.administrationSanctionTypes = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+
+	$scope.loadIssuingAuthority = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchIssuingAuthority');
+		response.success(function (data, status, headers, config) {
+=======
 	
 	
 	$scope.loadIssuingAuthority = function() {
@@ -711,12 +1314,18 @@ $scope.loadGramPanchayatByBlockCode = function (blockCode) {
 		$loading.start('sample-1');
 		var response = $http.get('fetchIssuingAuthority');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.issuingAuthorities = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.addWorkData = function (isValid, asPdfFile, tsPdfFile, acPdfFile, dcPdfFile, ecPdfFile) {
+=======
 	
 	$scope.addWorkData = function(isValid, asPdfFile, tsPdfFile, acPdfFile, dcPdfFile, ecPdfFile) {
+>>>>>>> pankaj/main
 
 		//$scope.noFileError = (asPdfFile)?false:true;
 		/*$scope.fileExtentionErrorAs = (asPdfFile)?false:true;
@@ -724,6 +1333,78 @@ $scope.loadGramPanchayatByBlockCode = function (blockCode) {
 		$scope.fileExtentionErrorAc = (acPdfFile)?false:true;
 		$scope.fileExtentionErrorDc = (dcPdfFile)?false:true;
 		$scope.fileExtentionErrorEc = (ecPdfFile)?false:true;*/
+<<<<<<< HEAD
+
+		if (tsPdfFile) {
+			if (tsPdfFile.size > 5000000)
+				return false;
+		}
+
+		if (asPdfFile) {
+			if (asPdfFile.size > 5000000)
+				return false;
+		}
+
+
+		if (dcPdfFile) {
+			if (dcPdfFile.size > 5000000)
+				return false;
+		}
+
+		if (acPdfFile) {
+			if (acPdfFile.size > 5000000)
+				return false;
+		}
+
+		if (ecPdfFile) {
+			if (ecPdfFile.size > 5000000)
+				return false;
+		}
+
+
+		if (!isValid)
+			return false;
+		//if (!tsPdfFile)
+		//return false;
+
+		if (confirm("Are you sure you want to save the data?")) {
+			$loading.start('sample-1');
+
+			var fd = new FormData();
+
+			if ($scope.saveAsDraft == true) {
+				/*$scope.workData.status = 'SaveAsDraft';*/
+				$scope.workData.workRequestStatusId = 1;
+			}
+			else if ($scope.finalSubmit == true) {
+				/*$scope.workData.status = 'Active';*/
+				$scope.workData.workRequestStatusId = 2;
+			}
+
+			/*fd.append('status', $scope.workData.status);*/
+			fd.append('workRequestStatusId', $scope.workData.workRequestStatusId);
+
+			if (acPdfFile) {
+				fd.append('agreementCopyFile', acPdfFile);
+			}
+
+			if (asPdfFile) {
+				fd.append('administrationSanctionBean.administrationSanctionFile', asPdfFile);
+			}
+
+			if (tsPdfFile) {
+				fd.append('technicalSanctionBean.technicalSanctionFile', tsPdfFile);
+			}
+
+			if (dcPdfFile) {
+				fd.append('technicalSanctionBean.latestDrawingCopyFile', dcPdfFile);
+			}
+
+			if (ecPdfFile) {
+				fd.append('technicalSanctionBean.estimateFile', ecPdfFile);
+			}
+
+=======
 		
 		if(tsPdfFile){
 		if(tsPdfFile.size > 5000000)
@@ -794,21 +1475,110 @@ $scope.loadGramPanchayatByBlockCode = function (blockCode) {
 			fd.append('technicalSanctionBean.estimateFile', ecPdfFile);
 			}
 			
+>>>>>>> pankaj/main
 
 			/*if ($scope.caseData.caseId) {
 				fd.append('caseId', $scope.caseData.caseId);
 			}*/
+<<<<<<< HEAD
+
+			if ($scope.workData.workName) {
+				fd.append('workName', $scope.workData.workName);
+			}
+
+=======
 			
 			if ($scope.workData.workName) {
 				fd.append('workName', $scope.workData.workName);
 			}
 			
+>>>>>>> pankaj/main
 			if ($scope.workData.distance) {
 				fd.append('distance', $scope.workData.distance);
 			}
 			if ($scope.workData.completeddistance) {
 				fd.append('completeddistance', $scope.workData.completeddistance);
 			}
+<<<<<<< HEAD
+
+			if ($scope.workData.workTypeBean.workTypeId) {
+				fd.append('workTypeBean.workTypeId', $scope.workData.workTypeBean.workTypeId);
+			}
+
+			if (null != $scope.workData.workSubTypeBean && $scope.workData.workSubTypeBean.workSubTypeId) {
+				fd.append('workSubTypeBean.workSubTypeId', $scope.workData.workSubTypeBean.workSubTypeId);
+			}
+
+			if ($scope.workData.lineDepartmentBean.lineDepartmentId) {
+				fd.append('lineDepartmentBean.lineDepartmentId', $scope.workData.lineDepartmentBean.lineDepartmentId);
+			}
+
+			if ($scope.workData.accountHeadId) {
+				fd.append('accountHeadId', $scope.workData.accountHeadId);
+			}
+
+
+			if ($scope.workData.agencyTypeBean.agencyTypeId) {
+				fd.append('agencyTypeBean.agencyTypeId', $scope.workData.agencyTypeBean.agencyTypeId);
+			}
+
+			if ($scope.workData.contractorBean) {
+				if ($scope.workData.contractorBean.id) {
+					fd.append('contractorBean.id', $scope.workData.contractorBean.id);
+				}
+			}
+
+			/*if ($scope.workData.agencyName) {
+				fd.append('agencyName', $scope.workData.agencyName);
+			}*/
+
+			if ($scope.workData.totalExpenditureTill31March2018String) {
+				fd.append('totalExpenditureTill31March2018String', $scope.workData.totalExpenditureTill31March2018String);
+			}
+
+
+			if ($scope.workData.totalExpenditureOnContingencyTill31March2018) {
+				fd.append('totalExpenditureOnContingencyTill31March2018', $scope.workData.totalExpenditureOnContingencyTill31March2018);
+			}
+
+			if ($scope.workData.userBean.officeBean.officeName) {
+				fd.append('executiveEngineerOfficeName', $scope.workData.userBean.officeBean.officeName);
+			}
+
+
+			if ($scope.workData.workStatusBean.workStatusid) {
+				fd.append('workStatusBean.workStatusid', $scope.workData.workStatusBean.workStatusid);
+			}
+
+			if (null != $scope.workData.physicalStageTypeBean && $scope.workData.physicalStageTypeBean.physicalStageId) {
+				fd.append('physicalStageTypeBean.physicalStageId', $scope.workData.physicalStageTypeBean.physicalStageId);
+			}
+
+			if ($scope.workData.tentativeCompletionDateString) {
+				fd.append('tentativeCompletionDateString', $scope.workData.tentativeCompletionDateString);
+			}
+
+			if ($scope.workData.totalAmountRecievedTill31March2018String) {
+				fd.append('totalAmountRecievedTill31March2018String', $scope.workData.totalAmountRecievedTill31March2018String);
+			}
+
+			if ($scope.workData.agreementDateString) {
+				fd.append('agreementDateString', $scope.workData.agreementDateString);
+			}
+
+			if ($scope.workData.agreementNumber) {
+				fd.append('agreementNumber', $scope.workData.agreementNumber);
+			}
+
+			if ($scope.workData.tenderedRateSign) {
+				fd.append('tenderedRateSign', $scope.workData.tenderedRateSign);
+			}
+
+			if ($scope.workData.tenderedRatePer) {
+				fd.append('tenderedRatePer', $scope.workData.tenderedRatePer);
+			}
+
+=======
 			
 			if ($scope.workData.workTypeBean.workTypeId) {
 				fd.append('workTypeBean.workTypeId', $scope.workData.workTypeBean.workTypeId);
@@ -887,6 +1657,7 @@ $scope.loadGramPanchayatByBlockCode = function (blockCode) {
 				fd.append('tenderedRatePer', $scope.workData.tenderedRatePer);
 			}
 			
+>>>>>>> pankaj/main
 			if ($scope.workData.pacAmount) {
 				fd.append('pacAmount', $scope.workData.pacAmount);
 			}
@@ -894,6 +1665,109 @@ $scope.loadGramPanchayatByBlockCode = function (blockCode) {
 			if ($scope.workData.tenderCost) {
 				fd.append('tenderCost', $scope.workData.tenderCost);
 			}
+<<<<<<< HEAD
+
+			if ($scope.workData.userBean.districtBean.districtId) {
+				fd.append('district.districtId', $scope.workData.userBean.districtBean.districtId);
+			}
+
+			if ($scope.workData.block.blockId) {
+				fd.append('block.blockId', $scope.workData.block.blockId);
+			}
+
+			if ($scope.workData.gramPanchayatBean.gramPanchayatId) {
+				fd.append('gramPanchayatBean.gramPanchayatId', $scope.workData.gramPanchayatBean.gramPanchayatId);
+			}
+
+			if ($scope.workData.villageBean.villageId) {
+				fd.append('villageBean.villageId', $scope.workData.villageBean.villageId);
+			}
+
+			if ($scope.workData.locationAddress) {
+				fd.append('locationAddress', $scope.workData.locationAddress);
+			}
+
+			if ($scope.workData.workLocationLatitude) {
+				fd.append('workLocationLatitude', $scope.workData.workLocationLatitude);
+			}
+
+			if ($scope.workData.workLocationLongitude) {
+				fd.append('workLocationLongitude', $scope.workData.workLocationLongitude);
+			}
+
+			if ($scope.workData.locationGeometery) {
+				fd.append('locationGeometery', $scope.workData.locationGeometery);
+			}
+
+			if ($scope.workData.userBean.officeBean.id) {
+				fd.append('userBean.officeBean.id', $scope.workData.userBean.officeBean.id);
+			}
+
+			if ($scope.workData.userBean.officeBean.parentOffice.id) {
+				fd.append('userBean.officeBean.parentOffice.id', $scope.workData.userBean.officeBean.parentOffice.id);
+			}
+
+			if ($scope.workData.userBean.officeBean.chiefEngineerOfficeId) {
+				fd.append('userBean.officeBean.chiefEngineerOfficeId', $scope.workData.userBean.officeBean.chiefEngineerOfficeId);
+			}
+
+			if ($scope.workData.assistantEngineer) {
+				if ($scope.workData.assistantEngineer.id) {
+					fd.append('assistantEngineer.id', $scope.workData.assistantEngineer.id);
+				}
+			}
+
+			if ($scope.workData.subEngineer) {
+				if ($scope.workData.subEngineer.id) {
+					fd.append('subEngineer.id', $scope.workData.subEngineer.id);
+				}
+			}
+
+
+
+			if ($scope.workData.technicalSanctionBean) {
+				if ($scope.workData.technicalSanctionBean.technicalSanctionTypeBean) {
+					if ($scope.workData.technicalSanctionBean.technicalSanctionTypeBean.technicalSanctionTypeId) {
+						fd.append('technicalSanctionBean.technicalSanctionTypeBean.technicalSanctionTypeId', $scope.workData.technicalSanctionBean.technicalSanctionTypeBean.technicalSanctionTypeId);
+					}
+				}
+
+				if ($scope.workData.technicalSanctionBean.technicalSanctionNo) {
+					fd.append('technicalSanctionBean.technicalSanctionNo', $scope.workData.technicalSanctionBean.technicalSanctionNo);
+				}
+
+				if ($scope.workData.technicalSanctionBean.technicalSanctionDate) {
+					fd.append('technicalSanctionBean.technicalSanctionDate', $scope.workData.technicalSanctionBean.technicalSanctionDate);
+				}
+
+
+
+			}
+
+
+
+			if ($scope.workData.estimatedCostString) {
+				fd.append('estimatedCostString', $scope.workData.estimatedCostString);
+			}
+
+			if ($scope.workData.tsIssuingAuthorityId) {
+				fd.append('tsIssuingAuthorityId', $scope.workData.tsIssuingAuthorityId);
+			}
+
+			if ($scope.workData.tsAuthorityName) {
+				fd.append('tsAuthorityName', $scope.workData.tsAuthorityName);
+			}
+
+			if ($scope.workData.administrationSanctionBean.administrationSanctionTypeBean.administrationSanctionTypeId) {
+				fd.append('administrationSanctionBean.administrationSanctionTypeBean.administrationSanctionTypeId', $scope.workData.administrationSanctionBean.administrationSanctionTypeBean.administrationSanctionTypeId);
+			}
+
+
+			if ($scope.workData.administrationSanctionBean.administrationSanctionNo) {
+				fd.append('administrationSanctionBean.administrationSanctionNo', $scope.workData.administrationSanctionBean.administrationSanctionNo);
+			}
+
+=======
 			
 			if ($scope.workData.userBean.districtBean.districtId) {
 				fd.append('district.districtId', $scope.workData.userBean.districtBean.districtId);
@@ -996,6 +1870,7 @@ $scope.loadGramPanchayatByBlockCode = function (blockCode) {
 				fd.append('administrationSanctionBean.administrationSanctionNo', $scope.workData.administrationSanctionBean.administrationSanctionNo);
 			}
 			
+>>>>>>> pankaj/main
 			if ($scope.workData.administrationSanctionBean.administrationSanctionDate) {
 				fd.append('administrationSanctionBean.administrationSanctionDate', $scope.workData.administrationSanctionBean.administrationSanctionDate);
 			}
@@ -1003,6 +1878,53 @@ $scope.loadGramPanchayatByBlockCode = function (blockCode) {
 			if ($scope.workData.contingencyAmount) {
 				fd.append('contingencyAmount', $scope.workData.contingencyAmount);
 			}
+<<<<<<< HEAD
+
+			if ($scope.workData.totalCostString) {
+				fd.append('totalCostString', $scope.workData.totalCostString);
+			}
+
+
+			if ($scope.workData.administrationSanctionBean.issuingAuthorityBean) {
+				if ($scope.workData.administrationSanctionBean.issuingAuthorityBean.issuingAuthorityId) {
+					fd.append('administrationSanctionBean.issuingAuthorityBean.issuingAuthorityId', $scope.workData.administrationSanctionBean.issuingAuthorityBean.issuingAuthorityId);
+				}
+			}
+
+			if ($scope.workData.asAuthorityName) {
+				fd.append('asAuthorityName', $scope.workData.asAuthorityName);
+			}
+
+			if ($scope.workData.remarks) {
+				fd.append('remarks', $scope.workData.remarks);
+			}
+
+			if ($scope.workData.probableAmountOfWork) {
+				fd.append('probableAmountOfWork', $scope.workData.probableAmountOfWork);
+			}
+
+			$loading.start('sample-1');
+
+			var responsePromise = $http.post('addWork', fd, {
+				transformRequest: angular.identity,
+				headers: {
+					'Content-Type': undefined
+				}
+			});
+
+			responsePromise.success(function (data, status, headers, config) {
+				$rootScope.responseObject = data;
+				if ($rootScope.responseObject.successMessage != null) {
+					$timeout(function () {
+						$rootScope.responseObject.successMessage = null;
+					}, 5000);
+					$window.location.href = '#manageLegacyDataRoute';
+				}
+				$loading.finish('sample-1');
+			});
+
+
+=======
 			
 			if ($scope.workData.totalCostString) {
 				fd.append('totalCostString', $scope.workData.totalCostString);
@@ -1048,6 +1970,7 @@ $scope.loadGramPanchayatByBlockCode = function (blockCode) {
 			});
 			
 		
+>>>>>>> pankaj/main
 			/*var responsePromise = $http.post('addWork', $scope.workData);
 			responsePromise.success(function(data, status, headers, config) {
 
@@ -1076,12 +1999,33 @@ $scope.loadGramPanchayatByBlockCode = function (blockCode) {
 			});*/
 		}
 	};
+<<<<<<< HEAD
+
+=======
 	
+>>>>>>> pankaj/main
 	/*$scope.loadWorkList = function() {
 
 		$loading.start('sample-1');
 		fetchWorkList();
 	};*/
+<<<<<<< HEAD
+
+	$scope.deleteWork = function (workId) {
+		if (confirm("Are you sure to delete this entry?")) {
+			$loading.start('sample-1');
+			var responsePromise = $http.get('deleteWork/' + workId);
+			responsePromise.success(function (data, status, headers, config) {
+				$rootScope.responseObject = data;
+				if ($rootScope.responseObject.successMessage != null) {
+					$timeout(function () {
+						$rootScope.responseObject.successMessage = null;
+					}, 5000);
+					$window.location.href = '#manageLegacyDataRoute';
+				}
+				if ($rootScope.responseObject.errorMessage != null) {
+					$timeout(function () {
+=======
 	
 	$scope.deleteWork = function(workId) {		
 		if (confirm("Are you sure to delete this entry?")) {
@@ -1097,11 +2041,191 @@ $scope.loadGramPanchayatByBlockCode = function (blockCode) {
 				}
 				if($rootScope.responseObject.errorMessage != null) {
 					$timeout(function() {
+>>>>>>> pankaj/main
 						$rootScope.responseObject.errorMessage = null;
 					}, 5000);
 				}
 				$loading.finish('sample-1');
 			});
+<<<<<<< HEAD
+		} else {
+			return false;
+		}
+	};
+
+	$scope.loadWorkDetail = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchWorkDetails/' + $routeParams.id);
+
+		response.success(function (data, status, headers, config) {
+			$scope.workData = data;
+			if ($scope.workData.totalExpenditureOnContingencyTill31March2018 == null) {
+				$scope.workData.totalExpenditureOnContingencyTill31March2018 = 0;
+			}
+			if ($scope.workData.contingencyAmount == null) {
+				$scope.workData.contingencyAmount = 0;
+			}
+			$scope.workData.workNatureId = $scope.workData.workNatureId + "";
+			$scope.workData.schemeTypeId = $scope.workData.schemeTypeId + "";
+			$scope.workData.workTypeId = $scope.workData.workTypeId + "";
+			$scope.workData.accountHeadId = $scope.workData.accountHeadId + "";
+			$scope.loadWorkSubTypeByWorkTypeId($scope.workData.workTypeId);
+			if ($scope.workData.workSubTypeId)
+				$scope.workData.workSubTypeId = $scope.workData.workSubTypeId + "";
+			$scope.loadPhysicalStageByWorkTypeId($scope.workData.workTypeId);
+
+			if ($scope.workData.physicalStageId == null) {
+				$scope.workData.physicalStageId = "";
+			} else {
+				$scope.workData.physicalStageId = $scope.workData.physicalStageId + "";
+			}
+
+			$scope.workData.lineDepartmentId = $scope.workData.lineDepartmentId + "";
+			$scope.workData.agencyTypeId = $scope.workData.agencyTypeId + "";
+			if ($scope.workData.contractorId)
+				$scope.workData.contractorId = $scope.workData.contractorId + "";
+			$scope.loadContractors($scope.workData.contractorName);
+
+			$scope.workData.workStatusId = $scope.workData.workStatusId + "";
+
+			$scope.workData.districtId = $scope.workData.districtId + "";
+
+			$scope.loadBlocksByDistrictNew($scope.workData.districtId);
+			$scope.workData.blockId = $scope.workData.blockId + "";
+
+			$scope.loadGramPanchayatByBlockCode($scope.workData.blockId);
+			$scope.workData.gramPanchayatId = $scope.workData.gramPanchayatId + "";
+
+			$scope.loadVillageByGramPanchayatCode($scope.workData.gramPanchayatId);
+			if (null != $scope.workData.villageId) {
+				$scope.workData.villageId = $scope.workData.villageId + "";
+			}
+
+			$scope.workData.workStatusId = $scope.workData.workStatusId + "";
+
+
+			$scope.workData.executiveEngineerOfficeId = $scope.workData.executiveEngineerOfficeId + "";
+			$scope.loadAssistantEngineerByOfficeId($scope.workData.executiveEngineerOfficeId);
+			if ($scope.workData.assistantEngineerId == null) {
+				$scope.workData.assistantEngineerId = "";
+			} else {
+				$scope.workData.assistantEngineerId = $scope.workData.assistantEngineerId + "";
+			}
+
+
+			$scope.loadSubEngineerByOfficeId($scope.workData.executiveEngineerOfficeId)
+			if ($scope.workData.subEngineerId == null) {
+				$scope.workData.subEngineerId = "";
+			} else {
+				$scope.workData.subEngineerId = $scope.workData.subEngineerId + "";
+			}
+
+			$scope.workData.technicalSanctionTypeId = $scope.workData.technicalSanctionTypeId + "";
+			if ($scope.workData.tsIssuingAuthorityId)
+				$scope.workData.tsIssuingAuthorityId = $scope.workData.tsIssuingAuthorityId + "";
+			$scope.workData.administrationSanctionTypeId = $scope.workData.administrationSanctionTypeId + "";
+
+			if ($scope.workData.issuingAuthorityId)
+				$scope.workData.issuingAuthorityId = $scope.workData.issuingAuthorityId + "";
+
+			if ($scope.workData.probableAmountOfWork == null) {
+				$scope.workData.probableAmountOfWork = "";
+			}
+			else {
+				$scope.workData.probableAmountOfWork = $scope.workData.probableAmountOfWork + "";
+			}
+
+			if ($scope.workData.isEstimationRevised != null) {
+				$scope.workData.isEstimationRevised = $scope.workData.isEstimationRevised + "";
+
+			}
+
+			$loading.finish('sample-1');
+		});
+	};
+
+	$scope.loadWorkDetailHistoryLegacy = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchWorkDetailsHistoryLegacy/' + $routeParams.workLoggingId);
+
+		response.success(function (data, status, headers, config) {
+			$scope.workData = data;
+			$scope.workData.workNatureId = $scope.workData.workNatureId + "";
+			$scope.workData.schemeTypeId = $scope.workData.schemeTypeId + "";
+			$scope.workData.workTypeId = $scope.workData.workTypeId + "";
+			$scope.workData.accountHeadId = $scope.workData.accountHeadId + "";
+			$scope.loadWorkSubTypeByWorkTypeId($scope.workData.workTypeId);
+			if ($scope.workData.workSubTypeId)
+				$scope.workData.workSubTypeId = $scope.workData.workSubTypeId + "";
+			$scope.loadPhysicalStageByWorkTypeId($scope.workData.workTypeId);
+
+			if ($scope.workData.physicalStageId == null) {
+				$scope.workData.physicalStageId = "";
+			} else {
+				$scope.workData.physicalStageId = $scope.workData.physicalStageId + "";
+			}
+
+			$scope.workData.lineDepartmentId = $scope.workData.lineDepartmentId + "";
+			$scope.workData.agencyTypeId = $scope.workData.agencyTypeId + "";
+			if ($scope.workData.contractorId)
+				$scope.workData.contractorId = $scope.workData.contractorId + "";
+			$scope.loadContractors($scope.workData.contractorName);
+
+			$scope.workData.workStatusId = $scope.workData.workStatusId + "";
+
+			$scope.workData.districtId = $scope.workData.districtId + "";
+			$scope.loadBlocksByDistrictNew($scope.workData.districtId);
+			$scope.workData.blockId = $scope.workData.blockId + "";
+			$scope.loadGramPanchayatByBlockCode($scope.workData.blockId);
+			$scope.workData.gramPanchayatId = $scope.workData.gramPanchayatId + "";
+			$scope.loadVillageByGramPanchayatCode($scope.workData.gramPanchayatId);
+			if (null != $scope.workData.villageId) {
+				$scope.workData.villageId = $scope.workData.villageId + "";
+			}
+
+			$scope.workData.workStatusId = $scope.workData.workStatusId + "";
+
+
+			$scope.workData.executiveEngineerOfficeId = $scope.workData.executiveEngineerOfficeId + "";
+			$scope.loadAssistantEngineerByOfficeId($scope.workData.executiveEngineerOfficeId);
+			if ($scope.workData.assistantEngineerId == null) {
+				$scope.workData.assistantEngineerId = "";
+			} else {
+				$scope.workData.assistantEngineerId = $scope.workData.assistantEngineerId + "";
+			}
+
+
+			$scope.loadSubEngineerByOfficeId($scope.workData.executiveEngineerOfficeId)
+			if ($scope.workData.subEngineerId == null) {
+				$scope.workData.subEngineerId = "";
+			} else {
+				$scope.workData.subEngineerId = $scope.workData.subEngineerId + "";
+			}
+
+			$scope.workData.technicalSanctionTypeId = $scope.workData.technicalSanctionTypeId + "";
+			if ($scope.workData.tsIssuingAuthorityId)
+				$scope.workData.tsIssuingAuthorityId = $scope.workData.tsIssuingAuthorityId + "";
+			$scope.workData.administrationSanctionTypeId = $scope.workData.administrationSanctionTypeId + "";
+
+			if ($scope.workData.issuingAuthorityId)
+				$scope.workData.issuingAuthorityId = $scope.workData.issuingAuthorityId + "";
+
+			if ($scope.workData.probableAmountOfWork == null) {
+				$scope.workData.probableAmountOfWork = "";
+			}
+			else {
+				$scope.workData.probableAmountOfWork = $scope.workData.probableAmountOfWork + "";
+			}
+
+			$loading.finish('sample-1');
+		});
+	};
+
+
+	$scope.editWorkData = function (isValid, asPdfFile, tsPdfFile, acPdfFile, dcPdfFile, ecPdfFile) {
+=======
 		}else{
 			return false;
 		}
@@ -1290,6 +2414,7 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 	
 	
 	$scope.editWorkData = function(isValid, asPdfFile, tsPdfFile, acPdfFile, dcPdfFile, ecPdfFile) {
+>>>>>>> pankaj/main
 
 		//$scope.noFileError = (asPdfFile)?false:true;
 		/*$scope.fileExtentionErrorAs = (asPdfFile)?false:true;
@@ -1297,6 +2422,79 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 		$scope.fileExtentionErrorAc = (acPdfFile)?false:true;
 		$scope.fileExtentionErrorDc = (dcPdfFile)?false:true;
 		$scope.fileExtentionErrorEc = (ecPdfFile)?false:true;*/
+<<<<<<< HEAD
+
+
+		if (tsPdfFile) {
+			if (tsPdfFile.size > 5000000)
+				return false;
+		}
+
+
+		if (asPdfFile) {
+			if (asPdfFile.size > 5000000)
+				return false;
+		}
+
+		if (dcPdfFile) {
+			if (dcPdfFile.size > 5000000)
+				return false;
+		}
+
+		if (acPdfFile) {
+			if (acPdfFile.size > 5000000)
+				return false;
+		}
+
+		if (ecPdfFile) {
+			if (ecPdfFile.size > 5000000)
+				return false;
+		}
+
+		if (!isValid)
+			return false;
+		$scope.compareRevisedTSAmountWithTSAmount($scope.workData.estimatedCostString, $scope.workData.revisedTsAmt);
+		$scope.compareRevisedASAmountWithASAmount($scope.workData.totalCostString, $scope.workData.revisedAsAmt);
+
+		if (confirm("Are you sure you want to save the data?")) {
+			$loading.start('sample-1');
+
+			var fd = new FormData();
+
+
+			if ($scope.saveAsDraft == true) {
+				/*$scope.workData.status = 'SaveAsDraft';*/
+				$scope.workData.workRequestStatusId = 1;
+			}
+			else if ($scope.finalSubmit == true) {
+				/*$scope.workData.status = 'Active';*/
+				$scope.workData.workRequestStatusId = 2;
+			}
+
+			/*fd.append('status', $scope.workData.status);*/
+			fd.append('workRequestStatusId', $scope.workData.workRequestStatusId);
+
+			if (acPdfFile) {
+				fd.append('agreementCopyFile', acPdfFile);
+			}
+
+			if (asPdfFile) {
+				fd.append('administrationSanctionFile', asPdfFile);
+			}
+
+			if (tsPdfFile) {
+				fd.append('technicalSanctionFile', tsPdfFile);
+			}
+
+			if (dcPdfFile) {
+				fd.append('latestDrawingCopyFile', dcPdfFile);
+			}
+
+			if (ecPdfFile) {
+				fd.append('estimateFile', ecPdfFile);
+			}
+
+=======
 		
 		
 		if(tsPdfFile){
@@ -1368,21 +2566,104 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 			fd.append('estimateFile', ecPdfFile);
 			}
 			
+>>>>>>> pankaj/main
 
 			if ($scope.workData.workId) {
 				fd.append('workId', $scope.workData.workId);
 			}
+<<<<<<< HEAD
+
+			if ($scope.workData.workName) {
+				fd.append('workName', $scope.workData.workName);
+			}
+
+=======
 			
 			if ($scope.workData.workName) {
 				fd.append('workName', $scope.workData.workName);
 			}
 			
+>>>>>>> pankaj/main
 			if ($scope.workData.distance) {
 				fd.append('distance', $scope.workData.distance);
 			}
 			if ($scope.workData.completeddistance) {
 				fd.append('completeddistance', $scope.workData.completeddistance);
 			}
+<<<<<<< HEAD
+
+			if ($scope.workData.workTypeId) {
+				fd.append('workTypeId', $scope.workData.workTypeId);
+			}
+
+			if ($scope.workData.workSubTypeId) {
+				fd.append('workSubTypeId', $scope.workData.workSubTypeId);
+			}
+
+			if ($scope.workData.lineDepartmentId) {
+				fd.append('lineDepartmentId', $scope.workData.lineDepartmentId);
+			}
+
+			if ($scope.workData.accountHeadId) {
+				fd.append('accountHeadId', $scope.workData.accountHeadId);
+			}
+
+			if ($scope.workData.executiveEngineerOfficeName) {
+				fd.append('executiveEngineerOfficeName', $scope.workData.executiveEngineerOfficeName);
+			}
+
+
+			if ($scope.workData.agencyTypeId) {
+				fd.append('agencyTypeId', $scope.workData.agencyTypeId);
+			}
+
+			if ($scope.workData.contractorId) {
+				fd.append('contractorId', $scope.workData.contractorId);
+			}
+
+			/*if ($scope.workData.agencyName) {
+				fd.append('agencyName', $scope.workData.agencyName);
+			}*/
+
+			if ($scope.workData.totalExpenditureTill31March2018String) {
+				fd.append('totalExpenditureTill31March2018String', $scope.workData.totalExpenditureTill31March2018String);
+			}
+
+			if ($scope.workData.totalExpenditureOnContingencyTill31March2018) {
+				fd.append('totalExpenditureOnContingencyTill31March2018', $scope.workData.totalExpenditureOnContingencyTill31March2018);
+			}
+
+
+
+			if ($scope.workData.workStatusId) {
+				fd.append('workStatusId', $scope.workData.workStatusId);
+			}
+
+			if ($scope.workData.physicalStageId) {
+				fd.append('physicalStageId', $scope.workData.physicalStageId);
+			}
+
+			if ($scope.workData.tentativeCompletionDateString) {
+				fd.append('tentativeCompletionDateString', $scope.workData.tentativeCompletionDateString);
+			}
+
+			if ($scope.workData.totalAmountRecievedTill31March2018String) {
+				fd.append('totalAmountRecievedTill31March2018String', $scope.workData.totalAmountRecievedTill31March2018String);
+			}
+
+			if ($scope.workData.agreementDateString) {
+				fd.append('agreementDateString', $scope.workData.agreementDateString);
+			}
+
+			if ($scope.workData.agreementNumber) {
+				fd.append('agreementNumber', $scope.workData.agreementNumber);
+			}
+
+			if ($scope.workData.tenderedRateSign) {
+				fd.append('tenderedRateSign', $scope.workData.tenderedRateSign);
+			}
+
+=======
 			
 			if ($scope.workData.workTypeId) {
 				fd.append('workTypeId', $scope.workData.workTypeId);
@@ -1455,6 +2736,7 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 				fd.append('tenderedRateSign', $scope.workData.tenderedRateSign);
 			}
 			
+>>>>>>> pankaj/main
 			if ($scope.workData.pacAmount) {
 				fd.append('pacAmount', $scope.workData.pacAmount);
 			}
@@ -1462,6 +2744,93 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 			if ($scope.workData.tenderCost) {
 				fd.append('tenderCost', $scope.workData.tenderCost);
 			}
+<<<<<<< HEAD
+
+
+			if ($scope.workData.tenderedRatePer) {
+				fd.append('tenderedRatePer', $scope.workData.tenderedRatePer);
+			}
+
+			if ($scope.workData.districtId) {
+				fd.append('districtId', $scope.workData.districtId);
+			}
+
+			if ($scope.workData.blockId) {
+				fd.append('blockId', $scope.workData.blockId);
+			}
+
+			if ($scope.workData.gramPanchayatId) {
+				fd.append('gramPanchayatId', $scope.workData.gramPanchayatId);
+			}
+
+			if ($scope.workData.villageId) {
+				fd.append('villageId', $scope.workData.villageId);
+			}
+
+			if ($scope.workData.locationAddress) {
+				fd.append('locationAddress', $scope.workData.locationAddress);
+			}
+
+			if ($scope.workData.workLocationLatitude) {
+				fd.append('workLocationLatitude', $scope.workData.workLocationLatitude);
+			}
+
+			if ($scope.workData.workLocationLongitude) {
+				fd.append('workLocationLongitude', $scope.workData.workLocationLongitude);
+			}
+
+			if ($scope.workData.locationGeometery) {
+				fd.append('locationGeometery', $scope.workData.locationGeometery);
+			}
+
+			if ($scope.workData.executiveEngineerOfficeId) {
+				fd.append('executiveEngineerOfficeId', $scope.workData.executiveEngineerOfficeId);
+			}
+
+			if ($scope.workData.assistantEngineerId) {
+				fd.append('assistantEngineerId', $scope.workData.assistantEngineerId);
+			}
+
+			if ($scope.workData.subEngineerId) {
+				fd.append('subEngineerId', $scope.workData.subEngineerId);
+			}
+
+			if ($scope.workData.technicalSanctionTypeId) {
+
+				if ($scope.workData.technicalSanctionTypeId != "null") {
+					fd.append('technicalSanctionTypeId', $scope.workData.technicalSanctionTypeId);
+				}
+			}
+
+			if ($scope.workData.technicalSanctionNo) {
+				fd.append('technicalSanctionNo', $scope.workData.technicalSanctionNo);
+			}
+
+			if ($scope.workData.technicalSanctionDate) {
+				fd.append('technicalSanctionDate', $scope.workData.technicalSanctionDate);
+			}
+
+			if ($scope.workData.estimatedCostString) {
+				fd.append('estimatedCostString', $scope.workData.estimatedCostString);
+			}
+
+			if ($scope.workData.tsIssuingAuthorityId) {
+				fd.append('tsIssuingAuthorityId', $scope.workData.tsIssuingAuthorityId);
+			}
+
+			if ($scope.workData.tsAuthorityName) {
+				fd.append('tsAuthorityName', $scope.workData.tsAuthorityName);
+			}
+
+			if ($scope.workData.administrationSanctionTypeId) {
+				fd.append('administrationSanctionTypeId', $scope.workData.administrationSanctionTypeId);
+			}
+
+			if ($scope.workData.administrationSanctionNo) {
+				fd.append('administrationSanctionNo', $scope.workData.administrationSanctionNo);
+			}
+
+=======
 			
 			
 			if ($scope.workData.tenderedRatePer) {
@@ -1547,6 +2916,7 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 				fd.append('administrationSanctionNo', $scope.workData.administrationSanctionNo);
 			}
 			
+>>>>>>> pankaj/main
 			if ($scope.workData.administrationSanctionDate) {
 				fd.append('administrationSanctionDate', $scope.workData.administrationSanctionDate);
 			}
@@ -1554,6 +2924,45 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 			if ($scope.workData.totalCostString) {
 				fd.append('totalCostString', $scope.workData.totalCostString);
 			}
+<<<<<<< HEAD
+
+			if ($scope.workData.contingencyAmount) {
+				fd.append('contingencyAmount', $scope.workData.contingencyAmount);
+			}
+
+			if ($scope.workData.issuingAuthorityId) {
+				fd.append('issuingAuthorityId', $scope.workData.issuingAuthorityId);
+			}
+
+
+			if ($scope.workData.asAuthorityName) {
+				fd.append('asAuthorityName', $scope.workData.asAuthorityName);
+			}
+
+			if ($scope.workData.remarks) {
+				fd.append('remarks', $scope.workData.remarks);
+			}
+
+			if (null != $scope.workData.probableAmountOfWork) {
+				fd.append('probableAmountOfWork', $scope.workData.probableAmountOfWork);
+			}
+
+			if ($scope.specificFieldsEditFlag != null) {
+				fd.append('specificFieldsEditFlag', $scope.specificFieldsEditFlag);
+
+				if ($scope.workData.isEstimationRevised) {
+					fd.append('isEstimationRevised', $scope.workData.isEstimationRevised);
+				}
+
+				if ($scope.workData.competentAuthName) {
+					fd.append('competentAuthName', $scope.workData.competentAuthName);
+				}
+
+				if ($scope.workData.competentAuthDesig) {
+					fd.append('competentAuthDesig', $scope.workData.competentAuthDesig);
+				}
+
+=======
 			
 			if ($scope.workData.contingencyAmount) {
 				fd.append('contingencyAmount', $scope.workData.contingencyAmount);
@@ -1591,13 +3000,18 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 					fd.append('competentAuthDesig', $scope.workData.competentAuthDesig);
 				}
 				
+>>>>>>> pankaj/main
 				if ($scope.workData.revisedLetterNo) {
 					fd.append('revisedLetterNo', $scope.workData.revisedLetterNo);
 				}
 				if ($scope.workData.letterNoDate) {
 					fd.append('letterNoDate', $scope.workData.letterNoDate);
 				}
+<<<<<<< HEAD
+
+=======
 				
+>>>>>>> pankaj/main
 				if ($scope.workData.revisedAsAmt) {
 					fd.append('revisedAsAmt', $scope.workData.revisedAsAmt);
 				}
@@ -1605,6 +3019,32 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 					fd.append('revisedTsAmt', $scope.workData.revisedTsAmt);
 				}
 			}
+<<<<<<< HEAD
+
+			$loading.start('sample-1');
+
+
+			var responsePromise = $http.post('editWork', fd, {
+				transformRequest: angular.identity,
+				headers: {
+					'Content-Type': undefined
+				}
+			});
+
+			responsePromise.success(function (data, status, headers, config) {
+				$rootScope.responseObject = data;
+				if ($rootScope.responseObject.successMessage != null) {
+					$timeout(function () {
+						$rootScope.responseObject.successMessage = null;
+					}, 5000);
+					//					$window.location.href = '#/editLegacyDataRoute/'+$scope.workData.workId;
+					$window.location.href = '#manageLegacyDataRoute';
+				}
+				$loading.finish('sample-1');
+			});
+
+
+=======
 			
 			$loading.start('sample-1');
 			
@@ -1629,6 +3069,7 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 			});
 			
 		
+>>>>>>> pankaj/main
 			/*var responsePromise = $http.post('addWork', $scope.workData);
 			responsePromise.success(function(data, status, headers, config) {
 
@@ -1657,6 +3098,45 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 			});*/
 		}
 	};
+<<<<<<< HEAD
+
+
+
+	/*	$scope.editWorkData = function(isValid) {
+	
+			if (!isValid) 
+				return false;
+	
+			if (confirm("Are you sure you want to save the data?")) {
+				$scope.workData.workId = $routeParams.id;
+				$loading.start('sample-1');
+				var responsePromise = $http.post('editWork', $scope.workData);
+		
+				responsePromise.success(function(data, status, headers, config) {
+		
+					$rootScope.responseObject = data;
+		
+					if($rootScope.responseObject.successMessage != null) {
+						$timeout(function() {
+							$rootScope.responseObject.successMessage = null;
+						}, 5000);
+						$window.location.href = '#manageLegacyDataRoute';
+					}
+					if($rootScope.responseObject.errorMessage != null) {
+						$timeout(function() {
+							$rootScope.responseObject.errorMessage = null;
+						}, 5000);
+					}
+					$loading.finish('sample-1');
+				});
+			}
+		};*/
+
+	$scope.loadWorkStatusType = function () {
+		$loading.start('sample-1');
+		var response = $http.get('fetchWorkStatusType');
+		response.success(function (data, status, headers, config) {
+=======
 	
 	
 	
@@ -1694,19 +3174,73 @@ $scope.loadWorkDetailHistoryLegacy = function() {
 		$loading.start('sample-1');
 		var response = $http.get('fetchWorkStatusType');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.workStatusTypes = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadPhysicalStageByWorkTypeId = function (workTypeId) {
+		$loading.start('sample-1');
+		var response = $http.get('fetchPhysicalStageByWorkTypeId/' + workTypeId);
+		response.success(function (data, status, headers, config) {
+=======
 	
 	$scope.loadPhysicalStageByWorkTypeId = function(workTypeId) {
 		$loading.start('sample-1');
 		var response = $http.get('fetchPhysicalStageByWorkTypeId/'+workTypeId);
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.physicalStageTypes = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.loadContractors = function (name) {
+		if (null != name && name.length > 3) {
+			$loading.start('sample-1');
+			var response = $http.get('fetchContractors/' + name);
+			response.success(function (data, status, headers, config) {
+				$scope.contractors = data;
+				$loading.finish('sample-1');
+			});
+		} else {
+			$scope.contractors = null;
+		}
+	};
+
+	$scope.onVillageChange = function () {
+
+
+		var village = $scope.villages.find(x => x.villageId == $scope.workData.villageBean.villageId);
+		if (village.latitudeString !== "null" && village.longitudeString !== "null") {
+			$('#mapLatitude').val(village.latitudeString);
+			$('#mapLongitude').val(village.longitudeString);
+
+			$('#mapUpdateButton').click();
+
+			$('#google-map-popup').modal('show');
+		}
+	};
+
+	$scope.onVillageChange2 = function () {
+
+
+
+		$('#mapLatitude').val(26.723669);
+		$('#mapLongitude').val(78.104375);
+
+		$('#mapUpdateButton').click();
+
+		$('#google-map-popup').modal('show');
+
+	};
+
+
+	$scope.loadHistoryWorkLegacy = function () {
+=======
 	
 	$scope.loadContractors = function(name) {
 		if(null!= name && name.length>3){
@@ -1751,10 +3285,31 @@ $scope.onVillageChange2 = function() {
 	
 	
 	$scope.loadHistoryWorkLegacy = function() {
+>>>>>>> pankaj/main
 
 		$loading.start('sample-1');
 		fetchHistoryWorkLegacy($routeParams.id);
 	};
+<<<<<<< HEAD
+
+	$scope.onVillageChangeDuringEdit = function () {
+
+
+		var village = $scope.villages.find(x => x.villageId == $scope.workData.villageId);
+		if (village.latitudeString !== "null" && village.longitudeString !== "null") {
+			$('#mapLatitude').val(village.latitudeString);
+			$('#mapLongitude').val(village.longitudeString);
+
+			$('#mapUpdateButton').click();
+
+			$('#google-map-popup').modal('show');
+		}
+	};
+
+
+	$("#google-map-popup").on("hidden.bs.modal", function () {
+		/*		$loading.start('sample-1');*/
+=======
 	
 $scope.onVillageChangeDuringEdit = function() {
 		
@@ -1774,6 +3329,7 @@ $scope.onVillageChangeDuringEdit = function() {
 	
 	$("#google-map-popup").on("hidden.bs.modal", function () {
 /*		$loading.start('sample-1');*/
+>>>>>>> pankaj/main
 		/*$scope.workData.workLocationLatitude = $('#mapLatitude').val();
 		$scope.workData.workLocationLongitude = $('#mapLongitude').val();*/
 		/*var a = $('#mapLatitude').val();
@@ -1785,6 +3341,59 @@ $scope.onVillageChangeDuringEdit = function() {
 		$('#workLocationLongitudeId').val(b);*/
 		/*$scope.workData.workLocationLatitude = $('#mapLatitude').val();
 		$scope.workData.workLocationLongitude = $('#mapLongitude').val();*/
+<<<<<<< HEAD
+
+
+		$timeout(function () {
+
+			$timeout(function () {
+				$loading.finish('sample-1');
+			}, 1000)
+
+			$loading.start('sample-1');
+		}, 0);
+
+		$scope.workData.workLocationLatitude = $('#mapLatitude').val();
+		$scope.workData.workLocationLongitude = $('#mapLongitude').val();
+
+		/*$loading.finish('sample-1');*/
+
+	});
+
+
+	$scope.downloadDocument = function (documentId) {
+		$window.open('downloadDocument/' + documentId);
+	};
+
+	$scope.calculateTenderCost = function (pacAmount, percentage, sign, asCost) {
+
+		if (pacAmount != null && percentage != null && sign != null && asCost != null) {
+			var tenderCost = null;
+			if (sign == "+")
+				tenderCost = parseFloat(pacAmount) + (parseFloat(pacAmount) * (parseFloat(percentage) / 100));
+			else
+				tenderCost = parseFloat(pacAmount) - (parseFloat(pacAmount) * (parseFloat(percentage) / 100));
+
+			if (tenderCost > asCost) {
+				alert("Tender Cost Cannot be More Than Administration Cost");
+				$scope.workData.pacAmount = null;
+				$scope.workData.tenderCost = null;
+			}
+			else {
+				$scope.workData.tenderCost = tenderCost.toFixed(0);
+			}
+		} else {
+			$scope.workData.tenderCost = null;
+		}
+
+		/*$('#tenderCostId').val(tenderCost);*/
+	};
+
+	$scope.loadTSIssuingAuthority = function () {
+		$loading.start('sample-1');
+		var response = $http.get('fetchTSIssuingAuthorityFromDesignationTable');
+		response.success(function (data, status, headers, config) {
+=======
 		
 		
 			$timeout(function() {
@@ -1837,10 +3446,1052 @@ $scope.calculateTenderCost = function(pacAmount, percentage, sign, asCost) {
 		$loading.start('sample-1');
 		var response = $http.get('fetchTSIssuingAuthorityFromDesignationTable');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.tsIssuingAuthorities = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+	$scope.checkPercentageValue = function (percentage) {
+		if (parseFloat(percentage) < 0)
+			$scope.workData.tenderedRatePer = 0;
+		if (parseFloat(percentage) > 100)
+			$scope.workData.tenderedRatePer = 100;
+	};
+
+	$scope.compareDates = function (asDate, tsDate) {
+
+		var asDateArr = asDate.split("/");
+		var tsDateArr = tsDate.split("/");
+
+
+		if (new Date(asDateArr[2], asDateArr[1] - 1, asDateArr[0]) < new Date(tsDateArr[2], tsDateArr[1] - 1, tsDateArr[0])) {
+			alert("Administration Sanction Date cannot be less than Technical Sanction Date");
+			$scope.workData.administrationSanctionBean.administrationSanctionDate = null;
+		}
+
+		/*workData.technicalSanctionBean.technicalSanctionDate*/
+
+	};
+
+	$scope.compareDatesDuringEdit = function (asDate, tsDate) {
+
+		var asDateArr = asDate.split("/");
+		var tsDateArr = tsDate.split("/");
+
+
+		if (new Date(asDateArr[2], asDateArr[1] - 1, asDateArr[0]) < new Date(tsDateArr[2], tsDateArr[1] - 1, tsDateArr[0])) {
+			alert("Administration Sanction Date cannot be less than Technical Sanction Date");
+			$scope.workData.administrationSanctionDate = null;
+		}
+
+		/*workData.technicalSanctionBean.technicalSanctionDate*/
+
+	};
+
+	$scope.addWorkRequisition = function (isValid, ldPdfFile, kmlfile) {
+
+		//$scope.noFileError = (asPdfFile)?false:true;
+		/*$scope.fileExtentionErrorAs = (asPdfFile)?false:true;
+		$scope.fileExtentionErrorTs = (tsPdfFile)?false:true;
+		$scope.fileExtentionErrorAc = (acPdfFile)?false:true;
+		$scope.fileExtentionErrorDc = (dcPdfFile)?false:true;
+		$scope.fileExtentionErrorEc = (ecPdfFile)?false:true;*/
+
+
+		$scope.noFileError = (ldPdfFile) ? false : true;
+		var maxSizeUpload = 5000000;//in bytes (here 5 MB)
+		$scope.fileSizeErrorLd = (ldPdfFile.size > maxSizeUpload) ? true : false;
+
+
+
+		if ($scope.noFileError)
+			return false;
+		if ($scope.fileSizeErrorLd)
+			return false;
+		if (!isValid)
+			return false;
+
+		if (confirm("Are you sure you want to save the data?")) {
+			$loading.start('sample-1');
+
+			var fd = new FormData();
+
+			if ($scope.saveAsDraft == true) {
+				$scope.workData.workRequestStatusId = 1;
+			}
+			else if ($scope.finalSubmit == true) {
+				$scope.workData.workRequestStatusId = 2;
+			}
+
+			if ($scope.workData.isKmlFile == true) {
+				$scope.workData.isKmlFile = true;
+			} else {
+				$scope.workData.isKmlFile = false;
+			}
+			fd.append('isKmlFile', $scope.workData.isKmlFile);
+
+			fd.append('workRequestStatusId', $scope.workData.workRequestStatusId);
+
+			if (ldPdfFile) {
+				fd.append('lineDepartmentFile', ldPdfFile);
+			}
+
+			/*if ($scope.caseData.caseId) {
+				fd.append('caseId', $scope.caseData.caseId);
+			}*/
+
+			if ($scope.workData.workName) {
+				fd.append('workName', $scope.workData.workName);
+			}
+
+			if ($scope.workData.distance) {
+				fd.append('distance', $scope.workData.distance);
+			}
+
+			if ($scope.workData.workNatureId) {
+				fd.append('workNatureId', $scope.workData.workNatureId);
+			}
+
+			if ($scope.workData.schemeTypeId) {
+				fd.append('schemeTypeId', $scope.workData.schemeTypeId);
+			}
+			if ($scope.workData.workTypeId) {
+				fd.append('workTypeId', $scope.workData.workTypeId);
+			}
+
+			if ($scope.workData.workSubTypeId) {
+				fd.append('workSubTypeId', $scope.workData.workSubTypeId);
+			}
+
+			if ($scope.workData.lineDepartmentId) {
+				fd.append('lineDepartmentId', $scope.workData.lineDepartmentId);
+			}
+
+
+			if ($scope.workData.letterNo) {
+				fd.append('letterNo', $scope.workData.letterNo);
+			}
+
+			if ($scope.workData.letterDateString) {
+				fd.append('letterDateString', $scope.workData.letterDateString);
+			}
+
+			if ($scope.workData.accountHeadId) {
+				fd.append('accountHeadId', $scope.workData.accountHeadId);
+			}
+
+			/*if ($scope.workData.accountHead) {
+				fd.append('accountHead', $scope.workData.accountHead);
+			}*/
+
+			if ($scope.workData.agencyTypeId) {
+				fd.append('agencyTypeId', $scope.workData.agencyTypeId);
+			}
+
+			/*if ($scope.workData.contractorId) {
+				fd.append('contractorId', $scope.workData.contractorId);
+			}*/
+
+
+			if ($scope.workData.userBean.districtBean.districtId) {
+				fd.append('districtId', $scope.workData.userBean.districtBean.districtId);
+			}
+
+			if ($scope.workData.block.blockId) {
+				fd.append('blockId', $scope.workData.block.blockId);
+			}
+
+			if ($scope.workData.gramPanchayatBean.gramPanchayatId) {
+				fd.append('gramPanchayatId', $scope.workData.gramPanchayatBean.gramPanchayatId);
+			}
+
+			if ($scope.workData.villageBean.villageId) {
+				fd.append('villageId', $scope.workData.villageBean.villageId);
+			}
+
+			if ($scope.workData.locationAddress) {
+				fd.append('locationAddress', $scope.workData.locationAddress);
+			}
+
+			if ($scope.workData.workLocationLatitude) {
+				fd.append('workLocationLatitude', $scope.workData.workLocationLatitude);
+			}
+
+			if ($scope.workData.workLocationLongitude) {
+				fd.append('workLocationLongitude', $scope.workData.workLocationLongitude);
+			}
+
+			if ($scope.workData.userBean.officeBean.officeName) {
+				fd.append('executiveEngineerOfficeName', $scope.workData.userBean.officeBean.officeName);
+			}
+
+			if ($scope.workData.userBean.officeBean.id) {
+				fd.append('officeId', $scope.workData.userBean.officeBean.id);
+			}
+
+			if ($scope.workData.userBean.officeBean.parentOffice.id) {
+				fd.append('parentOfficeId', $scope.workData.userBean.officeBean.parentOffice.id);
+			}
+
+			if ($scope.workData.userBean.officeBean.chiefEngineerOfficeId) {
+				fd.append('chiefOfficeId', $scope.workData.userBean.officeBean.chiefEngineerOfficeId);
+			}
+
+			if ($scope.workData.assistantEngineer) {
+				if ($scope.workData.assistantEngineer.id) {
+					fd.append('assistantEngineerId', $scope.workData.assistantEngineer.id);
+				}
+			}
+
+			if ($scope.workData.subEngineer) {
+				if ($scope.workData.subEngineer.id) {
+					fd.append('subEngineerId', $scope.workData.subEngineer.id);
+				}
+			}
+
+			if ($scope.workData.subDivisionOfficer) {
+				if ($scope.workData.subDivisionOfficer.id) {
+					fd.append('subDivisionOfficerId', $scope.workData.subDivisionOfficer.id);
+				}
+			}
+
+			if ($scope.workData.remarks) {
+
+				fd.append('remarks', $scope.workData.remarks);
+
+			}
+
+
+			//var file2 = $scope.wdtKmlFile;
+			//console.log(file); // actual File object
+
+			if ($scope.workData.kmlFileId) {
+				kmlfile = null;
+				fd.append("kmlFile", kmlfile);
+
+			}
+			else {
+				fd.append("kmlFile", kmlfile);
+				/*if (file.size > 1048576) { // 1MB
+					alert("File size should not exceed 1 MB.");
+					throw new Error("File too large.");
+				}*/
+			}
+
+			/*	if (!file && !$scope.workData.kmlFileId) {
+					alert("Please select a KML file.");
+					throw new Error("KML file missing.");
+				}
+*/
+
+			/* var extension = file.name.split('.').pop().toLowerCase();
+			 if (extension !== 'kml') {
+				 alert("Only .kml files are allowed.");
+				 throw new Error("Invalid file extension.");
+			 }*/
+
+			/*  var extension = (file.name && file.name.split('.').pop().toLowerCase()) || '';
+			  if (extension !== 'kml') {
+				  alert("Only .kml files are allowed.");
+				  throw new Error("Invalid file extension.");
+			  }*/
+
+
+			$loading.start('sample-1');
+
+			var responsePromise = $http.post('addRequisitionWork', fd, {
+				transformRequest: angular.identity,
+				headers: {
+					'Content-Type': undefined
+				}
+			});
+
+			responsePromise.success(function (data, status, headers, config) {
+				$rootScope.responseObject = data;
+				if ($rootScope.responseObject.successMessage != null) {
+					$timeout(function () {
+						$rootScope.responseObject.successMessage = null;
+					}, 5000);
+					$window.location.href = '#manageWorkRequisitionDataRoute';
+				}
+				$loading.finish('sample-1');
+			});
+		}
+	};
+
+
+	$scope.loadWorkRequisitionDetailInEe = function () {
+
+		$scope.workData.block = $scope.workData.block || {};
+		$scope.workData.block.blockId = $scope.workData.blockId + "";
+		$loading.start('sample-1');
+		var response = $http.get('fetchWorkDetails/' + $routeParams.id);
+		response.success(function (data, status, headers, config) {
+			$scope.workData = data;
+			$scope.workData.workNatureId = $scope.workData.workNatureId + "";
+			$scope.workData.schemeTypeId = $scope.workData.schemeTypeId + "";
+			$scope.workData.workTypeId = $scope.workData.workTypeId + "";
+			$scope.loadWorkSubTypeByWorkTypeId($scope.workData.workTypeId);
+			$scope.workData.workSubTypeId = $scope.workData.workSubTypeId + "";
+			$scope.workData.lineDepartmentId = $scope.workData.lineDepartmentId + "";
+			$scope.workData.agencyTypeId = $scope.workData.agencyTypeId + "";
+			if ($scope.workData.contractorId)
+				$scope.workData.contractorId = $scope.workData.contractorId + "";
+			$scope.loadContractors($scope.workData.contractorName);
+
+
+			$scope.workData.districtId = $scope.workData.districtId + "";
+			$scope.workData.accountHeadId = $scope.workData.accountHeadId + "";
+			$scope.loadBlocksByDistrictNew($scope.workData.districtId);
+
+
+			$scope.loadGramPanchayatByBlockCode($scope.workData.blockId);
+			if (!$scope.workData.block) {
+				$scope.workData.block = {};
+			}
+			$scope.workData.block.blockId = $scope.workData.blockId + "";
+
+
+			$scope.loadVillageByGramPanchayatCode($scope.workData.gramPanchayatId);
+			if (!$scope.workData.gp) {
+				$scope.workData.gp = {};
+			}
+			$scope.workData.gp.gramPanchayatId = $scope.workData.gramPanchayatId + "";
+
+			if (!$scope.workData.village) {
+				$scope.workData.village = {};
+			}
+			$scope.workData.village.villageId = $scope.workData.villageId + "";
+
+			if ($scope.workData.workId != "" && $scope.workData.workId != null && $scope.workData.workId != null) {
+				//$scope.loadVillagesByProject($scope.workData.projectId, $scope.workData.gramPanchayatId);
+				$scope.loadVillageByGPId($scope.workData.gramPanchayatId);
+			}
+			if ($scope.workData.gramPanchayatId != null || $scope.workData.gramPanchayatId == "") {
+				if ($scope.workData.villageId != null || $scope.workData.villageId != "") {
+					$scope.onchangeGp($scope.workData.gramPanchayatId);
+				}
+				$scope.workData.gramPanchayatId += "";
+
+			}
+
+			if ($scope.workData.villageId != null || $scope.workData.villageId != "") {
+				$scope.workData.villageId = $scope.workData.villageId + "";
+			}
+
+
+
+			if ($scope.workData.villageId != null || $scope.workData.villageId != "") {
+				$scope.onchangeVillage();
+			}
+
+			$scope.workData.executiveEngineerOfficeId = $scope.workData.executiveEngineerOfficeId + "";
+
+			if ($scope.workData.workLocationLatitude == null) {
+				$scope.workData.workLocationLatitude = 0;
+			}
+			if ($scope.workData.workLocationLongitude == null) {
+				$scope.workData.workLocationLongitude = 0;
+			}
+			//  Set isKmlFile to true
+			if ($scope.workData.kmlFileId != null) {
+				$scope.workData.isKmlFile = true;
+			} else {
+				$scope.workData.isKmlFile = false;
+			}
+
+
+			$scope.loadAssistantEngineerByOfficeId($scope.workData.executiveEngineerOfficeId);
+			if ($scope.workData.assistantEngineerId == null) {
+				$scope.workData.assistantEngineerId = "";
+			} else {
+				$scope.workData.assistantEngineerId = $scope.workData.assistantEngineerId + "";
+			}
+			$scope.loadSubdivisionalOfficersByOfficeId($scope.workData.executiveEngineerOfficeId);
+			$scope.workData.subDivisionOfficer.id = $scope.workData.subDivisionOfficerId + "";
+
+
+
+			$scope.loadSubEngineerByOfficeId($scope.workData.executiveEngineerOfficeId)
+			if ($scope.workData.subEngineerId == null) {
+				$scope.workData.subEngineerId = "";
+			} else {
+				$scope.workData.subEngineerId = $scope.workData.subEngineerId + "";
+			}
+
+
+			/*$scope.workData.userBean.officeBean.officeName = $scope.workData.userBean.officeBean.officeName + "";
+			$scope.workData.userBean.districtBean.districtName = $scope.workData.userBean.districtBean.districtName + "";
+			$scope.workData.userBean.districtBean.districtId = $scope.workData.userBean.districtBean.districtId;
+			$scope.loadAssistantEngineerByOfficeId($scope.workData.userBean.officeBean.id);
+			$scope.loadSubdivisionalOfficersByOfficeId($scope.workData.userBean.officeBean.id);
+			$scope.workData.subDivisionOfficer.id = $scope.workData.subDivisionOfficerId + "";	
+			$scope.loadSubEngineerByOfficeId($scope.workData.userBean.officeBean.id);*/
+
+
+
+			/*$scope.loadPhysicalStageByWorkTypeId($scope.workData.workTypeId);
+			
+			if($scope.workData.physicalStageId == null)
+			{
+				$scope.workData.physicalStageId = "";
+			} else {
+				$scope.workData.physicalStageId = $scope.workData.physicalStageId + "";	
+			}
+			
+			
+			
+			if($scope.workData.contractorId)
+			$scope.workData.contractorId=$scope.workData.contractorId+"";
+			
+			$scope.workData.workStatusId = $scope.workData.workStatusId+"";
+		
+			
+			$scope.workData.workStatusId = $scope.workData.workStatusId+"";
+			
+			
+			$scope.workData.executiveEngineerOfficeId = $scope.workData.executiveEngineerOfficeId+"";
+			$scope.loadAssistantEngineerByOfficeId($scope.workData.executiveEngineerOfficeId);
+			if($scope.workData.assistantEngineerId == null)
+				{
+			$scope.workData.assistantEngineerId = "";
+				} else {
+					$scope.workData.assistantEngineerId = $scope.workData.assistantEngineerId + "";	
+				}
+			
+			$scope.loadSubdivisionalOfficersByOfficeId($scope.workData.executiveEngineerOfficeId);
+			if($scope.workData.subDivisionOfficerId == null)
+				{
+			$scope.workData.subDivisionOfficerId = "";
+				} else {
+					$scope.workData.subDivisionOfficer.id = $scope.workData.subDivisionOfficerId + "";	
+				}
+			
+			$scope.loadSubEngineerByOfficeId($scope.workData.executiveEngineerOfficeId)
+			if($scope.workData.subEngineerId == null)
+			{
+				$scope.workData.subEngineerId = "";
+			} else {
+				$scope.workData.subEngineerId = $scope.workData.subEngineerId + "";	
+			}
+			
+			$scope.workData.technicalSanctionTypeId = $scope.workData.technicalSanctionTypeId+"";
+			$scope.workData.administrationSanctionTypeId = $scope.workData.administrationSanctionTypeId+"";
+			
+			if($scope.workData.issuingAuthorityId)
+			$scope.workData.issuingAuthorityId = $scope.workData.issuingAuthorityId+"";*/
+			$loading.finish('sample-1');
+		});
+	};
+
+
+
+	$scope.editWorkRequisition = function (isValid, ldPdfFile, kmlfile) {
+
+		//$scope.noFileError = (asPdfFile)?false:true;
+		/*$scope.fileExtentionErrorAs = (asPdfFile)?false:true;
+		$scope.fileExtentionErrorTs = (tsPdfFile)?false:true;
+		$scope.fileExtentionErrorAc = (acPdfFile)?false:true;
+		$scope.fileExtentionErrorDc = (dcPdfFile)?false:true;
+		$scope.fileExtentionErrorEc = (ecPdfFile)?false:true;*/
+		$scope.noFileError = (ldPdfFile) ? false : true;
+		var maxSizeUpload = 5000000;//in bytes (here 5 MB)
+		if ($scope.noFileError == false) {
+			$scope.fileSizeErrorLd = (ldPdfFile.size > maxSizeUpload) ? true : false;
+		}
+
+		if ($scope.noFileError && $scope.workData.lineDepartmentFileId == 0)
+			return false;
+		if ($scope.fileSizeErrorLd)
+			return false;
+		if (!isValid)
+			return false;
+
+		if (confirm("Are you sure you want to save the data?")) {
+			$loading.start('sample-1');
+
+			var fd = new FormData();
+
+			if ($scope.saveAsDraft == true) {
+				$scope.workData.workRequestStatusId = 1;
+			}
+			else if ($scope.finalSubmit == true) {
+				$scope.workData.workRequestStatusId = 2;
+			}
+
+			if ($scope.workData.isKmlFile == true && $scope.workData.kmlFileId != null) {
+				$scope.workData.isKmlFile = true;
+			} else {
+				$scope.workData.isKmlFile = false;
+			}
+			fd.append('isKmlFile', $scope.workData.isKmlFile);
+
+
+			fd.append('workRequestStatusId', $scope.workData.workRequestStatusId);
+
+			if (ldPdfFile) {
+				fd.append('lineDepartmentFile', ldPdfFile);
+			}
+
+			/*if ($scope.caseData.caseId) {
+				fd.append('caseId', $scope.caseData.caseId);
+			}*/
+
+			if ($scope.workData.workName) {
+				fd.append('workName', $scope.workData.workName);
+			}
+
+			if ($scope.workData.distance) {
+				fd.append('distance', $scope.workData.distance);
+			}
+
+			if ($scope.workData.workId) {
+				fd.append('workId', $scope.workData.workId);
+			}
+
+			if ($scope.workData.workNatureId) {
+				fd.append('workNatureId', $scope.workData.workNatureId);
+			}
+
+			if ($scope.workData.schemeTypeId) {
+				fd.append('schemeTypeId', $scope.workData.schemeTypeId);
+			}
+
+			if ($scope.workData.workTypeId) {
+				fd.append('workTypeId', $scope.workData.workTypeId);
+			}
+
+			if ($scope.workData.workSubTypeId && $scope.workData.workSubTypeId != "null") {
+				fd.append('workSubTypeId', $scope.workData.workSubTypeId);
+			}
+
+			if ($scope.workData.lineDepartmentId) {
+				fd.append('lineDepartmentId', $scope.workData.lineDepartmentId);
+			}
+
+
+			if ($scope.workData.letterNo) {
+				fd.append('letterNo', $scope.workData.letterNo);
+			}
+
+			if ($scope.workData.letterDateString) {
+				fd.append('letterDateString', $scope.workData.letterDateString);
+			}
+
+			if ($scope.workData.accountHeadId) {
+				fd.append('accountHeadId', $scope.workData.accountHeadId);
+			}
+
+			if ($scope.workData.agencyTypeId) {
+				fd.append('agencyTypeId', $scope.workData.agencyTypeId);
+			}
+
+			/*if ($scope.workData.contractorId) {
+				fd.append('contractorId', $scope.workData.contractorId);
+			}*/
+
+			if ($scope.workData.executiveEngineerOfficeName) {
+				fd.append('executiveEngineerOfficeName', $scope.workData.executiveEngineerOfficeName);
+			}
+
+			if ($scope.workData.districtId) {
+				fd.append('districtId', $scope.workData.districtId);
+			}
+
+			if ($scope.workData.blockId) {
+				fd.append('blockId', $scope.workData.blockId);
+			}
+
+			if ($scope.workData.gramPanchayatId) {
+				fd.append('gramPanchayatId', $scope.workData.gramPanchayatId);
+			}
+
+			if ($scope.workData.villageId) {
+				fd.append('villageId', $scope.workData.villageId);
+			}
+
+			if ($scope.workData.locationAddress) {
+				fd.append('locationAddress', $scope.workData.locationAddress);
+			}
+
+			if ($scope.workData.workLocationLatitude) {
+				fd.append('workLocationLatitude', $scope.workData.workLocationLatitude);
+			}
+
+			if ($scope.workData.workLocationLongitude) {
+				fd.append('workLocationLongitude', $scope.workData.workLocationLongitude);
+			}
+
+			if ($scope.workData.executiveEngineerOfficeId) {
+				fd.append('officeId', $scope.workData.executiveEngineerOfficeId);
+			}
+
+			/*if ($scope.workData.userBean.officeBean.parentOffice.id) {
+				fd.append('parentOfficeId', $scope.workData.userBean.officeBean.parentOffice.id);
+			}
+			
+			if ($scope.workData.userBean.officeBean.chiefEngineerOfficeId) {
+				fd.append('chiefOfficeId', $scope.workData.userBean.officeBean.chiefEngineerOfficeId);
+			}*/
+
+			if ($scope.workData.assistantEngineerId) {
+
+				fd.append('assistantEngineerId', $scope.workData.assistantEngineerId);
+
+			}
+
+			if ($scope.workData.subEngineerId) {
+
+				fd.append('subEngineerId', $scope.workData.subEngineerId);
+
+			}
+
+			if ($scope.workData.remarks) {
+
+				fd.append('remarks', $scope.workData.remarks);
+
+			}
+
+			if ($scope.specificFieldsEditFlag != null) {
+				fd.append('specificFieldsEditFlag', $scope.specificFieldsEditFlag);
+			}
+
+
+			//var file2 = $scope.wdtKmlFile;
+			//console.log(file); // actual File object
+
+			if ($scope.workData.kmlFileId != null && kmlfile == null) {
+				fd.append("kmlFileId", $scope.workData.kmlFileId);
+
+			} else {
+				fd.append("kmlFile", kmlfile);
+				/*if (file.size > 1048576) { // 1MB
+					alert("File size should not exceed 1 MB.");
+					throw new Error("File too large.");
+				}*/
+			}
+
+			$loading.start('sample-1');
+
+			var responsePromise = $http.post('editRequisitionWork', fd, {
+				transformRequest: angular.identity,
+				headers: {
+					'Content-Type': undefined
+				}
+			});
+
+			responsePromise.success(function (data, status, headers, config) {
+				$rootScope.responseObject = data;
+				if ($rootScope.responseObject.successMessage != null) {
+					$timeout(function () {
+						$rootScope.responseObject.successMessage = null;
+					}, 5000);
+					$window.location.href = '#manageWorkRequisitionDataRoute';
+				}
+				$loading.finish('sample-1');
+			});
+		}
+	};
+
+	$scope.loadAccountHead = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchAccountHead');
+		response.success(function (data, status, headers, config) {
+			$scope.accountHeads = data;
+			$loading.finish('sample-1');
+		});
+	};
+
+	/*$scope.showHideTenderDetails = function(flag) {
+		
+		if(flag==2 || flag==3)
+			{
+			$scope.IsVisible = false;
+			}
+		if(flag==1){
+			$scope.IsVisible = true;
+		}
+	};*/
+
+	/*$scope.changeActionType =function(type){
+		$scope.submit=type;
+	}*/
+
+	$scope.addTechnicalSanction = function (workFormName, isValid, ldPdfFile) {
+
+
+		if (!isValid)
+			return false;
+
+		if (confirm("Are you sure you want to save the data?")) {
+
+			$loading.start('sample-1');
+
+
+			if ($scope.saveAsDraft == true) {
+
+				$scope.workRequestStatusId = 1;
+			}
+			else if ($scope.submit == true) {
+
+				$scope.workRequestStatusId = 4;
+			}
+
+			var fd = new FormData();
+
+			fd.append('technicalSanctionBean.workRequestStatusId', $scope.workData.workRequestStatusId);
+
+			if ($scope.workData.isCeOfficeName) {
+				fd.append('technicalSanctionBean.isCeOfficeName', $scope.workData.isCeOfficeName);
+			}
+			if ($scope.workData.isEeOfficeName) {
+				fd.append('technicalSanctionBean.isEeOfficeName', $scope.workData.isEeOfficeName);
+			}
+
+
+
+
+
+			if ($scope.workData.isSeOfficeName) {
+				fd.append('technicalSanctionBean.isSeOfficeName', $scope.workData.isSeOfficeName);
+			}
+
+			if ($scope.workData.isDistrictName) {
+				fd.append('technicalSanctionBean.isDistrictName', $scope.workData.isDistrictName);
+			}
+
+			if ($scope.workData.isGrampanchayatName) {
+				fd.append('technicalSanctionBean.isGrampanchayatName', $scope.workData.isGrampanchayatName);
+			}
+			if ($scope.workData.isLinedepartmentName) {
+				fd.append('technicalSanctionBean.isLinedepartmentName', $scope.workData.isLinedepartmentName);
+			}
+
+
+
+
+
+
+
+			if ($scope.workData.workId) {
+				fd.append('workId', $scope.workData.workId);
+			}
+
+			fd.append('workRequestStatusId', $scope.workRequestStatusId);
+
+			if (ldPdfFile) {
+				fd.append('technicalSanctionFile', ldPdfFile);
+			}
+
+			if ($scope.workData.technicalSanctionNo) {
+				fd.append('technicalSanctionNo', $scope.workData.technicalSanctionNo);
+			}
+
+			if ($scope.workData.tsDispatchNumber) {
+				fd.append('tsDispatchNumber', $scope.workData.tsDispatchNumber);
+			}
+
+
+			if ($scope.workData.technicalSanctionDate) {
+				fd.append('technicalSanctionDate', $scope.workData.technicalSanctionDate);
+			}
+
+			$loading.start('sample-1');
+
+			var responsePromise = $http.post('addTechnicalSanction', fd, {
+				transformRequest: angular.identity,
+				headers: {
+					'Content-Type': undefined
+				}
+			});
+
+			responsePromise.success(function (data, status, headers, config) {
+				$rootScope.responseObject = data;
+				if ($rootScope.responseObject.successMessage != null) {
+					$timeout(function () {
+						$rootScope.responseObject.successMessage = null;
+					}, 5000);
+					$window.location.href = '#manageTechnicalSanctionDataRoute';
+				}
+				$loading.finish('sample-1');
+			});
+
+		}
+	};
+
+
+	$scope.compareTotalExpenditureAmount = function (largeAmount, smallAmount) {
+
+		if (largeAmount != null && smallAmount != null) {
+			if (parseFloat(largeAmount) < parseFloat(smallAmount)) {
+				alert("Total Expenditure On Contingency Till 31 March 2018 cannot be greater than Total Expenditure Till 31 March 2018 (including contingency) ");
+				$scope.workData.totalExpenditureTill31March2018String = null;
+				$scope.workData.totalExpenditureOnContingencyTill31March2018 = null;
+			}
+		}
+
+		/*workData.technicalSanctionBean.technicalSanctionDate*/
+
+	};
+
+	$scope.compareBothLength = function (largeAmount, smallAmount) {
+
+		if (largeAmount != null && smallAmount != null) {
+			if (parseFloat(largeAmount) < parseFloat(smallAmount)) {
+				alert("Completed length  is always less than or equal to Sanctioned length ! ");
+				$scope.workData.distance = null;
+				$scope.workData.completeddistance = null;
+			}
+		}
+
+		/*workData.technicalSanctionBean.technicalSanctionDate*/
+
+	};
+
+	$scope.compareAdminAmount = function (largeAmount, smallAmount) {
+
+		if (largeAmount != null && smallAmount != null) {
+			if (parseFloat(largeAmount) < parseFloat(smallAmount)) {
+				alert("Contingency Amount  cannot be greater than Administrative Sanction Amount (including contingency) ");
+				$scope.workData.totalCostString = null;
+				$scope.workData.contingencyAmount = null;
+			}
+		}
+
+		/*workData.technicalSanctionBean.technicalSanctionDate*/
+
+	};
+
+
+
+	$scope.loadGramPanchayat = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchGramPanchayat');
+		response.success(function (data, status, headers, config) {
+			$scope.agencyTypes = data;
+			$loading.finish('sample-1');
+		});
+	};
+
+
+	$scope.loadWorkRequisitionDetailInSube = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchWorkDetails/' + $routeParams.id);
+		response.success(function (data, status, headers, config) {
+			$scope.workData = data;
+			$scope.workData.workNatureId = $scope.workData.workNatureId + "";
+			$scope.workData.workTypeId = $scope.workData.workTypeId + "";
+			$scope.loadWorkSubTypeByWorkTypeId($scope.workData.workTypeId);
+			$scope.workData.workSubTypeId = $scope.workData.workSubTypeId + "";
+			$scope.workData.lineDepartmentId = $scope.workData.lineDepartmentId + "";
+			if ($scope.workData.agencyTypeId) {
+				if ($scope.workData.agencyTypeId == 2) {
+					$scope.workData.agencyTypeId = $scope.workData.agencyTypeId + "";
+				}
+				else {
+					$scope.workData.agencyTypeId = null;
+				}
+			}
+			$scope.workData.districtId = $scope.workData.districtId + "";
+			$scope.workData.accountHeadId = $scope.workData.accountHeadId + "";
+			$scope.loadBlocksByDistrictNew($scope.workData.districtId);
+			$scope.workData.blockId = $scope.workData.blockId + "";
+			$scope.loadGramPanchayatByBlockCode($scope.workData.blockId);
+			$scope.workData.gramPanchayatId = $scope.workData.gramPanchayatId + "";
+			$scope.loadVillageByGramPanchayatCode($scope.workData.gramPanchayatId);
+			if ($scope.workData.villageId != null)
+				$scope.workData.villageId = $scope.workData.villageId + "";
+			$scope.workData.executiveEngineerOfficeId = $scope.workData.executiveEngineerOfficeId + "";
+
+			if ($scope.workData.workLocationLatitude == null) {
+				$scope.workData.workLocationLatitude = 0;
+			}
+			if ($scope.workData.workLocationLongitude == null) {
+				$scope.workData.workLocationLongitude = 0;
+			}
+
+
+			$scope.loadAssistantEngineerByOfficeId($scope.workData.executiveEngineerOfficeId);
+			if ($scope.workData.assistantEngineerId == null) {
+				$scope.workData.assistantEngineerId = "";
+			} else {
+				$scope.workData.assistantEngineerId = $scope.workData.assistantEngineerId + "";
+			}
+
+			$scope.loadSubdivisionalOfficersByOfficeId($scope.workData.executiveEngineerOfficeId);
+			if ($scope.workData.subDivisionOfficerId == null) {
+				$scope.workData.subDivisionOfficerId = "";
+			} else {
+				$scope.workData.subDivisionOfficer.id = $scope.workData.subDivisionOfficerId + "";
+			}
+			$scope.loadSubEngineerByOfficeId($scope.workData.executiveEngineerOfficeId)
+			if ($scope.workData.subEngineerId == null) {
+				$scope.workData.subEngineerId = "";
+			} else {
+				$scope.workData.subEngineerId = $scope.workData.subEngineerId + "";
+			}
+
+
+			/*$scope.workData.userBean.officeBean.officeName = $scope.workData.userBean.officeBean.officeName + "";
+			$scope.workData.userBean.districtBean.districtName = $scope.workData.userBean.districtBean.districtName + "";
+			$scope.workData.userBean.districtBean.districtId = $scope.workData.userBean.districtBean.districtId;
+			$scope.loadAssistantEngineerByOfficeId($scope.workData.userBean.officeBean.id);
+			$scope.loadSubdivisionalOfficersByOfficeId($scope.workData.userBean.officeBean.id);
+			$scope.loadSubEngineerByOfficeId($scope.workData.userBean.officeBean.id);*/
+
+
+
+			/*$scope.loadPhysicalStageByWorkTypeId($scope.workData.workTypeId);
+			
+			if($scope.workData.physicalStageId == null)
+			{
+				$scope.workData.physicalStageId = "";
+			} else {
+				$scope.workData.physicalStageId = $scope.workData.physicalStageId + "";	
+			}
+			
+			
+			
+			if($scope.workData.contractorId)
+			$scope.workData.contractorId=$scope.workData.contractorId+"";
+			
+			$scope.workData.workStatusId = $scope.workData.workStatusId+"";
+		
+			
+			$scope.workData.workStatusId = $scope.workData.workStatusId+"";
+			
+			
+			$scope.workData.executiveEngineerOfficeId = $scope.workData.executiveEngineerOfficeId+"";
+			$scope.loadAssistantEngineerByOfficeId($scope.workData.executiveEngineerOfficeId);
+			if($scope.workData.assistantEngineerId == null)
+				{
+			$scope.workData.assistantEngineerId = "";
+				} else {
+					$scope.workData.assistantEngineerId = $scope.workData.assistantEngineerId + "";	
+				}
+		
+				$scope.loadSubdivisionalOfficersByOfficeId($scope.workData.executiveEngineerOfficeId);
+			if($scope.workData.subDivisionOfficerId == null)
+			{
+		$scope.workData.subDivisionOfficerId = "";
+			} else {
+				$scope.workData.subDivisionOfficer.id = $scope.workData.subDivisionOfficerId + "";	
+			}
+		
+			$scope.loadSubEngineerByOfficeId($scope.workData.executiveEngineerOfficeId)
+			if($scope.workData.subEngineerId == null)
+			{
+				$scope.workData.subEngineerId = "";
+			} else {
+				$scope.workData.subEngineerId = $scope.workData.subEngineerId + "";	
+			}
+			
+			$scope.workData.technicalSanctionTypeId = $scope.workData.technicalSanctionTypeId+"";
+			$scope.workData.administrationSanctionTypeId = $scope.workData.administrationSanctionTypeId+"";
+			
+			if($scope.workData.issuingAuthorityId)
+			$scope.workData.issuingAuthorityId = $scope.workData.issuingAuthorityId+"";*/
+			$loading.finish('sample-1');
+		});
+	};
+
+
+	$scope.loadTechnicalDetail = function () {
+		$loading.start('sample-1');
+		var response = $http.get('fetchTechnicalDetailsByWorkId/' + $routeParams.id);
+		response.success(function (data, status, headers, config) {
+			$scope.technicalData = data;
+			$loading.finish('sample-1');
+		});
+	};
+
+
+	$scope.calculatePawAmount = function (asAmount, contingencyAmount, tenderedRatePer, tenderedRateSign) {
+
+		var paw = null;
+
+		if (asAmount != null && contingencyAmount != null && tenderedRatePer != null && tenderedRateSign != null) {
+			if (tenderedRateSign == "+") {
+				paw = parseFloat(asAmount) - parseFloat(contingencyAmount);
+				$scope.workData.probableAmountOfWork = paw.toFixed(2);
+			}
+			else if (tenderedRateSign == "-") {
+				paw = ((parseFloat(asAmount) - parseFloat(contingencyAmount)) - ((parseFloat(asAmount) - parseFloat(contingencyAmount)) * (parseFloat(tenderedRatePer) / 100)));
+				$scope.workData.probableAmountOfWork = paw.toFixed(2);
+			} else {
+				$scope.workData.probableAmountOfWork = null;
+			}
+		}
+
+	};
+
+
+
+	$scope.loadBudgetRequestDetailList = function () {
+
+		var responsePromise = $http.get('fetchBudgetRequest/' + $routeParams.id);
+		responsePromise.success(function (data, status, headers, config) {
+			$scope.budgetRequestBean = data;
+		});
+
+		$loading.start('sample-1');
+		fetchBudgetRequestDetailList($routeParams.id);
+
+
+	};
+
+	$scope.loadWorkListForBuget = function () {
+		$loading.start('sample-1');
+		fetchWorkListForBuget();
+	};
+
+
+	$scope.reloadJqueryDatatable = function () {
+		$loading.start('sample-1');
+		reDraw();
+		$loading.finish('sample-1');
+
+	};
+
+	$scope.loadBudgetRequestList = function () {
+		$loading.start('sample-1');
+		fetchBudgetRequestList();
+	};
+
+
+	$scope.loadBudgetRequest = function () {
+		$loading.start('sample-1');
+		fetchBudgetRequest();
+
+	};
+
+	$scope.saveBudgetRequest = function (isValid) {
+
+		if (!isValid)
+			return false;
+
+		var isNoneChecked = true;
+
+		for (var i = 0; i < $('input[name^="selectbox"]').length; i++) {
+			if ($('input[name^="selectbox"]')[i].checked == true) {
+				if ($('input[name^="requestedAmount"]')[i].value == '' || $('input[name^="requestedAmount"]')[i].value <= 0) {
+
+					alert("Please Enter amount, which is greate than Zero.");
+					return false;
+				}
+
+				isNoneChecked = false;
+
+
+			}
+		}
+
+=======
 	
 	$scope.checkPercentageValue = function(percentage) {
 		if(parseFloat(percentage)<0)
@@ -2890,10 +5541,43 @@ $scope.calculateTenderCost = function(pacAmount, percentage, sign, asCost) {
 			}
 		}
 		
+>>>>>>> pankaj/main
 		if (isNoneChecked) {
 			alert("Please select atleast one check box to continue.");
 			return false;
 		}
+<<<<<<< HEAD
+
+		$scope.budgetRequestBean = {};
+		$scope.budgetRequestBean.budgetRequestDetailBeanList = [];
+
+		for (var i = 0; i < $('input[name^="workId"]').length; i++) {
+			if ($('input[name^="selectbox"]')[i].checked == true) {
+				var data = { workId: $('input[name^="workId"]')[i].value, requestedAmount: $('input[name^="requestedAmount"]')[i].value, remainingAmountTotal: $('input[name^="remainingAmountTotal"]')[i].value, accountHeadNameE: $('input[name^="accountHeadNameE"]')[i].value };
+				$scope.budgetRequestBean.budgetRequestDetailBeanList.push(data);
+			}
+		}
+
+		if (confirm("Are you sure you want to save the data?")) {
+
+			if ($scope.saveAsDraft == true) {
+				$scope.budgetRequestBean.statusId = 1;
+			}
+			else if ($scope.submit == true) {
+				$scope.budgetRequestBean.statusId = 2;
+			}
+
+			$loading.start('sample-1');
+
+			var responsePromise = $http.post('saveBudgetRequest', $scope.budgetRequestBean);
+
+			responsePromise.success(function (data, status, headers, config) {
+
+				$rootScope.responseObject = data;
+
+				if ($rootScope.responseObject.successMessage != null) {
+					$timeout(function () {
+=======
 		
 		$scope.budgetRequestBean = {};
 		$scope.budgetRequestBean.budgetRequestDetailBeanList = [];	
@@ -2924,21 +5608,34 @@ $scope.calculateTenderCost = function(pacAmount, percentage, sign, asCost) {
 
 				if($rootScope.responseObject.successMessage != null) {
 					$timeout(function() {
+>>>>>>> pankaj/main
 						$rootScope.responseObject.successMessage = null;
 					}, 10000);
 					$window.location.href = '#budgetRequestList';
 				}
+<<<<<<< HEAD
+				if ($rootScope.responseObject.errorMessage != null) {
+					$timeout(function () {
+=======
 				if($rootScope.responseObject.errorMessage != null) {
 					$timeout(function() {
+>>>>>>> pankaj/main
 						$rootScope.responseObject.errorMessage = null;
 					}, 10000);
 				}
 				$loading.finish('sample-1');
 			});
+<<<<<<< HEAD
+			responsePromise.error(function () {
+				$rootScope.responseObject = {};
+				$rootScope.responseObject.errorMessage = "Some error occured while saving the data";
+				$timeout(function () {
+=======
 			responsePromise.error(function() {
 				$rootScope.responseObject = {};
 				$rootScope.responseObject.errorMessage = "Some error occured while saving the data";
 				$timeout(function() {
+>>>>>>> pankaj/main
 					$rootScope.responseObject.errorMessage = null;
 				}, 10000);
 				$loading.finish('sample-1');
@@ -2948,6 +5645,47 @@ $scope.calculateTenderCost = function(pacAmount, percentage, sign, asCost) {
 			$scope.submit = false;
 		}
 	}
+<<<<<<< HEAD
+
+
+	$scope.saveEditBudgetRequest = function (isValid) {
+
+		if (!isValid)
+			return false;
+
+		$scope.budgetRequestBean = {};
+		$scope.budgetRequestBean.budgetRequestDetailBeanList = [];
+		$scope.budgetRequestBean.id = $routeParams.id;
+
+		for (var i = 0; i < $('input[name^="workId"]').length; i++) {
+
+			var data = {
+				workId: $('input[name^="workId"]')[i].value, requestedAmount: $('input[name^="requestedAmount"]')[i].value,
+				id: $('input[name^="id"]')[i].value, remainingAmountTotal: $('input[name^="remainingAmountTotal"]')[i].value
+			};
+			$scope.budgetRequestBean.budgetRequestDetailBeanList.push(data);
+		}
+
+		if (confirm("Are you sure you want to save the data?")) {
+
+			if ($scope.saveAsDraft == true) {
+				$scope.budgetRequestBean.statusId = 1;
+			}
+			else if ($scope.submit == true) {
+				$scope.budgetRequestBean.statusId = 2;
+			}
+
+			$loading.start('sample-1');
+
+			var responsePromise = $http.post('saveEditBudgetRequest', $scope.budgetRequestBean);
+
+			responsePromise.success(function (data, status, headers, config) {
+
+				$rootScope.responseObject = data;
+
+				if ($rootScope.responseObject.successMessage != null) {
+					$timeout(function () {
+=======
 	
 	
 	$scope.saveEditBudgetRequest = function(isValid) {
@@ -2985,21 +5723,34 @@ $scope.calculateTenderCost = function(pacAmount, percentage, sign, asCost) {
 
 				if($rootScope.responseObject.successMessage != null) {
 					$timeout(function() {
+>>>>>>> pankaj/main
 						$rootScope.responseObject.successMessage = null;
 					}, 10000);
 					$window.location.href = '#budgetRequestList';
 				}
+<<<<<<< HEAD
+				if ($rootScope.responseObject.errorMessage != null) {
+					$timeout(function () {
+=======
 				if($rootScope.responseObject.errorMessage != null) {
 					$timeout(function() {
+>>>>>>> pankaj/main
 						$rootScope.responseObject.errorMessage = null;
 					}, 10000);
 				}
 				$loading.finish('sample-1');
 			});
+<<<<<<< HEAD
+			responsePromise.error(function () {
+				$rootScope.responseObject = {};
+				$rootScope.responseObject.errorMessage = "Some error occured while saving the data";
+				$timeout(function () {
+=======
 			responsePromise.error(function() {
 				$rootScope.responseObject = {};
 				$rootScope.responseObject.errorMessage = "Some error occured while saving the data";
 				$timeout(function() {
+>>>>>>> pankaj/main
 					$rootScope.responseObject.errorMessage = null;
 				}, 10000);
 				$loading.finish('sample-1');
@@ -3009,6 +5760,73 @@ $scope.calculateTenderCost = function(pacAmount, percentage, sign, asCost) {
 			$scope.submit = false;
 		}
 	}
+<<<<<<< HEAD
+
+
+	$scope.saveSurrenderRequest = function (isValid) {
+
+		if (!isValid)
+			return false;
+
+		$scope.budgetRequestBean = {};
+		$scope.budgetRequestBean.budgetRequestDetailBeanList = [];
+		$scope.budgetRequestBean.id = $routeParams.id;
+
+		for (var i = 0; i < $('input[name^="workId"]').length; i++) {
+
+			var data = {
+				workId: $('input[name^="workId"]')[i].value, surrendedAmount: $('input[name^="surrendedAmount"]')[i].value,
+				id: $('input[name^="id"]')[i].value, approvedAmount: $('input[name^="approvedAmount"]')[i].value
+			};
+			$scope.budgetRequestBean.budgetRequestDetailBeanList.push(data);
+		}
+
+		//for 
+		var isEmpty = false;
+		for (var i = 0; i < $('input[name^="workId"]').length; i++) {
+
+			/*alert($('input[name^="surrendedAmount"]')[i].value);*/
+			if ($('input[name^="surrendedAmount"]')[i].value == "") {
+				/*alert($('input[name^="surrendedAmount"]')[i].value);*/
+			}
+			else {
+				isEmpty = true;
+			}
+
+		}
+
+		if (!isEmpty) {
+			alert("Please Enter Atleast One Surrender Amount!");
+			return false;
+		}
+
+		if (confirm("Are you sure you want to save the data?")) {
+
+			/*	if($scope.saveAsDraft == true) {				 
+					$scope.budgetRequestBean.statusId = 1;
+				}
+				else if($scope.submit == true) {
+					$scope.budgetRequestBean.statusId = 2;
+				}
+				*/
+			$loading.start('sample-1');
+
+			var responsePromise = $http.post('saveSurrenderRequest', $scope.budgetRequestBean);
+
+			responsePromise.success(function (data, status, headers, config) {
+
+				$rootScope.responseObject = data;
+
+				if ($rootScope.responseObject.successMessage != null) {
+					$timeout(function () {
+						$rootScope.responseObject.successMessage = null;
+					}, 10000);
+
+					$window.location.href = '#budgetRequestList';
+				}
+				if ($rootScope.responseObject.errorMessage != null) {
+					$timeout(function () {
+=======
 	
 	
 $scope.saveSurrenderRequest = function(isValid) {
@@ -3072,25 +5890,42 @@ $scope.saveSurrenderRequest = function(isValid) {
 				}
 				if($rootScope.responseObject.errorMessage != null) {
 					$timeout(function() {
+>>>>>>> pankaj/main
 						$rootScope.responseObject.errorMessage = null;
 					}, 10000);
 				}
 				$loading.finish('sample-1');
 			});
+<<<<<<< HEAD
+			responsePromise.error(function () {
+				$rootScope.responseObject = {};
+				$rootScope.responseObject.errorMessage = "Some error occured while saving the data";
+				$timeout(function () {
+=======
 			responsePromise.error(function() {
 				$rootScope.responseObject = {};
 				$rootScope.responseObject.errorMessage = "Some error occured while saving the data";
 				$timeout(function() {
+>>>>>>> pankaj/main
 					$rootScope.responseObject.errorMessage = null;
 				}, 10000);
 				$loading.finish('sample-1');
 			});
+<<<<<<< HEAD
+		}
+	}
+
+
+
+	$scope.editWorkDataRevise = function (isValid, asPdfFile, tsPdfFile, acPdfFile, dcPdfFile, ecPdfFile) {
+=======
 		} 
 	}
 	
 	
 	
 	$scope.editWorkDataRevise = function(isValid, asPdfFile, tsPdfFile, acPdfFile, dcPdfFile, ecPdfFile) {
+>>>>>>> pankaj/main
 
 		//$scope.noFileError = (asPdfFile)?false:true;
 		/*$scope.fileExtentionErrorAs = (asPdfFile)?false:true;
@@ -3098,6 +5933,75 @@ $scope.saveSurrenderRequest = function(isValid) {
 		$scope.fileExtentionErrorAc = (acPdfFile)?false:true;
 		$scope.fileExtentionErrorDc = (dcPdfFile)?false:true;
 		$scope.fileExtentionErrorEc = (ecPdfFile)?false:true;*/
+<<<<<<< HEAD
+
+
+		if (tsPdfFile) {
+			if (tsPdfFile.size > 5000000)
+				return false;
+		}
+
+
+		if (asPdfFile) {
+			if (asPdfFile.size > 5000000)
+				return false;
+		}
+
+		if (dcPdfFile) {
+			if (dcPdfFile.size > 5000000)
+				return false;
+		}
+
+		if (acPdfFile) {
+			if (acPdfFile.size > 5000000)
+				return false;
+		}
+
+		if (ecPdfFile) {
+			if (ecPdfFile.size > 5000000)
+				return false;
+		}
+
+		if (!isValid)
+			return false;
+
+		if (confirm("Are you sure you want to save the data?")) {
+			$loading.start('sample-1');
+
+			var fd = new FormData();
+
+
+			if ($scope.finalSubmit == true) {
+				/*$scope.workData.status = 'Active';*/
+				$scope.workData.workRequestStatusId = 2;
+			}
+
+
+
+			/*fd.append('status', $scope.workData.status);*/
+			fd.append('workRequestStatusId', $scope.workData.workRequestStatusId);
+
+			if (acPdfFile) {
+				fd.append('agreementCopyFile', acPdfFile);
+			}
+
+			if (asPdfFile) {
+				fd.append('administrationSanctionFile', asPdfFile);
+			}
+
+			if (tsPdfFile) {
+				fd.append('technicalSanctionFile', tsPdfFile);
+			}
+
+			if (dcPdfFile) {
+				fd.append('latestDrawingCopyFile', dcPdfFile);
+			}
+
+			if (ecPdfFile) {
+				fd.append('estimateFile', ecPdfFile);
+			}
+
+=======
 		
 		
 		if(tsPdfFile){
@@ -3165,6 +6069,7 @@ $scope.saveSurrenderRequest = function(isValid) {
 			fd.append('estimateFile', ecPdfFile);
 			}
 			
+>>>>>>> pankaj/main
 
 			if ($scope.workData.workId) {
 				fd.append('workId', $scope.workData.workId);
@@ -3175,17 +6080,99 @@ $scope.saveSurrenderRequest = function(isValid) {
 			if ($scope.workData.administrationSanctionId) {
 				fd.append('asParentId', $scope.workData.administrationSanctionId);
 			}
+<<<<<<< HEAD
+
+			if ($scope.workData.workName) {
+				fd.append('workName', $scope.workData.workName);
+			}
+
+=======
 			
 			if ($scope.workData.workName) {
 				fd.append('workName', $scope.workData.workName);
 			}
 			
+>>>>>>> pankaj/main
 			if ($scope.workData.distance) {
 				fd.append('distance', $scope.workData.distance);
 			}
 			if ($scope.workData.completeddistance) {
 				fd.append('completeddistance', $scope.workData.completeddistance);
 			}
+<<<<<<< HEAD
+
+			if ($scope.workData.workTypeId) {
+				fd.append('workTypeId', $scope.workData.workTypeId);
+			}
+
+			if ($scope.workData.workSubTypeId) {
+				fd.append('workSubTypeId', $scope.workData.workSubTypeId);
+			}
+
+			if ($scope.workData.lineDepartmentId) {
+				fd.append('lineDepartmentId', $scope.workData.lineDepartmentId);
+			}
+
+			if ($scope.workData.accountHeadId) {
+				fd.append('accountHeadId', $scope.workData.accountHeadId);
+			}
+
+			if ($scope.workData.executiveEngineerOfficeName) {
+				fd.append('executiveEngineerOfficeName', $scope.workData.executiveEngineerOfficeName);
+			}
+
+
+			if ($scope.workData.agencyTypeId) {
+				fd.append('agencyTypeId', $scope.workData.agencyTypeId);
+			}
+
+			if ($scope.workData.contractorId) {
+				fd.append('contractorId', $scope.workData.contractorId);
+			}
+
+			/*if ($scope.workData.agencyName) {
+				fd.append('agencyName', $scope.workData.agencyName);
+			}*/
+
+			if ($scope.workData.totalExpenditureTill31March2018String) {
+				fd.append('totalExpenditureTill31March2018String', $scope.workData.totalExpenditureTill31March2018String);
+			}
+
+			if ($scope.workData.totalExpenditureOnContingencyTill31March2018) {
+				fd.append('totalExpenditureOnContingencyTill31March2018', $scope.workData.totalExpenditureOnContingencyTill31March2018);
+			}
+
+
+
+			if ($scope.workData.workStatusId) {
+				fd.append('workStatusId', $scope.workData.workStatusId);
+			}
+
+			if ($scope.workData.physicalStageId) {
+				fd.append('physicalStageId', $scope.workData.physicalStageId);
+			}
+
+			if ($scope.workData.tentativeCompletionDateString) {
+				fd.append('tentativeCompletionDateString', $scope.workData.tentativeCompletionDateString);
+			}
+
+			if ($scope.workData.totalAmountRecievedTill31March2018String) {
+				fd.append('totalAmountRecievedTill31March2018String', $scope.workData.totalAmountRecievedTill31March2018String);
+			}
+
+			if ($scope.workData.agreementDateString) {
+				fd.append('agreementDateString', $scope.workData.agreementDateString);
+			}
+
+			if ($scope.workData.agreementNumber) {
+				fd.append('agreementNumber', $scope.workData.agreementNumber);
+			}
+
+			if ($scope.workData.tenderedRateSign) {
+				fd.append('tenderedRateSign', $scope.workData.tenderedRateSign);
+			}
+
+=======
 			
 			if ($scope.workData.workTypeId) {
 				fd.append('workTypeId', $scope.workData.workTypeId);
@@ -3258,6 +6245,7 @@ $scope.saveSurrenderRequest = function(isValid) {
 				fd.append('tenderedRateSign', $scope.workData.tenderedRateSign);
 			}
 			
+>>>>>>> pankaj/main
 			if ($scope.workData.pacAmount) {
 				fd.append('pacAmount', $scope.workData.pacAmount);
 			}
@@ -3265,6 +6253,93 @@ $scope.saveSurrenderRequest = function(isValid) {
 			if ($scope.workData.tenderCost) {
 				fd.append('tenderCost', $scope.workData.tenderCost);
 			}
+<<<<<<< HEAD
+
+
+			if ($scope.workData.tenderedRatePer) {
+				fd.append('tenderedRatePer', $scope.workData.tenderedRatePer);
+			}
+
+			if ($scope.workData.districtId) {
+				fd.append('districtId', $scope.workData.districtId);
+			}
+
+			if ($scope.workData.blockId) {
+				fd.append('blockId', $scope.workData.blockId);
+			}
+
+			if ($scope.workData.gramPanchayatId) {
+				fd.append('gramPanchayatId', $scope.workData.gramPanchayatId);
+			}
+
+			if ($scope.workData.villageId) {
+				fd.append('villageId', $scope.workData.villageId);
+			}
+
+			if ($scope.workData.locationAddress) {
+				fd.append('locationAddress', $scope.workData.locationAddress);
+			}
+
+			if ($scope.workData.workLocationLatitude) {
+				fd.append('workLocationLatitude', $scope.workData.workLocationLatitude);
+			}
+
+			if ($scope.workData.workLocationLongitude) {
+				fd.append('workLocationLongitude', $scope.workData.workLocationLongitude);
+			}
+
+			if ($scope.workData.locationGeometery) {
+				fd.append('locationGeometery', $scope.workData.locationGeometery);
+			}
+
+			if ($scope.workData.executiveEngineerOfficeId) {
+				fd.append('executiveEngineerOfficeId', $scope.workData.executiveEngineerOfficeId);
+			}
+
+			if ($scope.workData.assistantEngineerId) {
+				fd.append('assistantEngineerId', $scope.workData.assistantEngineerId);
+			}
+
+			if ($scope.workData.subEngineerId) {
+				fd.append('subEngineerId', $scope.workData.subEngineerId);
+			}
+
+			if ($scope.workData.technicalSanctionTypeId) {
+
+				if ($scope.workData.technicalSanctionTypeId != "null") {
+					fd.append('technicalSanctionTypeId', $scope.workData.technicalSanctionTypeId);
+				}
+			}
+
+			if ($scope.workData.technicalSanctionNo) {
+				fd.append('technicalSanctionNo', $scope.workData.technicalSanctionNo);
+			}
+
+			if ($scope.workData.technicalSanctionDate) {
+				fd.append('technicalSanctionDate', $scope.workData.technicalSanctionDate);
+			}
+
+			if ($scope.workData.estimatedCostString) {
+				fd.append('estimatedCostString', $scope.workData.estimatedCostString);
+			}
+
+			if ($scope.workData.tsIssuingAuthorityId) {
+				fd.append('tsIssuingAuthorityId', $scope.workData.tsIssuingAuthorityId);
+			}
+
+			if ($scope.workData.tsAuthorityName) {
+				fd.append('tsAuthorityName', $scope.workData.tsAuthorityName);
+			}
+
+			if ($scope.workData.administrationSanctionTypeId) {
+				fd.append('administrationSanctionTypeId', $scope.workData.administrationSanctionTypeId);
+			}
+
+			if ($scope.workData.administrationSanctionNo) {
+				fd.append('administrationSanctionNo', $scope.workData.administrationSanctionNo);
+			}
+
+=======
 			
 			
 			if ($scope.workData.tenderedRatePer) {
@@ -3350,6 +6425,7 @@ $scope.saveSurrenderRequest = function(isValid) {
 				fd.append('administrationSanctionNo', $scope.workData.administrationSanctionNo);
 			}
 			
+>>>>>>> pankaj/main
 			if ($scope.workData.administrationSanctionDate) {
 				fd.append('administrationSanctionDate', $scope.workData.administrationSanctionDate);
 			}
@@ -3357,6 +6433,53 @@ $scope.saveSurrenderRequest = function(isValid) {
 			if ($scope.workData.totalCostString) {
 				fd.append('totalCostString', $scope.workData.totalCostString);
 			}
+<<<<<<< HEAD
+
+			if ($scope.workData.contingencyAmount) {
+				fd.append('contingencyAmount', $scope.workData.contingencyAmount);
+			}
+
+			if ($scope.workData.issuingAuthorityId) {
+				fd.append('issuingAuthorityId', $scope.workData.issuingAuthorityId);
+			}
+
+
+			if ($scope.workData.asAuthorityName) {
+				fd.append('asAuthorityName', $scope.workData.asAuthorityName);
+			}
+
+			if ($scope.workData.remarks) {
+				fd.append('remarks', $scope.workData.remarks);
+			}
+
+			if (null != $scope.workData.probableAmountOfWork) {
+				fd.append('probableAmountOfWork', $scope.workData.probableAmountOfWork);
+			}
+
+
+			$loading.start('sample-1');
+
+			var responsePromise = $http.post('editWorkRevise', fd, {
+				transformRequest: angular.identity,
+				headers: {
+					'Content-Type': undefined
+				}
+			});
+
+			responsePromise.success(function (data, status, headers, config) {
+				$rootScope.responseObject = data;
+				if ($rootScope.responseObject.successMessage != null) {
+					$timeout(function () {
+						$rootScope.responseObject.successMessage = null;
+					}, 5000);
+					//					$window.location.href = '#/editLegacyDataRoute/'+$scope.workData.workId;
+					$window.location.href = '#manageLegacyDataRoute';
+				}
+				$loading.finish('sample-1');
+			});
+
+
+=======
 			
 			if ($scope.workData.contingencyAmount) {
 				fd.append('contingencyAmount', $scope.workData.contingencyAmount);
@@ -3402,6 +6525,7 @@ $scope.saveSurrenderRequest = function(isValid) {
 			});
 			
 		
+>>>>>>> pankaj/main
 			/*var responsePromise = $http.post('addWork', $scope.workData);
 			responsePromise.success(function(data, status, headers, config) {
 
@@ -3430,6 +6554,39 @@ $scope.saveSurrenderRequest = function(isValid) {
 			});*/
 		}
 	};
+<<<<<<< HEAD
+	$scope.compareRevisedTSAmountWithTSAmount = function (tsAmount, revisedTsAmount) {
+
+		if (tsAmount != null && revisedTsAmount != null) {
+			if (parseFloat(revisedTsAmount) < parseFloat(tsAmount)) {
+				alert("Revised Technical Sanction Amount must be greater than or equal to Technical Sanction Amount.");
+				$scope.workData.revisedTsAmt = null;
+				return false;
+			}
+		}
+	};
+	$scope.compareRevisedASAmountWithASAmount = function (asAmount, revisedAsAmount) {
+
+		if (asAmount != null && revisedAsAmount != null) {
+			if (parseFloat(revisedAsAmount) < parseFloat(asAmount)) {
+				alert("Revised Admistrative Sanction Amount must be greater than or equal to Administrative Sanction Amount.");
+				$scope.workData.revisedAsAmt = null;
+				return false;
+			}
+		}
+	};
+
+	var map = null;
+	$scope.mapOnInit = function () {
+		map = mapVariable();
+
+	};
+
+	$scope.gpcodeList = [];
+	$scope.KmlData = {};
+	$scope.forestrange = false;
+	$scope.processKmlFile = async function () {
+=======
 	$scope.compareRevisedTSAmountWithTSAmount = function(tsAmount, revisedTsAmount) {
 		
 		if(tsAmount!=null && revisedTsAmount!=null){
@@ -3461,6 +6618,7 @@ $scope.saveSurrenderRequest = function(isValid) {
 	$scope.KmlData = {};
 	$scope.forestrange = false;
 	$scope.processKmlFile = async function() {
+>>>>>>> pankaj/main
 
 		if (!$scope.KmlData.wdtKmlFile) {
 			alert("Please select a KML file.");
@@ -3484,7 +6642,11 @@ $scope.saveSurrenderRequest = function(isValid) {
 		var formData = new FormData();
 		formData.append('KmlFile', file);
 		formData.append('districtId', $scope.workData.userBean.districtBean.districtId);
+<<<<<<< HEAD
+
+=======
 		
+>>>>>>> pankaj/main
 
 		try {
 			const response = await $http.post('processKmlFile', formData, {
@@ -3494,6 +6656,71 @@ $scope.saveSurrenderRequest = function(isValid) {
 			//$loading.start('sample-1');
 			$rootScope.responseObject = response.data;
 
+<<<<<<< HEAD
+			//	$scope.workData.gramPanchayatId = response.data[0].gpCodeList[0] + "";
+			//	$scope.workData.gramPanchayatId += ""
+			//	$scope.loadVillagesByProject($scope.workData.projectId, $scope.workData.gramPanchayatId)
+			for (let i = 0; i < response.data.length; i++) {
+				const lat = Number(response.data[i].lattitude).toFixed(6);
+				const lon = Number(response.data[i].longitude).toFixed(6);
+
+				if ($scope.KmlData.wdtKmlFile) {
+					// Call your KML parsing logic here
+					// ...
+
+					// âœ… Set isKmlFile to true
+					$scope.workData.isKmlFile = true;
+
+				} else {
+					// Optional: reset if no file is selected
+					$scope.workData.isKmlFile = false;
+				} var templat = lat;
+				var templong = lon;
+
+
+				try {
+					const res = await $http.post('getLatLng/' + lat + '/' + lon + '/');
+					const attrList = res.data.AttributeList;
+					if (attrList != null) {
+						//const districtDetail = await $http.get('getDisctrictDetailByLgdDistrictCode/' + attrList[0].district_id);
+
+						if (parseInt($scope.workData.userBean.districtBean.lgdDistrictCode) !== parseInt(attrList[0].district_id)) {
+							alert("You Cannot Select Location Outside " + $scope.workData.userBean.districtBean.districtNameH + " District");
+							return;
+							$loading.finish('sample-1');
+
+						}
+
+
+						if (attrList && attrList.length > 0) {
+							const khasra = attrList[0].khasra_number;
+
+							console.log("Khasra at index", i, ":", khasra);
+
+							if (khasra && khasra.trim() !== "") {
+								console.log("âœ… Found khasra number:", khasra);
+								$scope.getLatLngFrommap(lat, lon);
+								lonGAPI = lon
+								latapi = lat
+								break;
+							}
+							else {
+								let latFixed = Number(lat).toFixed(6);
+								let lonFixed = Number(lon).toFixed(6);
+
+
+								$scope.getLatLngforest(latFixed, lonFixed);
+								if ($scope.workData.latitude != '' && $scope.workData.longitude != '') {
+									geojsonLayer = null;
+									lonGAPI = lonFixed
+									$scope.forestrange = true;
+
+									latapi = latFixed
+									break;
+								}
+							}
+							$scope.workData.workLocationLatitude = $scope.lat + "";
+=======
 		//	$scope.workData.gramPanchayatId = response.data[0].gpCodeList[0] + "";
 		//	$scope.workData.gramPanchayatId += ""
 		//	$scope.loadVillagesByProject($scope.workData.projectId, $scope.workData.gramPanchayatId)
@@ -3559,11 +6786,16 @@ $scope.saveSurrenderRequest = function(isValid) {
 							}
 						  }
 						  $scope.workData.workLocationLatitude = $scope.lat + "";
+>>>>>>> pankaj/main
 							$scope.workData.workLocationLongitude = $scope.lon + "";
 						}
 						$loading.finish('sample-1');
 					}
+<<<<<<< HEAD
+
+=======
 			
+>>>>>>> pankaj/main
 				} catch (innerErr) {
 					console.error("Error calling getLatLng for:", lat, lon, innerErr);
 					$loading.finish('sample-1');
@@ -3576,12 +6808,21 @@ $scope.saveSurrenderRequest = function(isValid) {
 			$loading.finish('sample-1');
 		}
 
+<<<<<<< HEAD
+
+	};
+	$scope.getLatLngforest = function (templat, templong) {
+		//	alert(typeof(templat)+" "+ typeof(templong))
+		$http.post('getLatLngforest/' + templat + '/' + templong)
+			.then(function (response) {
+=======
 		
 	};
 $scope.getLatLngforest = function(templat, templong) {
 		//	alert(typeof(templat)+" "+ typeof(templong))
 		$http.post('getLatLngforest/' + templat + '/' + templong)
 			.then(function(response) {
+>>>>>>> pankaj/main
 
 				let responseData = response.data;
 				console.log("Response Data:", responseData);
@@ -3594,11 +6835,338 @@ $scope.getLatLngforest = function(templat, templong) {
 
 
 
+<<<<<<< HEAD
+			}, function (error) {
+=======
 			}, function(error) {
+>>>>>>> pankaj/main
 
 				console.error("Error:", error);
 			});
 	};
+<<<<<<< HEAD
+	$scope.workData = {
+		userBean: {
+			districtBean: null
+		},
+		block: {},
+		gramPanchayatBean: {},
+		villageBean: {
+			villageId: null
+		}
+	};
+	$scope.pointData = {}
+	$scope.blocks = [];
+	$scope.gramPanchayats = [];
+	$scope.villages = [];
+	$scope.workData = $scope.workData || {};
+	$scope.workData.block = $scope.workData.block || {};
+	$scope.workData.gramPanchayatBean = $scope.workData.gramPanchayatBean || {};
+	$scope.workData.userBean.districtBean = $scope.workData.userBean.districtBean || {};
+	$scope.pointData = {}
+
+	$scope.getLatLngFrommap = function (templat, templong) {
+		//alert("hello" + templat + templong);
+
+		$http.post('getLatLng/' + templat + '/' + templong + '/')
+			.then(function (response) {
+				let responseData = response.data;
+
+				//	console.log("responseData$scope.workData",JSON.stringify($scope.workData));
+				$scope.pointData = response.data;
+				//$scope.district=responseData.AttributeList[0].district_id+""+responseData.AttributeList[0].district_nm;
+
+				$scope.workData.userBean.districtBean = responseData.AttributeList.map(function (item) {
+					return {
+						districtId: item.district_id,
+						districtNameH: item.district_nm
+					};
+				});
+				$http.get('getDisctrictDetailByLgdDistrictCode/' + responseData.AttributeList[0].district_id)
+					.then(function (res) {
+						const district = res.data;
+
+						$scope.workData.userBean.districtBean.districtId = district.districtId + "";
+						$scope.workData.userBean.districtBean.districtNameH = district.districtNameH;
+					})
+					.catch(function (err) {
+						console.error("Error loading district:", err);
+					});
+				//alert("$scope.district.districtGisCode ="+$scope.districtGisCode)
+
+				//$scope.workData.districtId=$scope.districts[0].districtId+"";
+				// alert("$scope.districts[0].districtId ="+$scope.districts[0].districtId)
+				if (!$scope.workData.block) {
+					$scope.workData.block = {};
+				}
+
+				// alert(" $scope.workData.districtId"+$scope.workData.districtId);
+				//$scope.loadWdfACByLgdDistCode($scope.workData.districtId);
+				$scope.blocks = responseData.AttributeList.map(function (item) {
+					return {
+						blockId: item.block_id,
+						blockName: item.block_nm
+					};
+				});
+				$scope.workData.block.blockId = $scope.blocks[0].blockId + "";
+
+				// on edit
+				$scope.workData.blockId = $scope.workData.blockId || {};
+				$scope.workData.blockId = $scope.blocks[0].blockId + "";
+				//alert("$scope.blocks[0].blockId"+$scope.blocks[0].blockId)      
+				//alert("$scope.block.blockCode"+$scope.block.blockCode);
+				//alert("$scope.districtGisCode"+$scope.districtGisCode)      
+				// alert("$scope.districts[0].districtId"+$scope.districts[0].districtId);
+
+
+
+
+				if (!$scope.workData.gramPanchayatBean) {
+					$scope.workData.gramPanchayatBean = {};
+				}
+
+
+				// $scope.workData.blockId={};
+				console.log("$scope.gramPanchayats: " + JSON.stringify($scope.gramPanchayats));
+
+				$scope.gramPanchayats = responseData.AttributeList.map(function (item) {
+					return {
+						gramPanchayatId: item.gp_id,
+						gpName: item.gp_nm
+					};
+				});
+
+				//if($scope.workData.villageId == null){
+
+				//	}
+				/*$scope.gcodee = 0;
+				$scope.vscode = 0;*/
+
+				/* alert("$scope.gramPanchayat.gramPanchayatCode" + $scope.gramPanchayat.gramPanchayatCode);
+					alert("$scope.gramPanchayats[0].gramPanchayatId" + $scope.gramPanchayats[0].gramPanchayatId);
+				*/
+				/*
+								if ($scope.gramPanchayat.gramPanchayatCode != $scope.gramPanchayats[0].gramPanchayatId) {
+									//alert(" you can not Select Out Side Selected GramPanchayat");
+									alert("You Cannot Select Location Outside " + $scope.gramPanchayat.gramPanchayatName + " GramPanchayat");
+				
+									return;
+				
+								}*/
+				if (!$scope.workData.gramPanchayatBean) {
+					$scope.workData.gramPanchayatBean = {};
+				}
+				// on add
+				$scope.workData.gramPanchayatBean.gramPanchayatId = $scope.gramPanchayats[0].gramPanchayatId + "";
+
+				// on edit
+				$scope.workData.gramPanchayatId = $scope.workData.gramPanchayatId || {};
+				$scope.workData.gramPanchayatId = $scope.gramPanchayats[0].gramPanchayatId + "";
+
+
+				var gpcode = $scope.gramPanchayats[0].gramPanchayatId + "";
+				var response = $http.get('fetchGramPanchayatByGPCode/' + gpcode);
+				response.success(function (data, status, headers, config) {
+					$scope.gramPanchayat = data;
+					//alert($scope.workData.villageId);
+					/*if($scope.workData.gramPanchayatId != null){
+				  if (parseInt($scope.gramPanchayat.gramPanchayatId) !== parseInt($scope.workData.gramPanchayatBean.gramPanchayatId )){
+					  alert(" you can not Select Out Side Selected GramPanchayat");
+					  
+							 $scope.gcodee = 1;
+							 
+						}
+							//alert($scope.gramPanchayats[0].gramPanchayatId);
+							//alert($scope.workData.gramPanchayatId);
+				  
+				}*/
+
+					//alert($scope.workData.gramPanchayatId);
+					if ($scope.workData.workId == null) {
+
+						for (var i = 0; i < $scope.gramPanchayat.length; i++) {
+							var gp = $scope.gramPanchayat[i];
+							if (gp.gramPanchayatId === $scope.workData.gramPanchayatBean.gramPanchayatId) {
+
+
+								$scope.workData.gramPanchayatBean.gramPanchayatId = gp.gramPanchayatId;
+							}
+
+						}
+
+
+					}
+					else {
+
+						for (var i = 0; i < $scope.gramPanchayat.length; i++) {
+							var gp = $scope.gramPanchayat[i];
+							if (gp.gramPanchayatId === $scope.workData.gramPanchayatBean.gramPanchayatId) {
+								$scope.workData.gramPanchayatBean.gramPanchayatId = gp.gramPanchayatId;
+							}
+
+						}
+					}
+				});
+				//alert($scope.gcodee);
+				//alert($scope.gramPanchayat.gramPanchayatId);
+
+				/*$http.post('fetctByGramPanchayatCode/' + $scope.gramPanchayats[0].gramPanchayatId)
+					.then(function(response) {
+						$scope.gramPanchayats= response.data; // Use the actual response data
+						alert("gramPanchayatId1188" + $scope.gramPanchayat[0].gramPanchayatId);
+						$scope.workData.gramPanchayatBean.gramPanchayatId = $scope.gramPanchayat[0].gramPanchayatId;
+
+						//alert("$scope.workData.gramPanchayatId: " + $scope.gramPanchayats[0].gramPanchayatId);
+					})
+					.catch(function(error) {
+						console.error("Error occurred:", error); // Log any error
+						alert("Error: " + error.status + " - " + error.statusText);
+					});*/
+
+
+				// Process the AttributeList to extract village names and IDs
+				$scope.villages = responseData.AttributeList.map(function (item) {
+					return {
+						villageId: item.village_id,
+						villageName: item.village_nm
+
+					};
+
+				});
+				$scope.workData.villageBean = $scope.workData.villageBean || {};
+				$scope.workData.villageBean.villageId = $scope.villages[0].villageId + ""
+
+
+				//on edit
+				$scope.workData.villageId = $scope.villages[0].villageId + "";
+
+				// alert("$scope.village.villageCode" + $scope.village.villageCode);
+				//alert("$scope.villages[0].villageId" + $scope.villages[0].villageId);
+
+				/*if ($scope.village.villageCode != $scope.villages[0].villageId) {
+					alert(" You can not Select Location Out Side" + $scope.village.vilalgeNameH + "Village");
+					return;
+				}*/
+
+
+
+
+				var vCode = $scope.villages[0].villageId + "";
+				var response = $http.get('fetchVillageByVCode/' + vCode);
+				response.success(function (data, status, headers, config) {
+					$scope.village = data;
+					/*if($scope.workData.villageId != null){
+						  if (parseInt($scope.Village.villageId) !== parseInt($scope.workData.villageBean.villageId)){
+						
+						$scope.vscode = 1;
+					   }
+					}*/
+
+
+
+					//	if ($scope.workData.workId == null) {
+
+
+					//		$scope.workData.villageBean.villageId = $scope.village.villageId + "";
+					//	} else {
+
+					//		$scope.workData.villageBean.villageId = parseInt($scope.villages[0].villageId);
+					//	}
+				});
+
+
+				/* if($scope.gcodee === 1 ){
+				   alert("you have selected point outside the grampanchayat ");
+				   $scope.gcodee=0;
+				   return;
+			   	
+				 }
+				 if($scope.vscode === 1){
+			   	
+				   alert("you have selected outside village");
+				   $scope.vscode =0;
+				   return;
+				 }*/
+
+
+
+
+				//   alert("$scope.villages[0].villageId"+$scope.villages[0].villageId);
+				//$scope.workData.villageBean.villageId = $scope.villages[0].villageId + "";
+				$scope.khasra_number = responseData.AttributeList[0].khasra_number;
+				$scope.workData.khasraNo = $scope.khasra_number;
+				var khasraGeom = JSON.parse(responseData.AttributeList[0].khasra_geom);
+				var coordinates = khasraGeom.geometry.coordinates[0][0];
+				$scope.lat = coordinates[0][1];
+				$scope.lon = coordinates[0][0];
+				//alert("latitude"+$scope.lat);
+				$scope.workData.workLocationLatitude = $scope.lat + "";
+				$scope.workData.workLocationLongitude = $scope.lon + "";
+				if (geojsonLayer != null) {
+					map.removeLayer(geojsonLayer);
+					geojsonLayer = null;
+				}
+				geojsonLayer = L.geoJson(JSON.parse(responseData.AttributeList[0].khasra_geom), {
+					style: { color: "#FFFF00", weight: 3, fillColor: "#FFFF00", fillOpacity: 0.1 },
+				})
+				geojsonLayer.addTo(map);
+				map.fitBounds(geojsonLayer.getBounds());
+				return responseData;
+			})
+			.catch(function (error) {
+				console.log("Error:", error);
+			});
+	};
+
+	$scope.onchangeDistrict = function () {
+		var districtId = $scope.workData.districtId;
+
+		// Fetch district details
+		$http.get('getDisctrictDetailByLgdDistrictCode/' + districtId)
+			.then(function (response) {
+				$scope.district = response.data;
+				console.log("districtGisCode", $scope.district.districtGisCode);
+				var districtGisCode = $scope.district.districtGisCode;
+				// Fetch GeoJSON data
+				return $http.post('fetchGeojson/' + districtGisCode);
+			})
+			.then(function (response) {
+				let data = response.data;
+				console.log("onchangeDistrictdata", data);
+
+				let geojsonFeature = JSON.parse(data.data[0].admingeojsoninfo).features[0]; // Get the entire GeoJSON feature
+				console.log("geojsonFeature", geojsonFeature);
+
+				// Remove the existing GeoJSON layer if it exists
+				if (geojsonLayer != null) {
+					map.removeLayer(geojsonLayer);
+					geojsonLayer = null;
+				}
+
+				// Create a new GeoJSON layer
+				geojsonLayer = L.geoJson(geojsonFeature, {
+					style: {
+						color: "#FFFF00",
+						weight: 3,
+						fillColor: "#FFFF00",
+						fillOpacity: 0.1
+					}
+				});
+
+				// Add the GeoJSON layer to the map and fit the bounds
+				if (geojsonLayer) {
+					geojsonLayer.addTo(map);
+					map.fitBounds(geojsonLayer.getBounds());
+				} else {
+					console.log("geojsonLayer is not defined or null");
+				}
+			})
+			.catch(function (error) {
+				console.error("Error fetching GeoJSON data:", error);
+			});
+	};
+
+=======
 $scope.workData = {
 	userBean: {
 		districtBean: null
@@ -3834,6 +7402,7 @@ $scope.getLatLngFrommap = function (templat, templong) {
 
 
 
+>>>>>>> pankaj/main
 	/*let geojsonLayer;
 	var marker=null;
 	var finallat;
@@ -3877,11 +7446,19 @@ $scope.getLatLngFrommap = function (templat, templong) {
 				}
 			});
 	}*/
+<<<<<<< HEAD
+	$scope.onchangeBlock = function (blockId) {
+		// var blockId = $scope.workData.blockId;
+		$http.get('fetchblockCode/' + blockId)
+
+			.then(function (response) {
+=======
 	$scope.onchangeBlock = function(blockId) {
 		// var blockId = $scope.workData.blockId;
 		$http.get('fetchblockCode/' + blockId)
 
 			.then(function(response) {
+>>>>>>> pankaj/main
 				if (response.data && response.data.blockCode) {
 					$scope.block = response.data; // Use the actual response data
 					console.log("BlockLatLong", $scope.block);
@@ -3891,7 +7468,11 @@ $scope.getLatLngFrommap = function (templat, templong) {
 					throw new Error("Invalid block data received");
 				}
 			})
+<<<<<<< HEAD
+			.then(function (response) {
+=======
 			.then(function(response) {
+>>>>>>> pankaj/main
 				let data = response.data;
 				if (data && data.data && data.data[0] && data.data[0].admingeojsoninfo) {
 					let geojsonFeature = JSON.parse(data.data[0].admingeojsoninfo).features[0]; // Get the entire GeoJSON feature
@@ -3924,13 +7505,55 @@ $scope.getLatLngFrommap = function (templat, templong) {
 					throw new Error("Invalid GeoJSON data received");
 				}
 			})
+<<<<<<< HEAD
+			.catch(function (error) {
+=======
 			.catch(function(error) {
+>>>>>>> pankaj/main
 				console.error("Error fetching GeoJSON data:", error);
 			});
 	}
 
 
 	$scope.onchangeGp = function () {
+<<<<<<< HEAD
+		if (!$scope.workData.gramPanchayatId) return;
+
+		$http.get('fetchLgdGpCode/' + $scope.workData.gramPanchayatId)
+			.then(function (res) {
+				$scope.grampanchayat = res.data;
+				return $http.post('fetchGpGeojson/' + $scope.grampanchayat.gpCode);
+			})
+			.then(function (res) {
+				drawGeoJsonOnMap(res.data.data[0].admingeojsoninfo);
+			})
+			.catch(function (err) {
+				console.error('GP GeoJSON error', err);
+			});
+	};
+
+	$scope.onchangeVillage = function () {
+		if (!$scope.workData.villageId) return;
+
+		$http.get('fetchVillageCode/' + $scope.workData.villageId)
+			.then(function (res) {
+				$scope.village = res.data;
+				return $http.post('fetchVillageGeojson/' + $scope.village.villageCode);
+			})
+			.then(function (res) {
+				drawGeoJsonOnMap(res.data.data[0].admingeojsoninfo);
+			})
+			.catch(function (err) {
+				console.error('Village GeoJSON error', err);
+			});
+	};
+
+
+	$scope.loadDistrictAndBlock = function () {
+		//alert("hello");
+		$http.get('workCreation')
+			.then(function (response) {
+=======
     if (!$scope.workData.gramPanchayatId) return;
 
     $http.get('fetchLgdGpCode/' + $scope.workData.gramPanchayatId)
@@ -3967,6 +7590,7 @@ $scope.getLatLngFrommap = function (templat, templong) {
 		//alert("hello");
 		$http.get('workCreation')
 			.then(function(response) {
+>>>>>>> pankaj/main
 				//alert("rtyu");
 				//  alert("response"+JSON.stringify(response));
 				$scope.workData.districtId = response.data.userDistrictId;
@@ -3974,11 +7598,47 @@ $scope.getLatLngFrommap = function (templat, templong) {
 				$scope.workData.blockId = response.data.blockId;
 				$scope.districts = response.data.districts;
 				$scope.blocks = response.data.blocks;
+<<<<<<< HEAD
+			}, function (error) {
+=======
 			}, function(error) {
+>>>>>>> pankaj/main
 				console.error('Error fetching data:', error);
 			});
 	};
 	function sortByName(field) {
+<<<<<<< HEAD
+		return function (a, b) {
+			return (a[field] || '').localeCompare(b[field] || '');
+		};
+	}
+
+	function drawGeoJsonOnMap(geojsonStr) {
+		let geojsonFeature = JSON.parse(geojsonStr).features[0];
+
+		if (geojsonLayer) {
+			map.removeLayer(geojsonLayer);
+			geojsonLayer = null;
+		}
+
+		geojsonLayer = L.geoJson(geojsonFeature, {
+			style: {
+				color: "#FFFF00",
+				weight: 3,
+				fillColor: "#FFFF00",
+				fillOpacity: 0.1
+			}
+		});
+
+		geojsonLayer.addTo(map);
+		map.fitBounds(geojsonLayer.getBounds());
+	}
+
+
+	$scope.loadDistrictOfLoggedInUser = function () {
+		$http.get('fetchDistrictOfLoggedInUser')
+			.then(function (response) {
+=======
     return function (a, b) {
         return (a[field] || '').localeCompare(b[field] || '');
     };
@@ -4009,12 +7669,17 @@ function drawGeoJsonOnMap(geojsonStr) {
 	$scope.loadDistrictOfLoggedInUser = function() {
 		$http.get('fetchDistrictOfLoggedInUser')
 			.then(function(response) {
+>>>>>>> pankaj/main
 				//alert("rtyu");
 				//alert("response"+JSON.stringify(response));
 				$scope.user_district = response.data;
 				$scope.workData.userBean.districtBean.districtId = $scope.user_district[0].districtId + "";
 				$http.get('fetchDistrictOfLoggedInUser')
+<<<<<<< HEAD
+					.then(function (response) {
+=======
 					.then(function(response) {
+>>>>>>> pankaj/main
 						$scope.district = response.data;
 						console.log("districtGisCode" + $scope.district[0].districtGisCode);
 						$scope.districtGisCode = $scope.district[0].districtGisCode;
@@ -4025,7 +7690,11 @@ function drawGeoJsonOnMap(geojsonStr) {
 				//$scope.onchangeDistrict($scope.workData.userBean.districtBean.districtId);
 				$scope.loadBlockByDistrictID($scope.workData.userBean.districtBean.districtId);
 				$scope.loadBlockOfLoggedInUser();
+<<<<<<< HEAD
+			}, function (error) {
+=======
 			}, function(error) {
+>>>>>>> pankaj/main
 				console.error('Error fetching data:', error);
 			});
 
@@ -4033,6 +7702,91 @@ function drawGeoJsonOnMap(geojsonStr) {
 	}
 
 	$scope.loadBlockOfLoggedInUser = function () {
+<<<<<<< HEAD
+		$http.get('fetchBlockOfLoggedInUser')
+			.then(function (res) {
+				$scope.block_new = res.data;
+				$scope.workData.blockId = String(res.data.blockId);
+
+				return $http.get('fetchblockCode/' + $scope.workData.blockId);
+			})
+			.then(function (res) {
+				$scope.block = res.data;
+				$scope.loadGramPanchayatByBlockId($scope.workData.blockId);
+				$scope.loadGramPanchayatByBlockIdfromOffice($scope.workData.blockId);
+
+				if (!$scope.workData.workId) {
+					$scope.onchangeBlock($scope.workData.blockId);
+				}
+			})
+			.catch(function (err) {
+				console.error('Block load error', err);
+			});
+	};
+
+
+	$scope.loadBlockByDistrictID = function (districtId) {
+		if (!districtId) return;
+
+		$loading.start('sample-1');
+
+		$http.get('fetchDistrict/' + districtId)
+			.then(function (res) {
+				$scope.district = res.data;
+				return $http.get('fetchBlocksByDistrict/' + $scope.district.districtCode);
+			})
+			.then(function (res) {
+				$scope.blocks = res.data.sort(sortByName('blockName'));
+			})
+			.catch(function (err) {
+				console.error('Error loading blocks', err);
+			})
+			.finally(function () {
+				$loading.finish('sample-1');
+			});
+	};
+
+
+	$scope.loadGramPanchayatByBlockIdfromOffice = function (blockId) {
+		if (!blockId) return;
+
+		$http.get('fetchGpIdByBlockoffice/' + blockId)
+			.then(function (res) {
+				$scope.officeGramPanchayat = res.data;
+			})
+			.catch(function (err) {
+				console.error('Office GP error', err);
+			});
+	};
+
+	$scope.loadGramPanchayatByBlockId = function (blockId) {
+		if (!blockId) return;
+
+		$loading.start('sample-1');
+
+		$http.get('fetchBlockById/' + blockId)
+			.then(function (res) {
+				return $http.get('fetchGramPanchyatByBlock/' + res.data.blockCode);
+			})
+			.then(function (res) {
+				$scope.gramPanchayats = res.data.sort(sortByName('gramPanchayatName'));
+			})
+			.catch(function (err) {
+				console.error('GP load error', err);
+			})
+			.finally(function () {
+				$loading.finish('sample-1');
+			});
+	};
+
+
+
+	$scope.loadVillageByGPId = function (gramPanchayatId) {
+
+		//console.log("loadVillageByGPId"+gramPanchayatId);
+		var response1 = $http.get('fetchGramPanchayatId/' + gramPanchayatId);
+		response1.success(function (data, status, headers, config) {
+=======
     $http.get('fetchBlockOfLoggedInUser')
         .then(function (res) {
             $scope.block_new = res.data;
@@ -4116,6 +7870,7 @@ function drawGeoJsonOnMap(geojsonStr) {
 		//console.log("loadVillageByGPId"+gramPanchayatId);
 		var response1 = $http.get('fetchGramPanchayatId/' + gramPanchayatId);
 		response1.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			//console.log(JSON.stringify(response1))
 			$scope.villages1 = data;
 			//console.log("Villages"+$scope.workData.villageId);
@@ -4125,7 +7880,11 @@ function drawGeoJsonOnMap(geojsonStr) {
 				$loading.start('sample-1');
 				//console.log("$scope.villages1.gramPanchayatCode"+$scope.villages1.gramPanchayatCode);
 				$http.get('fetchVillageByGramPanchayatCode/' + $scope.villages1.gramPanchayatCode)
+<<<<<<< HEAD
+					.then(function (response) {
+=======
 					.then(function(response) {
+>>>>>>> pankaj/main
 						// Assuming response.data is an array of villages
 
 						$scope.villages = response.data.sort((a, b) => {
@@ -4141,7 +7900,11 @@ function drawGeoJsonOnMap(geojsonStr) {
 						// $scope.workData.villageId = $scope.villages[0].villageId;
 						$loading.finish('sample-1');
 					})
+<<<<<<< HEAD
+					.catch(function (error) {
+=======
 					.catch(function(error) {
+>>>>>>> pankaj/main
 						// Handle error here
 						console.error('Error fetching villages:', error);
 						$loading.finish('sample-1');
@@ -4151,6 +7914,19 @@ function drawGeoJsonOnMap(geojsonStr) {
 
 		});
 	};
+<<<<<<< HEAD
+	$scope.downloadUploadDocument = function (documentId) {
+
+		console.log(" downloadDocument =" + documentId);
+		$window.open('downloadUploadDocument/' + documentId);
+	};
+
+	$scope.loadSchemes = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchSchemes');
+		response.success(function (data, status, headers, config) {
+=======
 	$scope.downloadUploadDocument = function(documentId) {
 	
 		console.log(" downloadDocument =" + documentId);
@@ -4162,18 +7938,963 @@ function drawGeoJsonOnMap(geojsonStr) {
 		$loading.start('sample-1');
 		var response = $http.get('fetchSchemes');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.schemes = data;
 			$loading.finish('sample-1');
 		});
 	};
 
+<<<<<<< HEAD
+	$scope.loadSchemesByDesignation = function () {
+
+		$loading.start('sample-1');
+		var response = $http.get('fetchSchemesByDesignation');
+		response.success(function (data, status, headers, config) {
+=======
 	$scope.loadSchemesByDesignation = function() {
 
 		$loading.start('sample-1');
 		var response = $http.get('fetchSchemesByDesignation');
 		response.success(function(data, status, headers, config) {
+>>>>>>> pankaj/main
 			$scope.schemes = data;
 			$loading.finish('sample-1');
 		});
 	};
+<<<<<<< HEAD
+
+
+	// Load work details for displaying Work Requisition Id and Estimation Type
+	$scope.loadWorkDetailsForMeasurement = function () {
+		$loading.start('sample-1');
+		
+		// First call: fetch basic work details
+		$http.get('fetchWorkDetails/' + $routeParams.id)
+			.then(function (response) {
+				$scope.workData = response.data;
+				console.log('Work details loaded:', $scope.workData);
+				
+				// Second call: fetch estimation details for competent authority info
+				return $http.get('fetchWorkEstimationDetailsById/' + $routeParams.id);
+			})
+			.then(function (response) {
+				// Merge estimation details into workData
+				if (response.data) {
+					var data = response.data;
+					
+					// Competent Authority Details
+					$scope.workData.competentAuthName = data.competentAuthName;
+					$scope.workData.competentAuthDesig = data.competentAuthDesig;
+					$scope.workData.revisedLetterNo = data.revisedLetterNo;
+					$scope.workData.letterNoDate = data.letterNoDate;
+					
+					// Estimation Amounts and Calculations
+					$scope.workData.estimatedAmount = data.estimatedAmount;
+					$scope.workData.grandTotalOriginalAmoumnt = data.grandTotal;
+					$scope.workData.grandTotal = data.grandTotal;
+					$scope.workData.expectedTenderedAmt = data.expectedTenderedAmt;
+					$scope.workData.expectedTenderedRatePer = data.expectedTenderedRatePer;
+					$scope.workData.overheadChargesPer = data.overheadChargesPer;
+					$scope.workData.overheadChargesAmt = data.overheadChargesAmt;
+					$scope.workData.labourWelfareComponentPer = data.labourWelfareComponentPer;
+					$scope.workData.labourWelfareComponentAmt = data.labourWelfareComponentAmt;
+					$scope.workData.applicableGstPer = data.applicableGstPer;
+					$scope.workData.applicableGstAmt = data.applicableGstAmt;
+					$scope.workData.workChargeContingencyPer = data.workChargeContingencyPer;
+					$scope.workData.workChargeContingencyAmt = data.workChargeContingencyAmt;
+					$scope.workData.administrativeExpenditurePer = data.administrativeExpenditurePer;
+					$scope.workData.administrativeExpenditureAmt = data.administrativeExpenditureAmt;
+					$scope.workData.othersCharges = data.othersCharges;
+					
+					// Comments and Forward Dates
+					$scope.workData.comments = data.comments;
+					$scope.workData.subEngComments = data.subEngComments;
+					$scope.workData.subEngFwdDate = data.subEngFwdDate;
+					$scope.workData.sdoComments = data.sdoComments;
+					$scope.workData.sdoFwdDate = data.sdoFwdDate;
+					$scope.workData.aeComments = data.aeComments;
+					$scope.workData.aeFwdDate = data.aeFwdDate;
+					$scope.workData.eeComments = data.eeComments;
+					$scope.workData.eeFwdDate = data.eeFwdDate;
+					$scope.workData.seComments = data.seComments;
+					$scope.workData.seFwdDate = data.seFwdDate;
+					$scope.workData.ceComments = data.ceComments;
+					$scope.workData.ceFwdDate = data.ceFwdDate;
+					
+					// Other Estimation Details
+					$scope.workData.estimationId = data.estimationId;
+					$scope.workData.status = data.status;
+					$scope.workData.estimationSubmissionDate = data.estimationSubmissionDate;
+					$scope.workData.estimationType = data.estimationType;
+					$scope.workData.hasNonSorItems = data.hasNonSorItems;
+					$scope.workData.tenPercentCheck = data.tenPercentCheck;
+					
+					console.log('All estimation details loaded:', data);
+				}
+				$loading.finish('sample-1');
+			})
+			.catch(function (error) {
+				console.error("Error loading work/estimation details:", error);
+				$loading.finish('sample-1');
+			});
+	};
+
+	$scope.LoadEstiamtionItemDetails = function () {
+
+		$loading.start('sample-1');
+
+		$http.get('fetchItemByChapterForEstimate/' + $routeParams.id)
+			.then(function (response) {
+
+				$scope.ChapterItemData = response.data;
+				$loading.finish('sample-1');
+				
+				// Load summary after estimation data is loaded
+				$scope.loadSummaryEmbTabelByWorkId();
+
+			}, function (error) {
+
+				console.error("Error loading estimation item details:", error);
+				$loading.finish('sample-1');
+
+			});
+	};
+	$scope.loadWorkForEMb = function () {
+
+		fetchWorkListWithTsStatus()
+
+	};
+
+	$scope.loadIssuedEmb = function () {
+
+
+		fetchWorkListWithTsStatus();
+
+	};
+
+	// Load office details for Technical Sanction (EMB Modal)
+	$scope.loadOfficeOfTsDone = function(workId) {
+		console.log('=== loadOfficeOfTsDone called ===');
+		console.log('Work ID:', workId);
+		
+		$loading.start('sample-1');
+		var response = $http.get('fetchWorkEstimationDetailsById/' + workId);
+		response.success(function(data, status, headers, config) {
+			console.log('API Response:', data);
+			
+			if (data) {
+				// Initialize emb object if not exists
+				$scope.emb = $scope.emb || {};
+				
+				// Populate modal fields
+				$scope.emb.workName = data.workName;
+				$scope.emb.workId = data.workId;
+				
+				// Set office ID for loading engineers
+				if (data.executiveEngineerOfficeId) {
+					$scope.selectedOfficeId = data.executiveEngineerOfficeId;
+					$scope.emb.executiveEngineerOfficeId = data.executiveEngineerOfficeId;
+					console.log('✅ Office ID set:', $scope.selectedOfficeId);
+				} else {
+					console.error('❌ executiveEngineerOfficeId NOT found in response');
+					console.log('Available fields:', Object.keys(data));
+				}
+				
+				// Set Sub Engineer Office Name if available
+				if (data.executiveEngineerOfficeName) {
+					$scope.emb.subEngineerOffice = data.executiveEngineerOfficeName;
+					console.log('✅ Office Name set:', data.executiveEngineerOfficeName);
+				} else {
+					console.warn('⚠️ executiveEngineerOfficeName NOT found in response');
+				}
+				
+				console.log('Final emb object:', $scope.emb);
+			}
+			$loading.finish('sample-1');
+		});
+		response.error(function(data, status, headers, config) {
+			console.error('❌ API Error:', status, data);
+			$loading.finish('sample-1');
+		});
+	};
+
+	// Load engineers for IT (EMB Modal)
+	$scope.LoadEngineersForIT = function() {
+		console.log('=== LoadEngineersForIT called ===');
+		console.log('Selected Office ID:', $scope.selectedOfficeId);
+		
+		if ($scope.selectedOfficeId) {
+			$loading.start('sample-1');
+			var response = $http.get('fetchSubEngineerByOfficeId/' + $scope.selectedOfficeId);
+			response.success(function(data, status, headers, config) {
+				$scope.EngineerList = data;
+				console.log('✅ Sub Engineers loaded:', data.length, 'engineers');
+				console.log('Engineers:', data);
+				$loading.finish('sample-1');
+			});
+			response.error(function(data, status, headers, config) {
+				console.error('❌ Error loading sub engineers:', status, data);
+				$loading.finish('sample-1');
+			});
+		} else {
+			console.error('❌ No office ID selected! Cannot load engineers.');
+			console.log('Scope data:', {
+				selectedOfficeId: $scope.selectedOfficeId,
+				emb: $scope.emb
+			});
+		}
+	};
+
+	// Issue EMB Number - Form Submit Handler
+	$scope.IssueEMBNumber = function(isValid) {
+		console.log('=== IssueEMBNumber called ===');
+		console.log('Form Valid:', isValid);
+		console.log('EMB Data:', $scope.emb);
+		
+		if (!isValid) {
+			console.warn('⚠️ Form validation failed');
+			return;
+		}
+		
+		$loading.start('sample-1');
+		
+		// Prepare data for submission matching EmbDto structure
+		var embData = {
+			workid: $scope.emb.workId,  // Note: lowercase 'id' in backend
+			engineerId: $scope.emb.allocatedUserId,
+			OfficeId: $scope.selectedOfficeId,
+			workName: $scope.emb.workName,
+			remarks: $scope.emb.remarks
+		};
+		
+		console.log('Submitting EMB data:', embData);
+		
+		var response = $http.post('IssueEmbNumber', embData);
+		response.success(function(data, status, headers, config) {
+			console.log('✅ EMB issued successfully:', data);
+			$loading.finish('sample-1');
+			
+			// Close modal
+			$('#embModal').modal('hide');
+			
+			// Show success message
+			alert('EMB Number issued successfully!');
+			
+			// Reload table
+			if (typeof fetchWorkListWithTsStatus === 'function') {
+				fetchWorkListWithTsStatus();
+			}
+			
+			// Reset form
+			$scope.emb = {};
+		});
+		response.error(function(data, status, headers, config) {
+			console.error('❌ Error issuing EMB:', status, data);
+			$loading.finish('sample-1');
+			alert('Error issuing EMB Number. Please try again.');
+		});
+	};
+
+
+
+	$scope.calculateCurrentAmount = function () {
+
+		let no = $scope.mesurement.currentMesurementNo || 1;
+		let rate = $scope.mesurement.rate || 1;
+		let t = $scope.mesurement.currentMesurementT || 1;
+		let w = $scope.mesurement.currentMesurementW || 1;
+		let l = $scope.mesurement.currentMesurementL || 1;
+
+		rate = rate == 0 ? 1 : rate;
+		t = t == 0 ? 1 : t;
+		w = w == 0 ? 1 : w;
+		l = l == 0 ? 1 : l;
+		no = no == 0 ? 1 : no;
+
+		// original amount
+		var cal = rate * t * w * l * no;
+		cal = Math.round(cal * 100000) / 100000;
+
+		// 10% cut
+		var cut = cal * 0.10;
+		cut = Math.round(cut * 100000) / 100000;
+
+		// final amount
+		var finalAmount = cal - cut;
+		finalAmount = Math.round(finalAmount * 100000) / 100000;
+
+		// assign final amount
+		$scope.mesurement.calculatedAmount = finalAmount;
+
+		// string with details
+		$scope.mesurement.cutMessage =
+			"Original Amount: " + cal +
+			" | 10% Contractor Cut: " + cut +
+			" | Final Amount after Cut: " + finalAmount;
+	};
+
+	$scope.openMeasurementModal = function (j) {
+
+		debugger;
+		$scope.mesurement = $scope.mesurement || {}
+		$scope.mesurement = {}
+		$scope.uploadDoc1 = null
+		$scope.mesurement.sorItemNo = j.sorItemNo || 'N/A';
+		$scope.mesurement.no = j.no || 1;
+		$scope.mesurement.itemDesc = j.itemDesc || 'No Description';
+		$scope.mesurement.unit = j.unit || 'SQM';
+		$scope.mesurement.quantity = j.quantity || 0;
+		$scope.mesurement.rate = j.rate || 100; // Default rate set to 100
+		$scope.mesurement.measureLength = j.length || 0;
+		$scope.mesurement.measureWidth = j.width || 0;
+		$scope.mesurement.measureHeightDepth = j.heightDepth || 0;
+
+		// Set default current measurement values
+		$scope.mesurement.currentMesurementL = 0;
+		$scope.mesurement.currentMesurementW = 0;
+		$scope.mesurement.currentMesurementT = 0;
+		$scope.mesurement.currentMesurementNo = 1;
+
+		$scope.mesurement.estimateSorId = j.id;
+		if (!j.id) {
+			console.warn('⚠️ No estimate SOR ID found, using defaults');
+			// Calculate with default values
+			$scope.calculateCurrentAmount();
+			return;
+		}
+
+
+		$scope.loadPreviousData(j.id).then(function (data) {
+
+			// ✅ NOW IT WAITS
+			debugger;
+			$scope.mesurement.previousMeasurementL = data[0] || 0;
+			$scope.mesurement.previousMeasurementW = data[1] || 0;
+			$scope.mesurement.previousMeasurementT_T = data[2] || 0;
+			$scope.mesurement.previousMeasurementNo = data[3] || 0;
+
+			$scope.calculateRemainingMeasurement();
+			// Calculate initial amount with defaults
+			$scope.calculateCurrentAmount();
+		}).catch(function(error) {
+			console.error('Error loading previous data:', error);
+			// Set defaults if API fails
+			$scope.mesurement.previousMeasurementL = 0;
+			$scope.mesurement.previousMeasurementW = 0;
+			$scope.mesurement.previousMeasurementT_T = 0;
+			$scope.mesurement.previousMeasurementNo = 0;
+			$scope.calculateCurrentAmount();
+		});
+
+
+
+	};
+
+	$scope.downloadDocument = function (documentId) {
+		$window.open('downloadDocument/' + documentId);
+	};
+
+	$scope.openEditMeasurementModal = function (m) {
+
+		// deep copy so table data affect na ho
+		$scope.mesurement = angular.copy(m);
+		$scope.mesurement.measureLength = Number(m.length);
+		$scope.mesurement.measureWidth = Number(m.width);
+		$scope.mesurement.measureHeightDepth = Number(m.heightDepth);
+		$scope.mesurement.no = Number(m.no);
+		$scope.mesurement.currentMesurementNo = Number(m.currentMesurementNo);
+		// modal open
+		$('#editMeasurementModal').modal('show');
+		$scope.loadPreviousDataInEdit(m.estimateSorId, m.measurementId).then(function (data) {
+
+			// ✅ NOW IT WAITS
+
+			$scope.mesurement.previousMeasurementL = data[0];
+			$scope.mesurement.previousMeasurementW = data[1];
+			$scope.mesurement.previousMeasurementT_T = data[2];
+			$scope.mesurement.previousMeasurementNo = data[3];
+			$scope.calculateRemainingMeasurement();
+			$scope.calculateCurrentAmount();
+
+
+
+		});
+
+
+	};
+
+	$scope.loadPreviousData = function (estimateSorId) {
+
+		$loading.start('sample-1');
+
+		return $http.get('loadPreviousDataByEstimateId/' + estimateSorId)
+			.then(function (response) {
+				$scope.previousData = response.data;
+
+				return response.data; // 🔥 IMPORTANT
+			})
+			.finally(function () {
+				$loading.finish('sample-1');
+			});
+	};
+
+
+
+
+	function n(val) {
+		return Number(val) || 0;
+	}
+
+	function round2(num) {
+		return Math.round((num + Number.EPSILON) * 100) / 100;
+	}
+
+	$scope.calculateRemainingMeasurement = function () {
+
+		$scope.mesurement.remainingMeasurementL =
+			round2(n($scope.mesurement.measureLength) - n($scope.mesurement.previousMeasurementL));
+
+		$scope.mesurement.remainingMeasurementW =
+			round2(n($scope.mesurement.measureWidth) - n($scope.mesurement.previousMeasurementW));
+
+		$scope.mesurement.remainingMeasurementT =
+			round2(n($scope.mesurement.measureHeightDepth) - n($scope.mesurement.previousMeasurementT_T));
+
+
+		$scope.mesurement.remainingMeasurementNo =
+			round2(n($scope.mesurement.no) - n($scope.mesurement.previousMeasurementNo));
+		//alert($scope.mesurement.remainingMeasurementNo +""+$scope.mesurement.no +" =" + $scope.mesurement.previousMeasurementNo )	;
+	};
+
+	$scope.loadPreviousDataInEdit = function (estimateSorId, mid) {
+
+		$loading.start('sample-1');
+
+		return $http.get('loadPreviousDataByEstimateIdInEdit/' + estimateSorId + "/" + mid)
+			.then(function (response) {
+				$scope.previousData = response.data;
+				return response.data; //
+			})
+			.finally(function () {
+				$loading.finish('sample-1');
+			});
+	};
+
+
+
+
+	$scope.checkCurrentMeasurementNo = function () {
+
+
+		if ($scope.mesurement.remainingMeasurementNo < $scope.mesurement.currentMesurementNo) {
+			// 🔔 Optional sound
+
+
+			Swal.fire({
+				title: 'Limit Exceeded!',
+				html: '<b>Entered measurement exceeds remaining value.</b>',
+				imageUrl: 'https://cdn-icons-png.flaticon.com/512/564/564619.png', // 🔺 Red warning triangle
+				imageWidth: 90,
+				imageHeight: 90,
+				confirmButtonText: 'OK',
+				confirmButtonColor: '#d33',
+				background: '#fff5f5'
+			});
+
+
+
+
+		}
+	}
+
+	$scope.checkCurrentMeasurementL = function () {
+
+
+		if ($scope.mesurement.remainingMeasurementL < $scope.mesurement.currentMesurementL) {
+			///$scope.mesurement.currentMesurementL = 0;
+
+			Swal.fire({
+				title: 'Limit Exceeded!',
+				html: '<b>Entered measurement exceeds remaining value.</b>',
+				imageUrl: 'https://cdn-icons-png.flaticon.com/512/564/564619.png', // 🔺 Red warning triangle
+				imageWidth: 90,
+				imageHeight: 90,
+				confirmButtonText: 'OK',
+				confirmButtonColor: '#d33',
+				background: '#fff5f5'
+			});
+		}
+	}
+	$scope.checkCurrentMeasurementW = function () {
+		if ($scope.mesurement.remainingMeasurementW < $scope.mesurement.currentMesurementW) {
+			//$scope.mesurement.currentMesurementW = 0;
+			Swal.fire({
+				title: 'Limit Exceeded!',
+				html: '<b>Entered measurement exceeds remaining value.</b>',
+				imageUrl: 'https://cdn-icons-png.flaticon.com/512/564/564619.png', // 🔺 Red warning triangle
+				imageWidth: 90,
+				imageHeight: 90,
+				confirmButtonText: 'OK',
+				confirmButtonColor: '#d33',
+				background: '#fff5f5'
+			});
+		}
+	}
+	$scope.checkCurrentMeasurementT = function () {
+		if ($scope.mesurement.remainingMeasurementT < $scope.mesurement.currentMesurementT) {
+			//	$scope.mesurement.currentMesurementT = 0;
+			Swal.fire({
+				title: 'Limit Exceeded!',
+				html: '<b>Entered measurement exceeds remaining value.</b>',
+				imageUrl: 'https://cdn-icons-png.flaticon.com/512/564/564619.png', // 🔺 Red warning triangle
+				imageWidth: 90,
+				imageHeight: 90,
+				confirmButtonText: 'OK',
+				confirmButtonColor: '#d33',
+				background: '#fff5f5'
+			});
+		}
+	}
+
+
+	$scope.deleteMeasurement = function (id, esorid, itemObj) {
+
+		if (confirm("Are you sure you want to delete this measurement?")) {
+
+			$http.post('deleteMeasurementById/' + id)
+				.then(function (response) {
+
+					if (response.data && response.data.successMessage) {
+						alert(response.data.successMessage);
+						
+						// Hide the expanded view after delete
+						if (itemObj) {
+							itemObj.shortView = false;
+							itemObj.measurementList = [];
+						}
+						
+						// Update summary after deletion
+						if ($scope.loadSummaryEmbTabelByWorkId) {
+							$scope.loadSummaryEmbTabelByWorkId();
+						}
+						
+						// Force digest cycle
+						$scope.$applyAsync();
+						
+					} else if (response.data && response.data.errorMessage) {
+						alert(response.data.errorMessage);
+					} else {
+						alert("Unexpected response from server");
+					}
+
+				}, function (error) {
+					console.error("Error deleting:", error);
+					alert("Server error occurred!");
+				});
+		}
+	};
+
+
+
+
+	$scope.saveMeasurement = function (uploadDoc1, isValid) {
+
+		if (!isValid) {
+			return;
+		}
+
+		if ($scope.mesurement.currentMesurementW == 0 && $scope.mesurement.currentMesurementL == 0 && $scope.mesurement.currentMesurementT == 0) {
+			alert("No Mesurement Remaining");
+			return
+		}
+
+		if (!confirm("Are you sure you want to save this measurement?")) {
+			return;
+		}
+
+		var formData = new FormData();
+		debugger;
+		// workId from route
+		formData.append("workId", $routeParams.id);
+
+		// basic fields
+		formData.append("measurementId", $scope.mesurement.measurementId || "");
+		formData.append("eMbNo", $scope.mesurement.eMbNo);
+		formData.append("sorItemNo", $scope.mesurement.sorItemNo);
+		formData.append("unit", $scope.mesurement.unit);
+		formData.append("itemDesc", $scope.mesurement.itemDesc);
+		formData.append("quantity", $scope.mesurement.quantity);
+
+		// measurements
+		formData.append("length", $scope.mesurement.measureLength);
+		formData.append("width", $scope.mesurement.measureWidth);
+		formData.append("heightDepth", $scope.mesurement.measureHeightDepth);
+		formData.append("estimateSorId", $scope.mesurement.estimateSorId);
+		// previous
+		formData.append("previousMeasurementL", Number($scope.mesurement.previousMeasurementL));
+		formData.append("previousMeasurementW", Number($scope.mesurement.previousMeasurementW));
+		formData.append("previousMeasurementT_T", Number($scope.mesurement.previousMeasurementT_T));
+		formData.append("placeDescription", $scope.mesurement.placeDescription);
+		formData.append("calculatedAmount", Number($scope.mesurement.calculatedAmount));
+
+		// remaining
+		formData.append("remainingMeasurementL", Number($scope.mesurement.remainingMeasurementL));
+		formData.append("remainingMeasurementW", Number($scope.mesurement.remainingMeasurementW));
+		formData.append("remainingMeasurementT", Number($scope.mesurement.remainingMeasurementT));
+
+		// current
+		formData.append("currentMesurementL", Number($scope.mesurement.currentMesurementL));
+		formData.append("currentMesurementW", Number($scope.mesurement.currentMesurementW));
+		formData.append("currentMesurementT", Number($scope.mesurement.currentMesurementT));
+		formData.append("no", $scope.mesurement.no);
+
+		formData.append("currentMesurementNo", Number($scope.mesurement.currentMesurementNo));
+		formData.append("remainingMeasurementNo", Number($scope.mesurement.remainingMeasurementNo));
+		formData.append("previousMeasurementNo", Number($scope.mesurement.previousMeasurementNo));
+		formData.append("remarks", $scope.mesurement.remarks);
+
+		// file
+		if (uploadDoc1) {
+			formData.append("documentUpload", uploadDoc1);
+		}
+
+		$http.post('addMeasurementForThisEmb', formData, {
+			transformRequest: angular.identity,
+			headers: { 'Content-Type': undefined }
+		}).then(function (response) {
+
+			alert(response.data.successMessage || "Saved successfully");
+			$('#editMeasurementModal').modal('hide');
+			$('#measurementModal').modal('hide');
+			$http.get('loadMeasurementByEsorId/' + j.id)
+				.then(function (res) {
+
+					$scope.MesurementList = res.data;   // data bind
+					// prevent reloading
+
+				}, function (err) {
+					console.error('Failed to load measurement data', err);
+				});
+		}, function (error) {
+
+			alert("Error while saving measurement");
+			console.error(error);
+
+		});
+	};
+
+	// Load Summary EMB Table by Work ID
+	$scope.loadSummaryEmbTabelByWorkId = function() {
+	
+		
+		$scope.embSummary = {};
+		$scope.totalAmount = 0;
+		
+		// Use already loaded ChapterItemData (estimation items)
+		if ($scope.ChapterItemData && $scope.ChapterItemData.length > 0) {
+				
+			// Get the first item's date (estimation date)
+			var estimationDate = new Date();
+			var dateStr = estimationDate.toISOString().split('T')[0];
+			
+			// Calculate total from all estimation items
+			var total = 0;
+			angular.forEach($scope.ChapterItemData, function(chapter) {
+				if (chapter.itemList && chapter.itemList.length > 0) {
+					angular.forEach(chapter.itemList, function(item) {
+						// Only sum items that don't have children (actual items, not groups)
+						if (item.amount && !item.hasChild) {
+							total += parseFloat(item.amount) || 0;
+						}
+					});
+				}
+			});
+			
+			$scope.embSummary[dateStr] = total;
+			$scope.totalAmount = total;
+			
+		} else {
+			
+		}
+		
+		console.log('Summary loaded:', $scope.embSummary, 'Total:', $scope.totalAmount);
+	};
+
+	$scope.loadSummaryEmbTabelByWorkIdpdf = function() {
+		// Load summary for PDF table - uses same data
+		$scope.loadSummaryEmbTabelByWorkId();
+	};
+
+
+	$scope.SaveMeasurementWithDsc = function () {
+
+		$loading.start('sample-1');
+
+		// Step 1 → get dummy pdf
+		$http.post("generateDscVerificationPDF").then(function (res) {
+
+			var base64Pdf = res.data.unsignedBase64PDF;
+			var serverTime = res.data.serverDateTime;
+
+			var dscRequest = {
+				ServerDateTime: serverTime,
+				DocumentType: "PDF",
+				Data: base64Pdf,
+				SignatureName: "DSC Verification",
+				Reason: "Verify before saving",
+				Location: "Bhopal"
+			};
+
+			return $http.post("http://localhost:8060/jsonsigner/Sign", dscRequest);
+
+		}).then(function (signRes) {
+
+			console.log("DSC RESPONSE:", signRes.data);
+
+			if (!signRes.data || !signRes.data.SignedData) {
+				alert("DSC not detected");
+				return;
+			}
+
+			// 🔥 SHOW ALERT AFTER PASSWORD SUCCESS
+			alert("DSC verified successfully");
+
+			// 🔹 Now call save API
+			return $http.post("saveMeasurementWithDsc", {
+				workId: $routeParams.id,
+				signedData: signRes.data.SignedData
+			});
+
+		}).then(function (saveRes) {
+
+			console.log("SAVE RESPONSE:", saveRes.data);
+
+			if (saveRes.data.successMessage) {
+				Swal.fire({
+					icon: 'success',
+					text: saveRes.data.successMessage
+				});
+			} else {
+				Swal.fire({
+					icon: 'error',
+					text: saveRes.data.errorMessage || "Save failed"
+				});
+			}
+
+		}).catch(function (err) {
+
+			console.error(err);
+			alert("DSC verification failed");
+
+		}).finally(function () {
+			$loading.finish('sample-1');
+		});
+	};
+
+	$scope.toggleView = function (j) {
+
+		// 1️⃣ Close all other rows
+		angular.forEach($scope.chapterList, function (chapter) {
+			angular.forEach(chapter.itemList, function (item) {
+				if (item !== j) {
+					item.shortView = false;
+				}
+			});
+		});
+
+		// 2️⃣ Toggle current row
+		j.shortView = !j.shortView;
+
+		// 3️⃣ Load data only once
+		if (j.shortView) {
+
+			$http.get('loadMeasurementByEsorId/' + j.id)
+				.then(function (res) {
+					j.measurementList = res.data;
+					// 👈 bind to THIS 		
+					j.measurementList = res.data.map(function (m) {
+						if (m.valuationDate) {
+							m.valuationDate = new Date(m.valuationDate.replace(' ', 'T'));
+						}
+						return m;
+					});
+					
+					// Update summary after loading measurements
+					$scope.loadSummaryEmbTabelByWorkId();
+				}, function (err) {
+					console.error('Failed to load measurement data', err);
+				});
+		}
+	};
+
+	// ========== ADDITIONAL MISSING FUNCTIONS START ==========
+	
+	$scope.calculateQuantity = function(billItem) {
+		if (!billItem) return;
+		
+		let no = billItem.no || 0;
+		let length = billItem.length || 0;
+		let width = billItem.width || 0;
+		let heightDepth = billItem.heightDepth || 0;
+		
+		let quantity = no * length * width * heightDepth;
+		billItem.quantity = Math.round(quantity * 100) / 100;
+		
+		if (billItem.rate) {
+			$scope.calculateAmount(billItem);
+		}
+	};
+
+	$scope.calculateAmount = function(billItem) {
+		if (!billItem) return;
+		
+		let quantity = billItem.quantity || 0;
+		let rate = billItem.rate || 0;
+		let amount = quantity * rate;
+		
+		billItem.amount = Math.round(amount * 100) / 100;
+		$scope.calculateTotalLabourComponent();
+	};
+
+	$scope.calculateTotalLabourComponent = function() {
+		if (!$scope.workData || !$scope.workData.workTemplateItems) return;
+		
+		let total = 0;
+		$scope.workData.workTemplateItems.forEach(function(item) {
+			if (item.labourComponentValue) {
+				total += parseFloat(item.labourComponentValue) || 0;
+			}
+		});
+		
+		$scope.workData.totalLabourComponent = Math.round(total * 100) / 100;
+	};
+
+	$scope.editEstimation = function() {
+		if (!$scope.tsEstimationData || !$scope.tsEstimationData.workId) {
+			alert('Work ID not found');
+			return;
+		}
+		$window.location.href = '#/editEstimation/' + $scope.tsEstimationData.workId;
+	};
+
+	$scope.updateTSStatus = function(isValid, statusId) {
+		if (!isValid) {
+			alert('Please fill all required fields');
+			return;
+		}
+		
+		if (!confirm('Are you sure you want to update the status?')) {
+			return;
+		}
+		
+		$loading.start('sample-1');
+		var data = {
+			technicalSanctionId: $scope.tsEstimationData.technicalSanctionId,
+			statusId: statusId,
+			comments: $scope.tsStatusComments
+		};
+		
+		$http.post('updateTechnicalSanctionStatus', data)
+			.success(function() {
+				$loading.finish('sample-1');
+				alert('Status updated successfully');
+				$window.location.reload();
+			})
+			.error(function() {
+				$loading.finish('sample-1');
+				alert('Error updating status');
+			});
+	};
+
+	$scope.printAdministrativeSectionReport = function(workId, tsId) {
+		if (!workId || !tsId) {
+			alert('Invalid parameters');
+			return;
+		}
+		$window.open('printTechnicalSanctionReport/' + workId + '/' + tsId, '_blank');
+	};
+
+	$scope.callChapterListBySORId = function() {
+		if (!$scope.sorData || !$scope.sorData.sorName) return;
+		
+		$loading.start('sample-1');
+		$http.get('fetchChaptersBySORId/' + $scope.sorData.sorName)
+			.success(function(data) {
+				$scope.chapterData = data;
+				$loading.finish('sample-1');
+			})
+			.error(function() {
+				$loading.finish('sample-1');
+				alert('Error loading chapters');
+			});
+	};
+
+	$scope.callItemsByChapterId = function() {
+		if (!$scope.sorData || !$scope.sorData.chapterName) return;
+		
+		$loading.start('sample-1');
+		$http.get('fetchItemsByChapterId/' + $scope.sorData.chapterName)
+			.success(function(data) {
+				$scope.sorChapterItems = data;
+				$loading.finish('sample-1');
+			})
+			.error(function() {
+				$loading.finish('sample-1');
+				alert('Error loading items');
+			});
+	};
+
+	$scope.fetchItemNo = function() {
+		if (!$scope.sorData || !$scope.sorData.itemNo || $scope.sorData.itemNo.length < 2) {
+			alert('Please enter at least 2 characters to search');
+			return;
+		}
+		
+		$loading.start('sample-1');
+		$http.get('searchSORItems/' + $scope.sorData.itemNo)
+			.success(function(data) {
+				$scope.sorChapterItems = data;
+				$loading.finish('sample-1');
+			})
+			.error(function() {
+				$loading.finish('sample-1');
+				alert('Error searching items');
+			});
+	};
+
+	$scope.selectSORItemsNew = function(index) {
+		if (!$scope.sorChapterItems || !$scope.sorChapterItems[index]) return;
+		
+		var selectedItem = $scope.sorChapterItems[index];
+		selectedItem.confirmed = !selectedItem.confirmed;
+	};
+
+	$scope.removeTheseRowItemsForUpg = function() {
+		$scope.sorData = {};
+		$scope.sorChapterItems = [];
+		$scope.chapterData = [];
+	};
+
+	$scope.resetItemDataValues = function() {
+		if (!$scope.itemData) {
+			$scope.itemData = {};
+		}
+		
+		$scope.itemData.sorItemNo = null;
+		$scope.itemData.itemDesc = null;
+		$scope.itemData.no = null;
+		$scope.itemData.length = null;
+		$scope.itemData.width = null;
+		$scope.itemData.heightDepth = null;
+		$scope.itemData.quantity = null;
+		$scope.itemData.rate = null;
+		$scope.itemData.amount = null;
+	};
+
+	// ========== ADDITIONAL MISSING FUNCTIONS END ==========
+
+
+
+=======
+>>>>>>> pankaj/main
 });

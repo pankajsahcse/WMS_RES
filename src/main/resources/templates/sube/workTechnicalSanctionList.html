@@ -1,12 +1,33 @@
 <!DOCTYPE html>
+<<<<<<< HEAD
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<script th:src="@{/js/language.js}"></script>
+=======
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
 <head>
 	<script th:src="@{/js/language.js}"></script>
+>>>>>>> pankaj/main
 </head>
 <script type="text/javascript">
 	/*<![CDATA[*/
 	//Plug-in to fetch page data 
+<<<<<<< HEAD
+	jQuery.fn.dataTableExt.oApi.fnPagingInfo = function(oSettings) {
+		return {
+			"iStart" : oSettings._iDisplayStart,
+			"iEnd" : oSettings.fnDisplayEnd(),
+			"iLength" : oSettings._iDisplayLength,
+			"iTotal" : oSettings.fnRecordsTotal(),
+			"iFilteredTotal" : oSettings.fnRecordsDisplay(),
+			"iPage" : oSettings._iDisplayLength === -1 ? 0 : Math
+					.ceil(oSettings._iDisplayStart / oSettings._iDisplayLength),
+			"iTotalPages" : oSettings._iDisplayLength === -1 ? 0 : Math
+					.ceil(oSettings.fnRecordsDisplay()
+							/ oSettings._iDisplayLength)
+=======
 	jQuery.fn.dataTableExt.oApi.fnPagingInfo = function (oSettings) {
 		return {
 			"iStart": oSettings._iDisplayStart,
@@ -19,12 +40,114 @@
 			"iTotalPages": oSettings._iDisplayLength === -1 ? 0 : Math
 				.ceil(oSettings.fnRecordsDisplay()
 					/ oSettings._iDisplayLength)
+>>>>>>> pankaj/main
 		};
 	};
 	var t = null;
 	function fetchWorkList() {
 
 		t = $("#dynamic-table")
+<<<<<<< HEAD
+				.DataTable(
+						{
+							"processing" : true,
+							"serverSide" : true,
+							"sort" : "position",
+							//bStateSave variable you can use to save state on client cookies: set value "true" 
+							"bStateSave" : false,
+							//Default: Page display length
+							"iDisplayLength" : 10,
+							//We will use below variable to track page number on server side(For more information visit: http://legacy.datatables.net/usage/options#iDisplayStart)
+							"iDisplayStart" : 0,
+							"pagingType" : "full_numbers",
+							"aaSorting" : [],
+							/* "dom" : 'Blrtip', */
+							"dom" : "<'row'<'col-12 datatbl-top'lB>>"
+									+ "<'row'<'col-md-6'r><'col-md-6'>>"
+									+ "<'row'<'col-md-12't>><'row'<'col-md-6'i><'col-md-6'p>>",
+							"buttons" : [
+									{
+										extend : 'excelHtml5',
+										title : 'Work_data',
+										text : '<span class="fa fa-file-excel-o"></span> Excel Export',
+										exportOptions : {
+											columns : [ 0, 1, 2, 3, 4, 5, 6 ]
+										}
+									}, ],
+							"lengthMenu" : [ [ 10, 25, 50, 100000 ],
+									[ 10, 25, 50, "All" ] ],
+
+							"fnDrawCallback" : function() {
+
+								angular.element('#StartOrFinishSpinnerId')
+										.scope().startOrStopSpinner(false);
+
+								//Get page numer on client. Please note: number start from 0 So
+								//for the first page you will see 0 second page 1 third page 2...
+								//Un-comment below alert to see page number
+								//alert("Current page number: "+this.fnPagingInfo().iPage);    
+							},
+							"fnServerParams" : function(aoData) {
+								aoData.push({
+									"name" : "searchBoxVal",
+									"value" : $('#searchBox').val()
+								});
+								aoData.push({
+									"name" : "designation",
+									"value" : $('#designation').val()
+								});
+								aoData.push({
+									"name" : "status",
+									"value" : $('#status').val()
+								});
+							},
+							"fnCreatedRow" : function(nRow, aData, iDataIndex) {
+								
+								/* $('td:eq(3)', nRow)
+								.html( (aData.agencyName)?aData.agencyName: "-"); */
+								
+								$('td:eq(6)', nRow)
+										.html( (aData.workRequestStatusId == 1 ? '<a class="btn btn-xs btn-primary" data-toggle="tooltip" data-placement="top" title="View/Edit" href="#editWorkRequisitionDataRoute/'+aData.workId+'"><i class="fa fa-pencil"></i></a>'
+												: ""));
+								/* $('td:eq(6)', nRow)
+								.append(
+										(aData.status == 'Active' ? 	'<a class="btn btn-xs btn-danger" data-toggle="tooltip" data-placement="top" title="Delete" onclick="return deleteWork('
+												+ aData.workId
+												+ ');" href=""><i class="fa fa-trash-o"></i></a> ' : "")); */
+							},
+							"fnRowCallback" : function(nRow, aData,
+									iDisplayIndex, iDisplayIndexFull) {
+								/* $('td:eq(0)', nRow)
+										.html(
+												(this.fnPagingInfo().iPage
+								 * this.fnPagingInfo().iLength + (iDisplayIndex + 1))); */
+							},
+
+							"language" : {
+								searchPlaceholder : ""
+							},
+							"sAjaxSource" : "fetchTechnicalSanctionList",
+
+							"columns" : [ {
+								"data" : "index",
+								"bSortable" : false
+							}, {
+								"data" : "workName"
+							},  {
+								"data" : "workTypeName",
+								"bSortable" : false
+							}, {
+								"data" : "workSubTypeName",
+								"bSortable" : false
+							},{
+								"data" : "lineDepartmentName",
+								"bSortable" : false
+							},{
+								"data" : "districtName",
+								"bSortable" : false
+							},
+							
+=======
 			.DataTable(
 				{
 					"processing": true,
@@ -124,6 +247,7 @@
 						"bSortable": false
 					},
 
+>>>>>>> pankaj/main
 							/* {
 								"data" : "accountHead",
 								"bSortable" : false
@@ -137,6 +261,15 @@
 								"data" : "totalCostString",
 								"bSortable" : false
 							},*/{
+<<<<<<< HEAD
+								"data" : null,
+								"bSortable" : false
+							} ],
+
+						});
+	}
+	
+=======
 						"data": null,
 						"bSortable": false
 					}],
@@ -144,20 +277,32 @@
 				});
 	}
 
+>>>>>>> pankaj/main
 	function deleteWork(id) {
 
 		/* return angular.element(document.getElementById('CommonController')).scope()
 				.deleteInward(id); */
+<<<<<<< HEAD
+			return $('#page-div').scope().deleteWork(id);
+=======
 		return $('#page-div').scope().deleteWork(id);
+>>>>>>> pankaj/main
 	}
 	function reDraw() {
 		t.draw();
 	}
 
+<<<<<<< HEAD
+	$('#filter-btn').click(function() {
+		$('#filters').fadeToggle(300);
+	});
+	$('.filter-close').click(function(e) {
+=======
 	$('#filter-btn').click(function () {
 		$('#filters').fadeToggle(300);
 	});
 	$('.filter-close').click(function (e) {
+>>>>>>> pankaj/main
 		e.preventDefault();
 		$(this).parent('#filters').fadeOut(300);
 	});
@@ -167,7 +312,11 @@
 		$('#searchForm').submit();
 	}); */
 	var filter_box = $('#filters');
+<<<<<<< HEAD
+	$(document).mouseup(function(e) {
+=======
 	$(document).mouseup(function (e) {
+>>>>>>> pankaj/main
 		if (!filter_box.is(e.target) && filter_box.has(e.target).length === 0) {
 			$('#filters:visible').fadeOut('300');
 		}
@@ -181,14 +330,24 @@
 <div id="page-div">
 	<!-- Breadcrumb -->
 	<ol class="breadcrumb">
+<<<<<<< HEAD
+		<li class="breadcrumb-item"><a href="#dashboard"><span
+				th:text="#{home}">Home</span></a></li>
+=======
 		<li class="breadcrumb-item"><a href="#dashboard"><span th:text="#{home}">Home</span></a></li>
+>>>>>>> pankaj/main
 		<li class="breadcrumb-item active"><span th:text="#{technicalSanctionList}">Technical Sanction List</span></li>
 
 		<!-- Breadcrumb Menu-->
 		<li class="breadcrumb-menu d-md-down-none">
 			<div class="btn-group" role="group" aria-label="Button group">
+<<<<<<< HEAD
+				<a class="btn" data-ng-click="doTheBack()"><i
+					class="icon-arrow-left-circle"></i> &nbsp;<span th:text="#{back}">Back</span></a>
+=======
 				<a class="btn" data-ng-click="doTheBack()"><i class="icon-arrow-left-circle"></i> &nbsp;<span
 						th:text="#{back}">Back</span></a>
+>>>>>>> pankaj/main
 			</div>
 		</li>
 	</ol>
@@ -198,13 +357,23 @@
 				<div class="col-md-12">
 					<div class="card">
 						<div class="card-header">
+<<<<<<< HEAD
+							<i class="fa fa-folder-open-o"></i> <span
+								th:text="#{technicalSanctionList}">Technical Sanction List</span>
+=======
 							<i class="fa fa-folder-open-o"></i> <span th:text="#{technicalSanctionList}">Technical
 								Sanction List</span>
+>>>>>>> pankaj/main
 						</div>
 						<div class="card-body">
 							<div class="row">
 								<div class="col-md-12">
+<<<<<<< HEAD
+									<div data-ng-if="responseObject.successMessage != null"
+										class="text-success">
+=======
 									<div data-ng-if="responseObject.successMessage != null" class="text-success">
+>>>>>>> pankaj/main
 										<strong>Success!</strong>
 										<p>{{responseObject.successMessage}}</p>
 									</div>
@@ -304,5 +473,9 @@
 	</div>
 	<!-- /.container-fluid -->
 </div>
+<<<<<<< HEAD
+</html>
+=======
 
 </html>
+>>>>>>> pankaj/main

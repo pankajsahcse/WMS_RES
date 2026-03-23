@@ -167,11 +167,12 @@ public class WorkEstimation extends Auditable implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date letterNoDate;
 
-//	@Transient
 	@Column(name = "has_non_sor_items")
 	private Boolean hasNonSorItems = false;
 	
-//	@Transient
+
+	
+
 	@Column(name = "ten_percent_check")
 	private Boolean tenPercentCheck = false;
 	 
